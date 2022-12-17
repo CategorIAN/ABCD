@@ -1,0 +1,6 @@
+Name,Have,Lend,Borrow,Rent,Cost,Going,Lenders
+Andrea Jones,{'board'},set(),"{'kayak', 'tube'}",{'tube'},0,TRUE,set()
+Caleb Baker,set(),set(),set(),{'board'},0,TRUE,set()
+Catherine Koenen,"{'kayak', 'board'}",{'board'},set(),set(),0,TRUE,set()
+Erika Johnson,{'board'},set(),set(),set(),0,TRUE,set()
+Ian Kessler,{'board'},set(),set(),set(),0,TRUE,set()
