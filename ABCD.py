@@ -1,6 +1,8 @@
 import pandas as pd
 import numpy as np
 from People import People
+import os
+from copy import copy
 
 
 class ABCD:
@@ -19,6 +21,8 @@ class ABCD:
         self.games()
         self.game_types()
         self.guest_games()
+        self.countMeals()
+        self.countAllergies()
         self.df = self.stringDF(df)
 
 
@@ -95,6 +99,32 @@ class ABCD:
         gg = gg.filter(items = index, axis=0).reset_index(drop=True)
         self.gg = pd.DataFrame(gg)
 
+    def countMeals(self):
+        meals = {}
+        meals['Name'] = self.active['Name']
+        total = {'Name': 'Total'}
+        for meal in self.meals:
+            t = 0
+            a = []
+            for i in range(self.active.shape[0]):
+                b = int(meal in self.active.at[i, 'Meals'])
+                a.append(b)
+                t += b
+            meals[meal] = a
+            total[meal] = t
+        self.gt = pd.DataFrame(meals).append(total, ignore_index=True)
+        self.gt.to_csv(self.directory + "ABCD_meals.csv")
+
+    def countAllergies(self):
+        self.allergy_df = pd.DataFrame(index = self.active.index, columns=self.allergies)
+        self.allergy_df.insert(0, 'Name', self.active['Name'])
+        for i in range(self.active.shape[0]):
+            their_allergies = copy(self.active.at[i, 'Allergies'])
+            print(their_allergies)
+            print(pd.Series(self.allergies).map(lambda allergy: int(allergy in their_allergies)))
+            self.allergy_df.loc[i, self.allergies] = pd.Series(self.allergies).map(lambda allergy: int(allergy in their_allergies)).values
+        self.allergy_df.to_csv(self.directory + "ABCD_allergies.csv")
+
     def setDF(self, df) -> pd.DataFrame:
         def toSet(string):
             s = set()
@@ -142,7 +172,7 @@ class ABCD:
           'If so, which games would you enjoy bringing? (You would be responsible for bringing the game and explaining ' \
           'the rules.)'
 
-    meals = 'Which of my signature meals would you be willing to eat at events?'
+    meals_q = 'Which of my signature meals would you be willing to eat at events?'
     allergies = 'What are your food allergies?'
     bring_food = 'What food and/or drinks would you be willing to bring to a gaming event?'
 
@@ -150,15 +180,23 @@ class ABCD:
                'of details for events. Which of these group communication platforms would you be willing to use?'
 
     rename_columns = {time_stamp: 'Timestamp', email: 'Email', name: 'Name', status_q: 'Status', games_q: 'Games',
-                      game_types_q: 'Game_Types', max_hours: 'Max_Hours', commit: 'Commit', own: 'Own', meals: 'Meals',
+                      game_types_q: 'Game_Types', max_hours: 'Max_Hours', commit: 'Commit', own: 'Own', meals_q: 'Meals',
                       allergies: 'Allergies', bring_food: 'Bring_Food', platform: 'Platform'}
 
     hours = ["11:00 AM to 12:00 PM", "12:00 PM to 1:00 PM", "1:00 PM to 2:00 PM", "2:00 PM to 3:00 PM",
              "3:00 PM to 4:00 PM", "4:00 PM to 5:00 PM", "5:00 PM to 6:00 PM", "6:00 PM to 7:00 PM"]
     question = "What times are you possibly available to play games?"
 
+    meals = ['Chicken Cacciatore', 'Halibut in Lemon Wine Sauce', 'Hot Crab Dip', 'Peanut Butter Hummus',
+            'Quinoa Lentil Berry Salad', 'Rosemary Pork and Mushrooms', 'Spaghetti and Classic Marinara Sauce',
+             'Spinach and Artichoke Dip', 'Sweet Potato Casserole']
+
+    allergies = ['Gluten', 'Dairy', 'Peanuts', 'Shellfish']
+
     for i in range(len(hours)):
         rename_columns["{} [{}]".format(question, hours[i])] = hours[i].partition(' to')[0]
+
+    directory = os.getcwd() + '\\' + 'ABCD' + '\\'
 
 
 
