@@ -23,7 +23,8 @@ class ABCD:
         self.guest_games()
         self.countMeals()
         self.countAllergies()
-        self.df = self.stringDF(df)
+        features = {'Games', 'Game_Types', 'Meals', 'Allergies', 'Platform'}
+        self.df = self.stringDF(df, features)
 
 
     def status(self, df):
@@ -51,7 +52,7 @@ class ABCD:
                         t += b
                 av["{} [{}]".format(day, h)] = a
                 total["{} [{}]".format(day, h)] = t
-        self.av = pd.DataFrame(av).append(total, ignore_index = True)
+        self.av = pd.concat([pd.DataFrame(av), pd.DataFrame(total, index = [self.active.shape[0]])])
 
     def games(self):
         g = {}
@@ -66,7 +67,7 @@ class ABCD:
                 t += b
             g[game] = a
             total[game] = t
-        self.g = pd.DataFrame(g).append(total, ignore_index=True)
+        self.g = pd.concat([pd.DataFrame(g), pd.DataFrame(total, index=[self.active.shape[0]])])
 
     def game_types(self):
         gt = {}
@@ -82,7 +83,7 @@ class ABCD:
                 t += b
             gt[type] = a
             total[type] = t
-        self.gt = pd.DataFrame(gt).append(total, ignore_index=True)
+        self.gt = pd.concat([pd.DataFrame(gt), pd.DataFrame(total, index=[self.active.shape[0]])])
 
     def guest_games(self):
         gg = {}
@@ -112,18 +113,24 @@ class ABCD:
                 t += b
             meals[meal] = a
             total[meal] = t
-        self.gt = pd.DataFrame(meals).append(total, ignore_index=True)
-        self.gt.to_csv(self.directory + "ABCD_meals.csv")
+        self.meals_df = pd.concat([pd.DataFrame(meals), pd.DataFrame(total, index=[self.active.shape[0]])])
+        self.meals_df.to_csv(self.directory + "ABCD_meals.csv")
+
+
 
     def countAllergies(self):
         self.allergy_df = pd.DataFrame(index = self.active.index, columns=self.allergies)
+        extra_allergies = {}
         self.allergy_df.insert(0, 'Name', self.active['Name'])
         for i in range(self.active.shape[0]):
             their_allergies = copy(self.active.at[i, 'Allergies'])
-            print(their_allergies)
-            print(pd.Series(self.allergies).map(lambda allergy: int(allergy in their_allergies)))
             self.allergy_df.loc[i, self.allergies] = pd.Series(self.allergies).map(lambda allergy: int(allergy in their_allergies)).values
+            other = their_allergies.difference(set(self.allergies))
+            if len(other) > 0: extra_allergies[self.active.at[i, 'Name']] = other
         self.allergy_df.to_csv(self.directory + "ABCD_allergies.csv")
+        self.extra_allergies = pd.DataFrame(pd.Series(data = extra_allergies, name = 'Allergies'))
+        self.extra_allergies = self.stringDF(self.extra_allergies, {'Allergies'}).reset_index(names=['Name'])
+        self.extra_allergies.to_csv(self.directory + "ABCD_extra_allergies.csv")
 
     def setDF(self, df) -> pd.DataFrame:
         def toSet(string):
@@ -136,13 +143,13 @@ class ABCD:
             df[column] = df[column].apply(lambda x: toSet(x))
         return df
 
-    def stringDF(self, df) -> pd.DataFrame:
+    def stringDF(self, df, features) -> pd.DataFrame:
         def toString(ss):
             string = ""
             for s in ss:
                 string = string + s + ", "
             return string.strip(", ")
-        for column in {'Games', 'Game_Types', 'Meals', 'Allergies', 'Platform'}:
+        for column in features:
                 df[column] = df[column].apply(toString)
         return df
 

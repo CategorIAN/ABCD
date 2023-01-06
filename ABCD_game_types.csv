@@ -1,29 +1,29 @@
-,Name,Chicken Cacciatore,Halibut in Lemon Wine Sauce,Hot Crab Dip,Peanut Butter Hummus,Quinoa Lentil Berry Salad,Rosemary Pork and Mushrooms,Spaghetti and Classic Marinara Sauce,Spinach and Artichoke Dip,Sweet Potato Casserole
-0,Alicia Clark,1,1,1,0,0,1,1,1,1
-1,Caleb,1,1,1,1,1,1,1,1,1
-2,Ciara,1,1,1,1,1,1,0,1,1
-3,Clete Seyle,1,1,1,0,1,0,1,1,1
-4,Daniel Flavin,1,1,1,1,1,1,1,1,1
-5,Doug Hicks,1,1,1,1,1,1,1,1,1
-6,Emily Warren,0,0,0,0,0,0,1,1,0
-7,Erika Johnson,1,1,1,1,1,1,1,1,0
-8,Ethan Skelton,1,1,0,0,0,1,1,1,1
-9,Evan Anderson,1,1,1,1,1,1,1,1,1
-10,Hannah Harris ,1,1,1,0,1,1,1,1,1
-11,Heather Stevenson,1,1,1,1,1,1,1,1,1
-12,Ian Kessler,1,1,1,1,1,1,1,1,1
-13,Jake Baleat,1,0,1,1,1,1,1,1,1
-14,James Parker ,1,1,1,1,1,1,1,1,1
-15,Josh Bartling,1,1,0,1,1,0,1,1,1
-16,Kelly Cornell,0,0,0,0,0,0,0,0,0
-17,Kennan Krause,1,1,1,0,0,1,0,1,0
-18,Lilly Ball,1,1,1,0,1,1,1,1,0
-19,Lisa Forsman,1,1,0,0,0,1,1,0,0
-20,Madi Szobozslay,0,0,1,0,1,0,1,1,0
-21,Molli Weiner,1,0,1,1,0,0,1,1,1
-22,Sam Hale,1,1,1,1,1,1,1,1,1
-23,Sarah Hale,0,0,0,0,1,0,0,0,0
-24,Sarah Nitche,1,1,0,0,0,1,1,1,1
-25,Steve Aubrecht,1,0,1,0,0,0,1,0,0
-26,Thomas Lipinski,1,1,1,1,1,1,1,1,1
-27,Total,23,20,20,14,18,19,23,23,18
+,Name,Abstract,Customizable,Family,Party,Strategy,Thematic,Wargames
+0,Alicia Clark,0,0,1,1,0,0,0
+1,Caleb,0,0,1,1,1,0,0
+2,Ciara,0,0,1,1,1,0,0
+3,Clete Seyle,0,0,0,1,1,0,0
+4,Daniel Flavin,0,0,0,1,1,0,1
+5,Doug Hicks,0,0,0,0,1,0,0
+6,Emily Warren,0,1,1,0,1,1,0
+7,Erika Johnson,0,1,1,1,0,0,0
+8,Ethan Skelton,0,1,1,1,1,0,1
+9,Evan Anderson,1,1,1,1,1,1,1
+10,Hannah Harris ,0,0,1,1,0,1,0
+11,Heather Stevenson,1,1,1,1,1,1,0
+12,Ian Kessler,1,0,1,1,1,1,1
+13,Jake Baleat,0,0,1,0,1,0,0
+14,James Parker ,1,1,1,1,1,1,1
+15,Josh Bartling,0,1,1,1,1,0,0
+16,Kelly Cornell,0,0,0,1,1,0,0
+17,Kennan Krause,0,0,1,1,1,0,0
+18,Lilly Ball,0,0,0,1,1,0,0
+19,Lisa Forsman,0,0,1,1,0,1,0
+20,Madi Szobozslay,0,0,1,1,1,1,0
+21,Molli Weiner,0,1,1,1,1,1,0
+22,Sam Hale,1,0,0,1,1,1,1
+23,Sarah Hale,0,0,0,1,0,0,0
+24,Sarah Nitche,0,0,1,1,0,0,0
+25,Steve Aubrecht,0,0,0,0,1,0,1
+26,Thomas Lipinski,0,0,0,0,1,1,0
+27,Total,5,8,18,22,21,11,7
