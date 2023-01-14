@@ -2,19 +2,31 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="9c08bafb-0bf2-4a30-b5c6-89706a752b3a" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/Administration.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
+      <change afterPath="$PROJECT_DIR$/ABCD_Form.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ABCD.py" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ABCD/ABCD_allergies.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD/ABCD_allergies.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ABCD/ABCD_extra_allergies.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD/ABCD_extra_allergies.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ABCD/ABCD_meals.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD/ABCD_meals.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ABCD_General.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD_General.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ABCD_availability.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD_availability.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ABCD_cleaned.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD_cleaned.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ABCD_game_types.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD_game_types.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ABCD_games.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD_games.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ABCD_guestgames.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD_guestgames.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Form.py" beforeDir="false" afterPath="$PROJECT_DIR$/Form.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -27,13 +39,13 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "last_opened_file_path": "C:/Users/Ian/PycharmProjects/Toggl"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Ian/PycharmProjects/Administration&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager">
     <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Administration" />
