@@ -4,12 +4,10 @@
     <list default="true" id="9c08bafb-0bf2-4a30-b5c6-89706a752b3a" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ABCD.py" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ABCD/ABCD_allergies.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD/ABCD_allergies.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ABCD/ABCD_extra_allergies.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD/ABCD_extra_allergies.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ABCD/ABCD_guestfood.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD/ABCD_guestfood.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ABCD_Form.py" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD_Form.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ABCD_availability.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD_availability.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ABCD_cleaned.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD_cleaned.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ABCD_guestgames.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD_guestgames.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

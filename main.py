@@ -92,11 +92,7 @@ def updateInventory():
 def Gaming():
     df = pd.read_csv("ABCD_General.csv")
     A = ABCD(df)
-    A.df.to_csv("ABCD_cleaned.csv")
-    A.av.to_csv("ABCD_availability.csv")
-    A.g.to_csv("ABCD_games.csv")
-    A.gt.to_csv("ABCD_game_types.csv")
-    A.gg.to_csv("ABCD_guestgames.csv")
+
 
 def GuestGames():
     df = pd.read_csv(os.getcwd() + '\\' + 'Raw Data' + '\\' + "GG_rawdata.csv")

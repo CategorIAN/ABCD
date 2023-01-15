@@ -16,17 +16,17 @@ class ABCD (Form):
         df = df.fillna("")
         df = self.setDF(df, self.F.set_features)
         df = self.removeDuplicates(df)
-        df = self.status(df)
-        self.active = df[df['Status'] == 'Active'].reset_index(drop=True)
+        self.status(df)
         self.availability()
         self.games()
         self.game_types()
         self.guest_games()
         self.meals()
-        self.countAllergies()
+        self.allergies()
         self.guest_food()
         self.platforms()
         self.df = self.stringDF(df, self.F.set_features)
+        self.df.to_csv("ABCD_cleaned.csv")
 
     ### Multiple Choice Questions---------------------------------------------------------------------------------------
     def status(self, df):
@@ -37,7 +37,7 @@ class ABCD (Form):
                         'whenever you want.)'
         d = {active: 'Active', not_now: "Not_Now", please_remove: 'Please_Remove'}
         df['Status'] = df['Status'].map(d)
-        return df
+        self.active = df[df['Status'] == 'Active'].reset_index(drop=True)
 
     ### Checkbox Questions-----------------------------------------------------------------------------------------------
     def games(self, append = True):
@@ -46,6 +46,7 @@ class ABCD (Form):
         if append:
             total = dict([('Name', 'Total')] + [(col, self.g[col].sum()) for col in self.g.columns[1:]])
             self.g = pd.concat([self.g, pd.DataFrame(total, index=[self.g.shape[0]])])
+        self.g.to_csv("ABCD_games.csv")
 
     def game_types(self, append = True):
         x = pd.Series(self.F.game_types).map(lambda gt: (gt, self.active['Game_Types'].map(lambda s: int(gt in s))))
@@ -53,6 +54,7 @@ class ABCD (Form):
         if append:
             total = dict([('Name', 'Total')] + [(col, self.gt[col].sum()) for col in self.gt.columns[1:]])
             self.gt = pd.concat([self.gt, pd.DataFrame(total, index=[self.gt.shape[0]])])
+        self.gt.to_csv("ABCD_game_types.csv")
 
     def meals(self, append = True):
         x = pd.Series(self.F.meals).map(lambda m: (m, self.active['Meals'].map(lambda s: int(m in s))))
@@ -78,12 +80,14 @@ class ABCD (Form):
         if append:
             total = dict([("Name", "Total")] + [(col, self.av[col].sum()) for col in self.av.columns[1:]])
             self.av = pd.concat([self.av, pd.DataFrame(total, index=[self.av.shape[0]])])
+        self.av.to_csv("ABCD_availability.csv")
 
     ### Long Answer Questions------------------------------------------------------------------------------------------
     def guest_games(self):
         gg = self.active[['Name', 'Guest_Games']]
         gg = gg.loc[gg['Guest_Games'].map(lambda s: len(s) > 0)].reset_index(drop=True)
         self.gg = pd.DataFrame(gg)
+        self.gg.to_csv("ABCD_guestgames.csv")
 
     def guest_food(self):
         gf = self.active[['Name', 'Guest_Games']]
@@ -92,19 +96,18 @@ class ABCD (Form):
         self.gf.to_csv(self.directory + "ABCD_guestfood.csv")
 
     ### Checkbox Questions with Other-----------------------------------------------------------------------------------
-    def countAllergies(self):
-        self.allergy_df = pd.DataFrame(index = self.active.index, columns=self.F.allergies)
-        extra_allergies = {}
-        self.allergy_df.insert(0, 'Name', self.active['Name'])
-        for i in range(self.active.shape[0]):
-            their_allergies = copy(self.active.at[i, 'Allergies'])
-            self.allergy_df.loc[i, self.F.allergies] = pd.Series(self.F.allergies).map(lambda allergy: int(allergy in their_allergies)).values
-            other = their_allergies.difference(set(self.F.allergies))
-            if len(other) > 0: extra_allergies[self.active.at[i, 'Name']] = other
-        self.allergy_df.to_csv(self.directory + "ABCD_allergies.csv")
-        self.extra_allergies = pd.DataFrame(pd.Series(data = extra_allergies, name = 'Allergies'))
-        self.extra_allergies = self.stringDF(self.extra_allergies, {'Allergies'}).reset_index(names=['Name'])
-        self.extra_allergies.to_csv(self.directory + "ABCD_extra_allergies.csv")
+    def allergies(self, append = True):
+        x = pd.Series(self.F.allergies).map(lambda a: (a, self.active['Allergies'].map(lambda s: int(a in s))))
+        self.a = pd.DataFrame(dict([('Name', self.active['Name'])] + list(x)))
+        if append:
+            total = dict([('Name', 'Total')] + [(col, self.a[col].sum()) for col in self.a.columns[1:]])
+            self.a = pd.concat([self.a, pd.DataFrame(total, index=[self.a.shape[0]])])
+        self.a.to_csv(self.directory + "ABCD_allergies.csv")
+        y = self.active['Allergies'].map(lambda aa: aa.difference(set(self.F.allergies)))
+        self.ea = pd.DataFrame({'Name': self.active['Name'], 'Allergies': y})
+        self.ea = self.ea.loc[self.ea['Allergies'].map(lambda s: len(s) > 0)].reset_index(drop=True)
+        self.ea = self.stringDF(self.ea, {'Allergies'})
+        self.ea.to_csv(self.directory + "ABCD_extra_allergies.csv")
 
 
 
