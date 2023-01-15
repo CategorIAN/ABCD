@@ -22,13 +22,13 @@ class ABCD (Form):
         self.games()
         self.game_types()
         self.guest_games()
-        self.countMeals()
+        self.meals()
         self.countAllergies()
         self.guest_food()
-        self.countPlatforms()
+        self.platforms()
         self.df = self.stringDF(df, self.F.set_features)
 
-
+    ### Multiple Choice Questions---------------------------------------------------------------------------------------
     def status(self, df):
         active = '"I would like to be active in your group." (You will be invited to game events.)'
         not_now = '"I am not available to participate in games for this season." (You will not be invited to game ' \
@@ -39,75 +39,59 @@ class ABCD (Form):
         df['Status'] = df['Status'].map(d)
         return df
 
+    ### Checkbox Questions-----------------------------------------------------------------------------------------------
+    def games(self, append = True):
+        x = pd.Series(self.F.games).map(lambda g: (g, self.active['Games'].map(lambda s: int(g in s))))
+        self.g = pd.DataFrame(dict([('Name', self.active['Name'])] + list(x)))
+        if append:
+            total = dict([('Name', 'Total')] + [(col, self.g[col].sum()) for col in self.g.columns[1:]])
+            self.g = pd.concat([self.g, pd.DataFrame(total, index=[self.g.shape[0]])])
+
+    def game_types(self, append = True):
+        x = pd.Series(self.F.game_types).map(lambda gt: (gt, self.active['Game_Types'].map(lambda s: int(gt in s))))
+        self.gt = pd.DataFrame(dict([('Name', self.active['Name'])] + list(x)))
+        if append:
+            total = dict([('Name', 'Total')] + [(col, self.gt[col].sum()) for col in self.gt.columns[1:]])
+            self.gt = pd.concat([self.gt, pd.DataFrame(total, index=[self.gt.shape[0]])])
+
+    def meals(self, append = True):
+        x = pd.Series(self.F.meals).map(lambda m: (m, self.active['Meals'].map(lambda s: int(m in s))))
+        self.m = pd.DataFrame(dict([('Name', self.active['Name'])] + list(x)))
+        if append:
+            total = dict([('Name', 'Total')] + [(col, self.m[col].sum()) for col in self.m.columns[1:]])
+            self.m = pd.concat([self.m, pd.DataFrame(total, index=[self.m.shape[0]])])
+        self.m.to_csv(self.directory + "ABCD_meals.csv")
+
+    def platforms(self, append = True):
+        x = pd.Series(self.F.platforms).map(lambda p: (p, self.active['Platforms'].map(lambda s: int(p in s))))
+        self.p = pd.DataFrame(dict([('Name', self.active['Name'])] + list(x)))
+        if append:
+            total = dict([('Name', 'Total')] + [(col, self.p[col].sum()) for col in self.p.columns[1:]])
+            self.p = pd.concat([self.p, pd.DataFrame(total, index=[self.p.shape[0]])])
+        self.p.to_csv(self.directory + "ABCD_platforms.csv")
+
+    ### Checkbox Grid Questions----------------------------------------------------------------------------------------
     def availability(self, append = True):
         x = pd.Series(product(self.F.days, self.F.hours)).map(lambda dh: (dh[0], dh[1].partition(' to')[0]))
         y = x.map(lambda dh: ("{} [{}]".format(dh[0], dh[1]), self.active[dh[1]].map(lambda s: int(dh[0] in s))))
         self.av = pd.DataFrame(dict([('Name', self.active['Name'])] + list(y)))
         if append:
-            total = dict([("Name", "Total")] + [(col, self.av[col].sum()) for col in self.av.columns])
-            self.av = pd.concat([self.av, pd.DataFrame(total, index=[self.active.shape[0]])])
+            total = dict([("Name", "Total")] + [(col, self.av[col].sum()) for col in self.av.columns[1:]])
+            self.av = pd.concat([self.av, pd.DataFrame(total, index=[self.av.shape[0]])])
 
-    def games(self):
-        g = {}
-        g['Name'] = self.active['Name']
-        total = {'Name': 'Total'}
-        for game in ['Catan', 'Chess', 'Codenames', 'War of the Ring']:
-            t = 0
-            a = []
-            for i in range(self.active.shape[0]):
-                b = int(game in self.active.at[i, 'Games'])
-                a.append(b)
-                t += b
-            g[game] = a
-            total[game] = t
-        self.g = pd.concat([pd.DataFrame(g), pd.DataFrame(total, index=[self.active.shape[0]])])
-
-    def game_types(self):
-        gt = {}
-        gt['Name'] = self.active['Name']
-        total = {'Name': 'Total'}
-        for type in ['Abstract', 'Customizable', 'Family', 'Party', 'Strategy',
-                     'Thematic', 'Wargames']:
-            t = 0
-            a = []
-            for i in range(self.active.shape[0]):
-                b = int(type in self.active.at[i, 'Game_Types'])
-                a.append(b)
-                t += b
-            gt[type] = a
-            total[type] = t
-        self.gt = pd.concat([pd.DataFrame(gt), pd.DataFrame(total, index=[self.active.shape[0]])])
-
+    ### Long Answer Questions------------------------------------------------------------------------------------------
     def guest_games(self):
-        gg = {}
-        gg['Name'] = self.active['Name']
-        gg['Guest Games'] = self.active['Own']
-        gg = pd.DataFrame(gg)
-        index = []
-        for i in range(gg.shape[0]):
-            if len(gg.at[i, 'Guest Games']) > 0:
-                index.append(i)
-        gg = gg.filter(items = index, axis=0).reset_index(drop=True)
+        gg = self.active[['Name', 'Guest_Games']]
+        gg = gg.loc[gg['Guest_Games'].map(lambda s: len(s) > 0)].reset_index(drop=True)
         self.gg = pd.DataFrame(gg)
 
-    def countMeals(self):
-        meals = {}
-        meals['Name'] = self.active['Name']
-        total = {'Name': 'Total'}
-        for meal in self.F.meals:
-            t = 0
-            a = []
-            for i in range(self.active.shape[0]):
-                b = int(meal in self.active.at[i, 'Meals'])
-                a.append(b)
-                t += b
-            meals[meal] = a
-            total[meal] = t
-        self.meals_df = pd.concat([pd.DataFrame(meals), pd.DataFrame(total, index=[self.active.shape[0]])])
-        self.meals_df.to_csv(self.directory + "ABCD_meals.csv")
+    def guest_food(self):
+        gf = self.active[['Name', 'Guest_Games']]
+        gf = gf.loc[gf['Guest_Games'].map(lambda s: len(s) > 0)].reset_index(drop=True)
+        self.gf = pd.DataFrame(gf)
+        self.gf.to_csv(self.directory + "ABCD_guestfood.csv")
 
-
-
+    ### Checkbox Questions with Other-----------------------------------------------------------------------------------
     def countAllergies(self):
         self.allergy_df = pd.DataFrame(index = self.active.index, columns=self.F.allergies)
         extra_allergies = {}
@@ -122,34 +106,9 @@ class ABCD (Form):
         self.extra_allergies = self.stringDF(self.extra_allergies, {'Allergies'}).reset_index(names=['Name'])
         self.extra_allergies.to_csv(self.directory + "ABCD_extra_allergies.csv")
 
-    def guest_food(self):
-        gf = {}
-        gf['Name'] = self.active['Name']
-        gf['Guest Food'] = self.active['Guest_Food']
-        gf = pd.DataFrame(gf)
-        index = []
-        for i in range(gf.shape[0]):
-            if len(gf.at[i, 'Guest Food']) > 0:
-                index.append(i)
-        gf = gf.filter(items = index, axis=0).reset_index(drop=True)
-        self.gf = pd.DataFrame(gf)
-        self.gf.to_csv(self.directory + "ABCD_guestfood.csv")
 
-    def countPlatforms(self):
-        platforms = {}
-        platforms['Name'] = self.active['Name']
-        total = {'Name': 'Total'}
-        for platform in self.F.platforms:
-            t = 0
-            a = []
-            for i in range(self.active.shape[0]):
-                b = int(platform in self.active.at[i, 'Platforms'])
-                a.append(b)
-                t += b
-            platforms[platform] = a
-            total[platform] = t
-        self.F.platforms = pd.concat([pd.DataFrame(platforms), pd.DataFrame(total, index=[self.active.shape[0]])])
-        self.F.platforms.to_csv(self.directory + "ABCD_platforms.csv")
+
+
 
 
 

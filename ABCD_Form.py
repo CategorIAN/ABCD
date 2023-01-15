@@ -15,6 +15,8 @@ class ABCD_Form:
                      'Slack (slack.com)',
                      'Discord (discord.com)']
         self.set_features = {'Games', 'Game_Types', 'Meals', 'Allergies', 'Platforms'}
+        self.games = ['Catan', 'Chess', 'Codenames', 'War of the Ring']
+        self.game_types = ['Abstract', 'Customizable', 'Family', 'Party', 'Strategy', 'Thematic', 'Wargames']
 
     def column_name_transform(self, column):
         if column == "Email Address":
@@ -37,7 +39,7 @@ class ABCD_Form:
         if column == 'Are there games that you own and know how to play that you would enjoy bringing the game for game events? ' \
           'If so, which games would you enjoy bringing? (You would be responsible for bringing the game and explaining ' \
           'the rules.)':
-            return 'Own'
+            return 'Guest_Games'
         if column == 'Which of my signature meals would you be willing to eat at events?':
             return 'Meals'
         if column == 'What are your food allergies?':
@@ -54,9 +56,4 @@ class ABCD_Form:
 
     def grid_dict(self, question, rows, row_function):
         d = dict([("{} [{}]".format(question, row), row_function(row)) for row in rows])
-        def f(key):
-            if key in d:
-                return d[key]
-            else:
-                return key
-        return f
+        return lambda key: d[key] if key in d else key
