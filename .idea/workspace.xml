@@ -6,8 +6,13 @@
       <change beforePath="$PROJECT_DIR$/ABCD.py" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ABCD/ABCD_allergies.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD/ABCD_allergies.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ABCD/ABCD_extra_allergies.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD/ABCD_extra_allergies.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ABCD/ABCD_meals.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD/ABCD_meals.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ABCD/ABCD_platforms.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD/ABCD_platforms.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ABCD_General.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD_General.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ABCD_availability.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD_availability.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ABCD_cleaned.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD_cleaned.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ABCD_game_types.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD_game_types.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ABCD_games.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD_games.csv" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

@@ -25,7 +25,7 @@ class ABCD (Form):
         self.allergies()
         self.guest_food()
         self.platforms()
-        self.df = self.stringDF(df, self.F.set_features)
+        self.df = self.stringDF(df, self.F.set_features).sort_values(by=['Status', 'Name']).reset_index(drop=True)
         self.df.to_csv("ABCD_cleaned.csv")
 
     ### Multiple Choice Questions---------------------------------------------------------------------------------------
