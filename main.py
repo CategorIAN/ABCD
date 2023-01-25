@@ -101,13 +101,13 @@ def Gaming():
 def GuestGames():
     df = pd.read_csv(os.getcwd() + '\\' + 'Raw Data' + '\\' + "GG_rawdata.csv")
     GG = GuestGame(df)
-    GG.availability("Erika Johnson", "23.01")
+    GG.availability("Hannah Harris", "23.02")
 
 
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    Gaming()
+    GuestGames()
 
 
 

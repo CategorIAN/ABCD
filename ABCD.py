@@ -23,7 +23,7 @@ class ABCD:
         self.guest_games()
         self.countMeals()
         self.countAllergies()
-        self.df = self.stringDF(df)
+        self.df = self.stringDF(df).sort_values(by = ['Status', 'Name'])
 
 
     def status(self, df):
@@ -112,16 +112,16 @@ class ABCD:
                 t += b
             meals[meal] = a
             total[meal] = t
-        self.gt = pd.DataFrame(meals).append(total, ignore_index=True)
-        self.gt.to_csv(self.directory + "ABCD_meals.csv")
+        self.meals = pd.DataFrame(meals).append(total, ignore_index=True)
+        self.meals.to_csv(self.directory + "ABCD_meals.csv")
 
     def countAllergies(self):
         self.allergy_df = pd.DataFrame(index = self.active.index, columns=self.allergies)
         self.allergy_df.insert(0, 'Name', self.active['Name'])
         for i in range(self.active.shape[0]):
             their_allergies = copy(self.active.at[i, 'Allergies'])
-            print(their_allergies)
-            print(pd.Series(self.allergies).map(lambda allergy: int(allergy in their_allergies)))
+            #print(their_allergies)
+            #print(pd.Series(self.allergies).map(lambda allergy: int(allergy in their_allergies)))
             self.allergy_df.loc[i, self.allergies] = pd.Series(self.allergies).map(lambda allergy: int(allergy in their_allergies)).values
         self.allergy_df.to_csv(self.directory + "ABCD_allergies.csv")
 
