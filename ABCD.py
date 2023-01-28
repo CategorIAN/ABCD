@@ -43,72 +43,72 @@ class ABCD (Form):
     ### Checkbox Questions-----------------------------------------------------------------------------------------------
     def games(self, append = True):
         x = pd.Series(self.F.games).map(lambda g: (g, self.active['Games'].map(lambda s: int(g in s))))
-        self.g = pd.DataFrame(dict([('Name', self.active['Name'])] + list(x)))
+        df = pd.DataFrame(dict([('Name', self.active['Name'])] + list(x)))
         if append:
-            total = dict([('Name', 'Total')] + [(col, self.g[col].sum()) for col in self.g.columns[1:]])
-            self.g = pd.concat([self.g, pd.DataFrame(total, index=[self.g.shape[0]])])
-        self.save(self.g, "games")
+            total = dict([('Name', 'Total')] + [(col, df[col].sum()) for col in df.columns[1:]])
+            df = pd.concat([df, pd.DataFrame(total, index=[df.shape[0]])])
+        self.save(df, "games")
 
     def game_types(self, append = True):
         x = pd.Series(self.F.game_types).map(lambda gt: (gt, self.active['Game_Types'].map(lambda s: int(gt in s))))
-        self.gt = pd.DataFrame(dict([('Name', self.active['Name'])] + list(x)))
+        df = pd.DataFrame(dict([('Name', self.active['Name'])] + list(x)))
         if append:
-            total = dict([('Name', 'Total')] + [(col, self.gt[col].sum()) for col in self.gt.columns[1:]])
-            self.gt = pd.concat([self.gt, pd.DataFrame(total, index=[self.gt.shape[0]])])
-        self.save(self.gt, "game_types")
+            total = dict([('Name', 'Total')] + [(col, df[col].sum()) for col in df.columns[1:]])
+            df = pd.concat([df, pd.DataFrame(total, index=[df.shape[0]])])
+        self.save(df, "game_types")
 
     def meals(self, append = True):
         x = pd.Series(self.F.meals).map(lambda m: (m, self.active['Meals'].map(lambda s: int(m in s))))
-        self.m = pd.DataFrame(dict([('Name', self.active['Name'])] + list(x)))
+        df = pd.DataFrame(dict([('Name', self.active['Name'])] + list(x)))
         if append:
-            total = dict([('Name', 'Total')] + [(col, self.m[col].sum()) for col in self.m.columns[1:]])
-            self.m = pd.concat([self.m, pd.DataFrame(total, index=[self.m.shape[0]])])
-        self.save(self.m, "meals")
+            total = dict([('Name', 'Total')] + [(col, df[col].sum()) for col in df.columns[1:]])
+            df = pd.concat([df, pd.DataFrame(total, index=[df.shape[0]])])
+        self.save(df, "meals")
 
     def platforms(self, append = True):
         x = pd.Series(self.F.platforms).map(lambda p: (p, self.active['Platforms'].map(lambda s: int(p in s))))
-        self.p = pd.DataFrame(dict([('Name', self.active['Name'])] + list(x)))
+        df = pd.DataFrame(dict([('Name', self.active['Name'])] + list(x)))
         if append:
-            total = dict([('Name', 'Total')] + [(col, self.p[col].sum()) for col in self.p.columns[1:]])
-            self.p = pd.concat([self.p, pd.DataFrame(total, index=[self.p.shape[0]])])
-        self.save(self.p, "platforms")
+            total = dict([('Name', 'Total')] + [(col, df[col].sum()) for col in df.columns[1:]])
+            df = pd.concat([df, pd.DataFrame(total, index=[df.shape[0]])])
+        self.save(df, "platforms")
 
     ### Checkbox Grid Questions----------------------------------------------------------------------------------------
     def availability(self, append = True):
         x = pd.Series(product(self.F.days, self.F.hours)).map(lambda dh: (dh[0], dh[1].partition(' to')[0]))
         y = x.map(lambda dh: ("{} [{}]".format(dh[0], dh[1]), self.active[dh[1]].map(lambda s: int(dh[0] in s))))
-        self.av = pd.DataFrame(dict([('Name', self.active['Name'])] + list(y)))
+        df = pd.DataFrame(dict([('Name', self.active['Name'])] + list(y)))
         if append:
-            total = dict([("Name", "Total")] + [(col, self.av[col].sum()) for col in self.av.columns[1:]])
-            self.av = pd.concat([self.av, pd.DataFrame(total, index=[self.av.shape[0]])])
-        self.save(self.av, "availability")
+            total = dict([("Name", "Total")] + [(col, df[col].sum()) for col in df.columns[1:]])
+            self.av = pd.concat([df, pd.DataFrame(total, index=[df.shape[0]])])
+        self.save(df, "availability")
 
     ### Long Answer Questions------------------------------------------------------------------------------------------
     def guest_games(self):
         gg = self.active[['Name', 'Guest_Games']]
         gg = gg.loc[gg['Guest_Games'].map(lambda s: len(s) > 0)].reset_index(drop=True)
-        self.gg = pd.DataFrame(gg)
-        self.save(self.gg, "guest_games")
+        df = pd.DataFrame(gg)
+        self.save(df, "guest_games")
 
     def guest_food(self):
-        gf = self.active[['Name', 'Guest_Games']]
-        gf = gf.loc[gf['Guest_Games'].map(lambda s: len(s) > 0)].reset_index(drop=True)
-        self.gf = pd.DataFrame(gf)
-        self.save(self.gf, "guest_food")
+        gf = self.active[['Name', 'Guest_Food']]
+        gf = gf.loc[gf['Guest_Food'].map(lambda s: len(s) > 0)].reset_index(drop=True)
+        df = pd.DataFrame(gf)
+        self.save(df, "guest_food")
 
     ### Checkbox Questions with Other-----------------------------------------------------------------------------------
     def allergies(self, append = True):
         x = pd.Series(self.F.allergies).map(lambda a: (a, self.active['Allergies'].map(lambda s: int(a in s))))
-        self.a = pd.DataFrame(dict([('Name', self.active['Name'])] + list(x)))
+        df = pd.DataFrame(dict([('Name', self.active['Name'])] + list(x)))
         if append:
-            total = dict([('Name', 'Total')] + [(col, self.a[col].sum()) for col in self.a.columns[1:]])
-            self.a = pd.concat([self.a, pd.DataFrame(total, index=[self.a.shape[0]])])
-        self.save(self.a, "allergies")
+            total = dict([('Name', 'Total')] + [(col, df[col].sum()) for col in df.columns[1:]])
+            df = pd.concat([df, pd.DataFrame(total, index=[df.shape[0]])])
+        self.save(df, "allergies")
         y = self.active['Allergies'].map(lambda aa: aa.difference(set(self.F.allergies)))
-        self.ea = pd.DataFrame({'Name': self.active['Name'], 'Allergies': y})
-        self.ea = self.ea.loc[self.ea['Allergies'].map(lambda s: len(s) > 0)].reset_index(drop=True)
-        self.ea = self.stringDF(self.ea, {'Allergies'})
-        self.save(self.ea, "extra_allergies")
+        df = pd.DataFrame({'Name': self.active['Name'], 'Allergies': y})
+        df = df.loc[df['Allergies'].map(lambda s: len(s) > 0)].reset_index(drop=True)
+        df = self.stringDF(df, {'Allergies'})
+        self.save(df, "extra_allergies")
 
 
 
