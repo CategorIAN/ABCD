@@ -4,10 +4,22 @@
     <list default="true" id="fe6720e9-8316-47c2-b819-f5545ed4e3bf" name="Default Changelist" comment="Begin">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ABCD/ABCD_allergies.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD/ABCD_allergies.csv" afterDir="false" />
+<<<<<<< HEAD
       <change beforePath="$PROJECT_DIR$/ABCD/ABCD_guestfood.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD/ABCD_guestfood.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ABCD/ABCD_meals.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD/ABCD_meals.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ABCD/ABCD_platforms.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD/ABCD_platforms.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+=======
+      <change beforePath="$PROJECT_DIR$/ABCD/ABCD_availability.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD/ABCD_availability.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ABCD/ABCD_cleaned.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD/ABCD_cleaned.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ABCD/ABCD_game_types.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD/ABCD_game_types.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ABCD/ABCD_games.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD/ABCD_games.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ABCD/ABCD_guest_food.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD/ABCD_guest_food.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ABCD/ABCD_guest_games.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD/ABCD_guest_games.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ABCD/ABCD_meals.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD/ABCD_meals.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ABCD/ABCD_platforms.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD/ABCD_platforms.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Raw Data/ABCD_rawdata.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Raw Data/ABCD_rawdata.csv" afterDir="false" />
+>>>>>>> 1e2550a9e8296e0b4d87574f26e09b4d00b8beca
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

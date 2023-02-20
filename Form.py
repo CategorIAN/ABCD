@@ -1,9 +1,17 @@
 from People import People
 import pandas as pd
+import os
 
 
 
 class Form:
+    def __init__(self, name):
+        self.directory = os.getcwd() + '\\' + name + '\\'
+        self.name = name
+
+    def save(self, df, ext = None):
+        file = self.name if ext is None else "{}_{}".format(self.name, ext)
+        df.to_csv(self.directory + "{}.csv".format(file))
 
     def removeDuplicates(self, df):
         emails = set()
@@ -46,6 +54,7 @@ class Form:
         for column in features:
                 df[column] = df[column].apply(toString)
         return df
+
 
 
 
