@@ -90,7 +90,7 @@ def updateInventory():
     I.save()
 
 def Gaming():
-    df = pd.read_csv("ABCD_General.csv")
+    df = pd.read_csv(os.getcwd() + '\\' + 'Raw Data' + '\\' + "ABCD_rawdata.csv")
     A = ABCD(df)
 
 
@@ -103,7 +103,7 @@ def GuestGames():
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    GuestGames()
+    Gaming()
 
 
 

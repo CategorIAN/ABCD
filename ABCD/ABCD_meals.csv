@@ -5,53 +5,30 @@
 3,Clete Seyle,1,1,1,0,1,0,1,1,1
 4,Daniel Flavin,1,1,1,1,1,1,1,1,1
 5,Doug Hicks,1,1,1,1,1,1,1,1,1
-<<<<<<< HEAD
-6,Emily Warren,0,0,0,0,0,0,1,1,0
-7,Erika Johnson,1,1,1,1,1,1,1,1,0
-8,Ethan Skelton,1,1,0,0,0,1,1,1,1
-9,Evan Anderson,1,1,1,1,1,1,1,1,1
-10,Hannah Harris ,1,1,1,0,1,1,1,1,1
-11,Heather Stevenson,1,1,1,1,1,1,1,1,1
-12,Ian Kessler,1,1,1,1,1,1,1,1,1
-13,Jake Baleat,1,0,1,1,1,1,1,1,1
-14,James Parker ,1,1,1,1,1,1,1,1,1
-15,Josh Bartling,1,1,0,1,1,0,1,1,1
-16,Kelly Cornell,0,0,0,0,0,0,0,0,0
-17,Kennan Krause,1,1,1,0,0,1,0,1,0
-18,Lilly Ball,1,1,1,0,1,1,1,1,0
-19,Lisa Forsman,1,1,0,0,0,1,1,0,0
-20,Madi Szobozslay,0,0,1,0,1,0,1,1,0
-21,Molli Weiner,1,0,1,1,0,0,1,1,1
-22,Sam Hale,1,1,1,1,1,1,1,1,1
-23,Sarah Hale,0,0,0,0,1,0,0,0,0
-24,Sarah Nitche,1,1,0,0,0,1,1,1,1
-25,Steve Aubrecht,1,0,1,0,0,0,1,0,0
-26,Thomas Lipinski,1,1,1,1,1,1,1,1,1
-27,Tim Trouten,1,1,1,1,1,1,1,1,1
-28,Total,24,21,21,15,19,20,24,24,19
-=======
 6,Emily Blom,1,1,1,1,1,1,1,1,1
 7,Emily Warren,0,0,0,0,0,0,1,1,0
-8,Erika Johnson,1,1,1,1,1,1,1,1,0
-9,Ethan Skelton,1,1,0,0,0,1,1,1,1
-10,Evan Anderson,1,1,1,1,1,1,1,1,1
-11,Hannah Harris ,1,1,1,0,1,1,1,1,1
-12,Heather Stevenson,1,1,1,1,1,1,1,1,1
-13,Ian Kessler,1,1,1,1,1,1,1,1,1
-14,Jake Baleat,1,0,1,1,1,1,1,1,1
-15,James Parker ,1,1,1,1,1,1,1,1,1
-16,Josh Bartling,1,1,0,1,1,0,1,1,1
-17,Kelly Cornell,0,0,0,0,0,0,0,0,0
-18,Kennan Krause,1,1,1,0,0,1,0,1,0
-19,Lilly Ball,1,1,1,0,1,1,1,1,0
-20,Lisa Forsman,1,1,0,0,0,1,1,0,0
-21,Madi Szobozslay,0,0,1,0,1,0,1,1,0
-22,Molli Weiner,1,0,1,1,0,0,1,1,1
-23,Sam Hale,1,1,1,1,1,1,1,1,1
-24,Sarah Hale,0,0,0,0,1,0,0,0,0
-25,Sarah Nitzsche,1,1,0,0,0,1,1,1,1
-26,Steve Aubrecht,1,0,1,0,0,0,1,0,0
-27,Thomas Lipinski,1,1,1,1,1,1,1,1,1
-28,Tim Trouten,1,1,1,1,1,1,1,1,1
-29,Total,25,22,22,16,20,21,25,25,20
->>>>>>> 5ddaa479e98e0798d10f43b3af8120af2cc71202
+8,Emma Kankelborg,1,1,1,0,1,1,1,1,1
+9,Erika Johnson,1,1,1,1,1,1,1,1,0
+10,Ethan Skelton,1,1,0,0,0,1,1,1,1
+11,Evan Anderson,1,1,1,1,1,1,1,1,1
+12,Hannah Harris ,1,1,1,0,1,1,1,1,1
+13,Heather Stevenson,1,1,1,1,1,1,1,1,1
+14,Ian Kessler,1,1,1,1,1,1,1,1,1
+15,Jake Baleat,1,0,1,1,1,1,1,1,1
+16,James Parker ,1,1,1,1,1,1,1,1,1
+17,Josh Bartling,1,1,0,1,1,0,1,1,1
+18,Kelly Cornell,0,0,0,0,0,0,0,0,0
+19,Kennan Krause,1,1,1,0,0,1,0,1,0
+20,Lilly Ball,1,1,1,0,1,1,1,1,0
+21,Lisa Forsman,1,1,0,0,0,1,1,0,0
+22,Madi Szobozslay,0,0,1,0,1,0,1,1,0
+23,Maria Gesior,1,1,0,1,1,0,1,1,1
+24,Molli Weiner,1,0,1,1,0,0,1,1,1
+25,Sam Hale,1,1,1,1,1,1,1,1,1
+26,Sarah Hale,0,0,0,0,1,0,0,0,0
+27,Sarah Nitzsche,1,1,0,0,0,1,1,1,1
+28,Stephen Johnson ,1,1,1,0,1,1,0,1,0
+29,Steve Aubrecht,1,0,1,0,0,0,1,0,0
+30,Thomas Lipinski,1,1,1,1,1,1,1,1,1
+31,Tim Trouten,1,1,1,1,1,1,1,1,1
+32,Total,28,25,24,17,23,23,27,28,22
