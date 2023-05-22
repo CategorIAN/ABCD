@@ -11,19 +11,12 @@ class GuestGame:
         df = df.fillna("")
         df = self.removeDuplicates(df)
         df = df.drop(['Timestamp'], axis=1)
-        df = self.addNames(df)
+        people = pd.read_csv(os.getcwd() + '\\' + 'Raw Data' + '\\' + "People.csv", index_col=0)
+        df = people.merge(right = df, how = 'inner', on = 'Email')
         df = df.sort_values(by='Name')
         df.reset_index(drop=True, inplace=True)
         self.df = df
         self.df.to_csv(self.directory + "GG_cleaned.csv")
-
-
-    def addNames(self, df):
-        P = People()
-        names = df['Email'].map(lambda email: P.df.at[email, "Name"])
-        df.insert(1, "Name", names)
-        return df
-
 
     def availability(self, name, month):
         i = self.df.loc[lambda df: df["Name"] == name].index[0]

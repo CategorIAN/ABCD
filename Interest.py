@@ -3,7 +3,6 @@ import numpy as np
 
 
 class Interest:
-
     def __init__(self, df):
         df = df.rename(self.rename_columns, axis=1)
         df = df.fillna("")
@@ -26,8 +25,6 @@ class Interest:
             return yy
 
         return f
-
-
 
     def notnull(self, f):
         def g(x):

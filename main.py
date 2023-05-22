@@ -8,6 +8,7 @@ from Inventory import Inventory
 from ABCD import ABCD
 from People import People
 from GuestGame import GuestGame
+from Availability import Availability
 import os
 
 
@@ -93,17 +94,20 @@ def Gaming():
     df = pd.read_csv(os.getcwd() + '\\' + 'Raw Data' + '\\' + "ABCD_rawdata.csv")
     A = ABCD(df)
 
-
 def GuestGames():
     df = pd.read_csv(os.getcwd() + '\\' + 'Raw Data' + '\\' + "GG_rawdata.csv")
     GG = GuestGame(df)
-    GG.availability("Erika Johnson", "23.01")
+    GG.availability("Maria Gesior", "23.06")
 
+def availability():
+    df = pd.read_csv(os.getcwd() + '\\' + 'ABCD' + '\\' + "ABCD_availability.csv")
+    Av = Availability(df)
+    Av.dayAvailability()
 
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    Gaming()
+    availability()
 
 
 
