@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
+<<<<<<< HEAD
     <list default="true" id="9c08bafb-0bf2-4a30-b5c6-89706a752b3a" name="Changes" comment="">
       <change afterPath="$PROJECT_DIR$/Availability.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
@@ -10,6 +11,27 @@
       <change beforePath="$PROJECT_DIR$/People.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Raw Data/GG_rawdata.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Raw Data/GG_rawdata.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+=======
+    <list default="true" id="fe6720e9-8316-47c2-b819-f5545ed4e3bf" name="Default Changelist" comment="Begin">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ABCD/ABCD_allergies.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD/ABCD_allergies.csv" afterDir="false" />
+<<<<<<< HEAD
+      <change beforePath="$PROJECT_DIR$/ABCD/ABCD_guestfood.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD/ABCD_guestfood.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ABCD/ABCD_meals.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD/ABCD_meals.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ABCD/ABCD_platforms.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD/ABCD_platforms.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+=======
+      <change beforePath="$PROJECT_DIR$/ABCD/ABCD_availability.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD/ABCD_availability.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ABCD/ABCD_cleaned.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD/ABCD_cleaned.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ABCD/ABCD_game_types.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD/ABCD_game_types.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ABCD/ABCD_games.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD/ABCD_games.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ABCD/ABCD_guest_food.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD/ABCD_guest_food.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ABCD/ABCD_guest_games.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD/ABCD_guest_games.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ABCD/ABCD_meals.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD/ABCD_meals.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ABCD/ABCD_platforms.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ABCD/ABCD_platforms.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Raw Data/ABCD_rawdata.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Raw Data/ABCD_rawdata.csv" afterDir="false" />
+>>>>>>> 1e2550a9e8296e0b4d87574f26e09b4d00b8beca
+>>>>>>> 0cab14573cfa28024b2d34d403d3dfe2058d54d3
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -26,21 +48,31 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="MarkdownSettingsMigration">
-    <option name="stateVersion" value="1" />
+  <component name="GitSEFilterConfiguration">
+    <file-type-list>
+      <filtered-out-file-type name="LOCAL_BRANCH" />
+      <filtered-out-file-type name="REMOTE_BRANCH" />
+      <filtered-out-file-type name="TAG" />
+      <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
+    </file-type-list>
   </component>
-  <component name="ProjectId" id="2J1H97OiI9SDJ9KA6N2c7fsWVFG" />
+  <component name="ProjectId" id="29d0bQfzwir4MYl0zQrdvJbX4ur" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/Ian/PycharmProjects/Administration&quot;
-  }
-}</component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../CSCI_532" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\ianho\PycharmProjects\Administration" />
+    </key>
+  </component>
   <component name="RunManager">
     <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Administration" />
@@ -49,9 +81,9 @@
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
-      <option name="SDK_HOME" value="C:\Users\Ian\anaconda3\envs\Toggl\python.exe" />
+      <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="false" />
+      <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main.py" />
@@ -72,12 +104,20 @@
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="9c08bafb-0bf2-4a30-b5c6-89706a752b3a" name="Changes" comment="" />
-      <created>1671238514495</created>
+      <changelist id="fe6720e9-8316-47c2-b819-f5545ed4e3bf" name="Default Changelist" comment="" />
+      <created>1653427725462</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1671238514495</updated>
+      <updated>1653427725462</updated>
     </task>
+    <task id="LOCAL-00001" summary="Begin">
+      <created>1671238110472</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1671238110472</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -90,5 +130,25 @@
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Begin" />
+    <option name="LAST_COMMIT_MESSAGE" value="Begin" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/Interest.py</url>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/main.py</url>
+          <line>104</line>
+          <option name="timeStamp" value="3" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>
