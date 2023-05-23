@@ -100,9 +100,10 @@ def GuestGames():
     GG.availability("Maria Gesior", "23.06")
 
 def availability():
-    df = pd.read_csv(os.getcwd() + '\\' + 'ABCD' + '\\' + "ABCD_availability.csv")
+    df = pd.read_csv("\\".join([os.getcwd(), 'ABCD', "ABCD_availability.csv"]), index_col = 0)
     Av = Availability(df)
-    Av.dayAvailability()
+    #Av.dayAvailability()
+    print(Av.gameAvailability("Sunday", 2))
 
 
 # Press the green button in the gutter to run the script.
