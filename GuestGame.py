@@ -75,8 +75,6 @@ class GuestGame:
             prompt = "{} (Weekend #{} of the Month) [{}]".format(avail_q, i, form_hours[j])
             rename_columns[prompt] = "{} (Weekend #{})".format(hours[j], i)
 
-
-
     directory = os.getcwd() + '\\' + 'Guest Games' + '\\'
 
 

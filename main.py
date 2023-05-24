@@ -103,17 +103,10 @@ def availability():
     df = pd.read_csv("\\".join([os.getcwd(), 'ABCD', "ABCD_availability.csv"]), index_col = 0)
     Av = Availability(df)
     #Av.dayAvailability()
-    print(Av.gameAvailability("Sunday", 2))
+    print(Av.gameAv(3))
 
 
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     availability()
 
 
-
-
-
-
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
