@@ -8,7 +8,7 @@ from Inventory import Inventory
 from ABCD import ABCD
 from People import People
 from GuestGame import GuestGame
-from Availability import Availability
+from Availability_General import Availability_General
 import os
 
 
@@ -101,9 +101,17 @@ def GuestGames():
 
 def availability():
     df = pd.read_csv("\\".join([os.getcwd(), 'ABCD', "ABCD_availability.csv"]), index_col = 0)
-    Av = Availability(df)
-    #Av.dayAvailability()
-    print(Av.gameAv(3))
+    Av = Availability()
+    Av.dayAvailability()
+    for i in [1, 2, 3]:
+        Av.gameAv(i)
+    for game in ["Codenames", "Catan"]:
+        Av.newbAv(game)
+
+def newb_availability():
+    df = pd.read_csv("\\".join([os.getcwd(), 'ABCD', "ABCD_availability.csv"]), index_col=0)
+    Av = Availability()
+    print(Av.newbAv("War of the Ring"))
 
 
 if __name__ == '__main__':

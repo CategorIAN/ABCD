@@ -14,6 +14,7 @@ class ABCD (Form):
         self.F = ABCD_Form()
         df = df.rename(self.F.column_name_transform, axis=1)
         df = df.fillna("")
+        df["Name"] = df["Name"].map(lambda name: name.strip())
         df = self.setDF(df, self.F.set_features)
         df = self.removeDuplicates(df)
         self.status(df)
