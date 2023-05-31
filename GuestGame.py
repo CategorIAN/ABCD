@@ -5,7 +5,6 @@ import os
 
 
 class GuestGame:
-
     def __init__(self, df):
         df = df.rename(self.rename_columns, axis=1)
         df = df.fillna("")

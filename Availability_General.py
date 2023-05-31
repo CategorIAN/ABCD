@@ -2,7 +2,6 @@ import os
 import pandas as pd
 from functools import reduce
 
-
 class Availability_General:
     def __init__(self):
         self.days = ["Friday", "Saturday", "Sunday"]

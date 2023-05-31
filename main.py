@@ -1,15 +1,16 @@
 import pandas as pd
 import numpy as np
+import os
 from Interest import Interest
 from JuneA import JuneA
 from JulyA import JulyA
 from Time import Time
 from Inventory import Inventory
 from ABCD import ABCD
-from People import People
 from GuestGame import GuestGame
 from Availability_General import Availability_General
-import os
+from Availability_Specific import Availability_Specific
+
 
 
 def toSet(string):
@@ -101,7 +102,7 @@ def GuestGames():
 
 def availability():
     df = pd.read_csv("\\".join([os.getcwd(), 'ABCD', "ABCD_availability.csv"]), index_col = 0)
-    Av = Availability()
+    Av = Availability_General()
     Av.dayAvailability()
     for i in [1, 2, 3]:
         Av.gameAv(i)
@@ -110,11 +111,15 @@ def availability():
 
 def newb_availability():
     df = pd.read_csv("\\".join([os.getcwd(), 'ABCD', "ABCD_availability.csv"]), index_col=0)
-    Av = Availability()
+    Av = Availability_General()
     print(Av.newbAv("War of the Ring"))
+
+def game_availability():
+    Av = Availability_Specific()
+    Av.availability2(["Ian Kessler"], "23.06")
 
 
 if __name__ == '__main__':
-    availability()
+    game_availability()
 
 
