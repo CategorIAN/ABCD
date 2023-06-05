@@ -47,7 +47,7 @@ class Availability_Specific:
             return df.index.map(lambda i: df.loc[i, hours].product())
         return f
 
-    def availability2(self, names, month, duration):
+    def availability(self, names, month, duration):
         index = self.df.loc[lambda df: df["Name"].isin(names)].index
         for wk in range(1, 5):
             wk_hours = self.wk_hours(wk)
@@ -72,26 +72,6 @@ class Availability_Specific:
             total = dict([("Name", "Total")] + [(col, gameAv_df[col].sum()) for col in gameAv_df.columns[2:]])
             gameAv_df = pd.concat([gameAv_df, pd.DataFrame(total, index=[gameAv_df.shape[0]])])
             gameAv_df.to_csv("\\".join([os.getcwd(), "Game Availability", month, "Wk{}_Availability.csv".format(wk)]))
-
-
-
-
-
-    def availability(self, name, month):
-        i = self.df.loc[lambda df: df["Name"] == name].index[0]
-        (game, min, max, get) = tuple(
-            self.df.loc[i, ["Guest Game", "Min Players", "Max Players", "Guest Invite Number"]])
-        for wk in range(1, 5):
-            av = {}
-            for day in ['Friday', 'Saturday', 'Sunday']:
-                a = []
-                for h in self.hours:
-                    wk_h = "{} (Weekend #{})".format(h, wk)
-                    b = int(day in self.df.at[i, wk_h])
-                    a.append(b)
-                av[day] = a
-            pd.DataFrame(av, index=self.hours).to_csv(self.directory + name + '\\' + month + '\\'
-                "{} On Weekend #{} (Min = {}, Max = {}, GuestGet = {}).csv".format(game, wk, min, max, get))
 
     def column_name_transform(self, column):
         if column == 'Timestamp':

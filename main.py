@@ -116,7 +116,7 @@ def newb_availability():
 
 def game_availability():
     Av = Availability_Specific()
-    Av.availability2(["Ian Kessler"], "23.06", 3)
+    Av.availability(["Steve Aubrecht"], "23.06", 3)
 
 
 if __name__ == '__main__':
