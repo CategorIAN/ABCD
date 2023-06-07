@@ -3,7 +3,6 @@ import pandas as pd
 from itertools import product
 #======My Classes=======================
 from Form import Form
-from ABCD_Form import ABCD_Form
 
 
 class General (Form):
@@ -24,11 +23,14 @@ class General (Form):
                           'Discord (discord.com)']
         self.games = ['Catan', 'Chess', 'Codenames', 'War of the Ring']
         self.game_types = ['Abstract', 'Customizable', 'Family', 'Party', 'Strategy', 'Thematic', 'Wargames']
+        self.set_features = {'Games', 'Game_Types', 'Meals', 'Allergies', 'Platforms'}
         #=============================================================================================================
-        super().__init__('ABCD', df, {'Games', 'Game_Types', 'Meals', 'Allergies', 'Platforms'})
-        self.F = ABCD_Form()
+        super().__init__('ABCD', df, self.set_features)
 
-        self.status(df)
+        self.df.to_csv("test1.csv")
+        self.status()
+        self.df.to_csv("test2.csv")
+        self.makeActive("Status", "Active")
         self.availability_df()
         self.games_df()
         self.game_types_df()
@@ -38,23 +40,23 @@ class General (Form):
         self.guest_food_df()
         self.platforms_df()
 
+
     ### Multiple Choice Questions---------------------------------------------------------------------------------------
-    def status(self, df):
-        active = '"I would like to be active in your group." (You will be invited to game events.)'
-        not_now = '"I am not available to participate in games for this season." (You will not be invited to game ' \
-                  'events, but you will be asked to update this survey at least once a year.)'
-        please_remove = '"I would like to be taken off of this gaming list." (You can ask to be put back on this list ' \
-                        'whenever you want.)'
-        d = {active: 'Active', not_now: "Not_Now", please_remove: 'Please_Remove'}
-        df['Status'] = df['Status'].map(d)
-        self.active = df[df['Status'] == 'Active'].reset_index(drop=True)
-        cleaned_df = self.stringDF(df, self.F.set_features).sort_values(by=['Status', 'Name']).reset_index(drop=True)
+    def status(self):
+        keys = ['"I would like to be active in your group." (You will be invited to game events.)',
+                '"I am not available to participate in games for this season." (You will not be invited to game ' \
+                'events, but you will be asked to update this survey at least once a year.)',
+                '"I would like to be taken off of this gaming list." (You can ask to be put back on this list ' \
+                'whenever you want.)']
+        values = ['Active', 'Not_Now', 'Please_Remove']
+        self.mult_choice("Status", keys, values)
+        cleaned_df = self.stringDF(self.df, self.set_features).sort_values(by=['Status', 'Name']).reset_index(drop=True)
         self.save(cleaned_df, "cleaned")
 
 
     ### Checkbox Questions-----------------------------------------------------------------------------------------------
     def games_df(self, append = True):
-        x = pd.Series(self.F.games).map(lambda g: (g, self.active['Games'].map(lambda s: int(g in s))))
+        x = pd.Series(self.games).map(lambda g: (g, self.active['Games'].map(lambda s: int(g in s))))
         df = pd.DataFrame(dict([('Name', self.active['Name'])] + list(x)))
         if append:
             total = dict([('Name', 'Total')] + [(col, df[col].sum()) for col in df.columns[1:]])
@@ -62,7 +64,7 @@ class General (Form):
         self.save(df, "games")
 
     def game_types_df(self, append = True):
-        x = pd.Series(self.F.game_types).map(lambda gt: (gt, self.active['Game_Types'].map(lambda s: int(gt in s))))
+        x = pd.Series(self.game_types).map(lambda gt: (gt, self.active['Game_Types'].map(lambda s: int(gt in s))))
         df = pd.DataFrame(dict([('Name', self.active['Name'])] + list(x)))
         if append:
             total = dict([('Name', 'Total')] + [(col, df[col].sum()) for col in df.columns[1:]])
@@ -70,7 +72,7 @@ class General (Form):
         self.save(df, "game_types")
 
     def meals_df(self, append = True):
-        x = pd.Series(self.F.meals).map(lambda m: (m, self.active['Meals'].map(lambda s: int(m in s))))
+        x = pd.Series(self.meals).map(lambda m: (m, self.active['Meals'].map(lambda s: int(m in s))))
         df = pd.DataFrame(dict([('Name', self.active['Name'])] + list(x)))
         if append:
             total = dict([('Name', 'Total')] + [(col, df[col].sum()) for col in df.columns[1:]])
@@ -78,7 +80,7 @@ class General (Form):
         self.save(df, "meals")
 
     def platforms_df(self, append = True):
-        x = pd.Series(self.F.platforms).map(lambda p: (p, self.active['Platforms'].map(lambda s: int(p in s))))
+        x = pd.Series(self.platforms).map(lambda p: (p, self.active['Platforms'].map(lambda s: int(p in s))))
         df = pd.DataFrame(dict([('Name', self.active['Name'])] + list(x)))
         if append:
             total = dict([('Name', 'Total')] + [(col, df[col].sum()) for col in df.columns[1:]])
@@ -87,7 +89,7 @@ class General (Form):
 
     ### Checkbox Grid Questions----------------------------------------------------------------------------------------
     def availability_df(self, append = True):
-        x = pd.Series(product(self.F.days, self.F.hours)).map(lambda dh: (dh[0], dh[1].partition(' to')[0]))
+        x = pd.Series(product(self.days, self.hours)).map(lambda dh: (dh[0], dh[1].partition(' to')[0]))
         y = x.map(lambda dh: ("{} [{}]".format(dh[0], dh[1]), self.active[dh[1]].map(lambda s: int(dh[0] in s))))
         df = pd.DataFrame(dict([('Name', self.active['Name'])] + list(y)))
         if append:
@@ -110,13 +112,13 @@ class General (Form):
 
     ### Checkbox Questions with Other-----------------------------------------------------------------------------------
     def allergies_df(self, append = True):
-        x = pd.Series(self.F.allergies).map(lambda a: (a, self.active['Allergies'].map(lambda s: int(a in s))))
+        x = pd.Series(self.allergies).map(lambda a: (a, self.active['Allergies'].map(lambda s: int(a in s))))
         df = pd.DataFrame(dict([('Name', self.active['Name'])] + list(x)))
         if append:
             total = dict([('Name', 'Total')] + [(col, df[col].sum()) for col in df.columns[1:]])
             df = pd.concat([df, pd.DataFrame(total, index=[df.shape[0]])])
         self.save(df, "allergies")
-        y = self.active['Allergies'].map(lambda aa: aa.difference(set(self.F.allergies)))
+        y = self.active['Allergies'].map(lambda aa: aa.difference(set(self.allergies)))
         df = pd.DataFrame({'Name': self.active['Name'], 'Allergies': y})
         df = df.loc[df['Allergies'].map(lambda s: len(s) > 0)].reset_index(drop=True)
         df = self.stringDF(df, {'Allergies'})

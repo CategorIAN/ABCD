@@ -9,9 +9,9 @@ class Form:
         self.name = name
         df = df.rename(self.column_name_transform, axis=1)
         df = df.fillna("")
-        df["Name"] = df["Name"].map(lambda name: name.strip())
         df = self.setDF(df, set_features)
         df = self.removeDuplicates(df)
+        self.df = df
 
     def save(self, df, ext = None):
         file = self.name if ext is None else "{}_{}".format(self.name, ext)
@@ -57,10 +57,23 @@ class Form:
             return string.strip(", ")
         for column in features:
                 df[column] = df[column].apply(toString)
+        """
+        def stringColumn(df, column):
+            return pd.DataFrame(df.to_dict()|{column:})
+        """
         return df
 
     def column_name_transform(self, column):
         pass
+
+    def makeActive(self, column, value):
+        self.active = self.df[self.df[column] == value].reset_index(drop=True)
+
+    def mult_choice(self, column, keys, values):
+        self.df[column] = self.df[column].map(dict(list(zip(keys, values))))
+
+
+
 
 
 
