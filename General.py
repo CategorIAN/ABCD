@@ -24,21 +24,24 @@ class General (Form):
         self.games = ['Catan', 'Chess', 'Codenames', 'War of the Ring']
         self.game_types = ['Abstract', 'Customizable', 'Family', 'Party', 'Strategy', 'Thematic', 'Wargames']
         self.set_features = {'Games', 'Game_Types', 'Meals', 'Allergies', 'Platforms'}
+        self.keys = ['Email', 'Name']
         #=============================================================================================================
         super().__init__('ABCD', df, self.set_features)
 
-        self.df.to_csv("test1.csv")
         self.status()
-        self.df.to_csv("test2.csv")
         self.makeActive("Status", "Active")
-        self.availability_df()
-        self.games_df()
-        self.game_types_df()
-        self.guest_games_df()
-        self.meals_df()
+        #Checkbox Grid=====================================================
+        self.checkbox_grid(self.keys, self.days, self.hours, lambda c: c, self.time_func, "Availability")
+        #Checkbox==========================================================
+        checkbox_cols = ["Games", "Game_Types", "Meals", "Platforms"]
+        for (col, options) in zip(checkbox_cols, [self.games, self.game_types, self.meals, self.platforms]):
+            self.checkbox(self.keys, col, options, col)
+        #Long Answer=======================================================
+        for col in ['Guest_Games', 'Guest_Food']:
+            self.long_ans(self.keys, col, col)
+        #self.guest_games_df()
         self.allergies_df()
-        self.guest_food_df()
-        self.platforms_df()
+        #self.guest_food_df()
 
 
     ### Multiple Choice Questions---------------------------------------------------------------------------------------
@@ -50,65 +53,9 @@ class General (Form):
                 'whenever you want.)']
         values = ['Active', 'Not_Now', 'Please_Remove']
         self.mult_choice("Status", keys, values)
-        cleaned_df = self.stringDF(self.df, self.set_features).sort_values(by=['Status', 'Name']).reset_index(drop=True)
+        cleaned_df = self.df_map(self.set_features)(self.toString, self.df).sort_values(by=
+                                                                            ['Status', 'Name']).reset_index(drop=True)
         self.save(cleaned_df, "cleaned")
-
-
-    ### Checkbox Questions-----------------------------------------------------------------------------------------------
-    def games_df(self, append = True):
-        x = pd.Series(self.games).map(lambda g: (g, self.active['Games'].map(lambda s: int(g in s))))
-        df = pd.DataFrame(dict([('Name', self.active['Name'])] + list(x)))
-        if append:
-            total = dict([('Name', 'Total')] + [(col, df[col].sum()) for col in df.columns[1:]])
-            df = pd.concat([df, pd.DataFrame(total, index=[df.shape[0]])])
-        self.save(df, "games")
-
-    def game_types_df(self, append = True):
-        x = pd.Series(self.game_types).map(lambda gt: (gt, self.active['Game_Types'].map(lambda s: int(gt in s))))
-        df = pd.DataFrame(dict([('Name', self.active['Name'])] + list(x)))
-        if append:
-            total = dict([('Name', 'Total')] + [(col, df[col].sum()) for col in df.columns[1:]])
-            df = pd.concat([df, pd.DataFrame(total, index=[df.shape[0]])])
-        self.save(df, "game_types")
-
-    def meals_df(self, append = True):
-        x = pd.Series(self.meals).map(lambda m: (m, self.active['Meals'].map(lambda s: int(m in s))))
-        df = pd.DataFrame(dict([('Name', self.active['Name'])] + list(x)))
-        if append:
-            total = dict([('Name', 'Total')] + [(col, df[col].sum()) for col in df.columns[1:]])
-            df = pd.concat([df, pd.DataFrame(total, index=[df.shape[0]])])
-        self.save(df, "meals")
-
-    def platforms_df(self, append = True):
-        x = pd.Series(self.platforms).map(lambda p: (p, self.active['Platforms'].map(lambda s: int(p in s))))
-        df = pd.DataFrame(dict([('Name', self.active['Name'])] + list(x)))
-        if append:
-            total = dict([('Name', 'Total')] + [(col, df[col].sum()) for col in df.columns[1:]])
-            df = pd.concat([df, pd.DataFrame(total, index=[df.shape[0]])])
-        self.save(df, "platforms")
-
-    ### Checkbox Grid Questions----------------------------------------------------------------------------------------
-    def availability_df(self, append = True):
-        x = pd.Series(product(self.days, self.hours)).map(lambda dh: (dh[0], dh[1].partition(' to')[0]))
-        y = x.map(lambda dh: ("{} [{}]".format(dh[0], dh[1]), self.active[dh[1]].map(lambda s: int(dh[0] in s))))
-        df = pd.DataFrame(dict([('Name', self.active['Name'])] + list(y)))
-        if append:
-            total = dict([("Name", "Total")] + [(col, df[col].sum()) for col in df.columns[1:]])
-            self.av = pd.concat([df, pd.DataFrame(total, index=[df.shape[0]])])
-        self.save(df, "availability")
-
-    ### Long Answer Questions------------------------------------------------------------------------------------------
-    def guest_games_df(self):
-        gg = self.active[['Name', 'Guest_Games']]
-        gg = gg.loc[gg['Guest_Games'].map(lambda s: len(s) > 0)].reset_index(drop=True)
-        df = pd.DataFrame(gg)
-        self.save(df, "guest_games")
-
-    def guest_food_df(self):
-        gf = self.active[['Name', 'Guest_Food']]
-        gf = gf.loc[gf['Guest_Food'].map(lambda s: len(s) > 0)].reset_index(drop=True)
-        df = pd.DataFrame(gf)
-        self.save(df, "guest_food")
 
     ### Checkbox Questions with Other-----------------------------------------------------------------------------------
     def allergies_df(self, append = True):
@@ -121,7 +68,7 @@ class General (Form):
         y = self.active['Allergies'].map(lambda aa: aa.difference(set(self.allergies)))
         df = pd.DataFrame({'Name': self.active['Name'], 'Allergies': y})
         df = df.loc[df['Allergies'].map(lambda s: len(s) > 0)].reset_index(drop=True)
-        df = self.stringDF(df, {'Allergies'})
+        df = self.df_map({'Allergies'})(self.toString, df)
         self.save(df, "extra_allergies")
 
 
