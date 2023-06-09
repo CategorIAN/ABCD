@@ -33,14 +33,6 @@ class Form:
         df.reset_index(drop=True, inplace=True)
         return df
 
-    def addNames(self, df):
-        P = People()
-        names = []
-        for i in range(df.shape[0]):
-            names.append(P.lookup[df.at[i, 'Email']])
-        df.insert(1, "Name", names)
-        return df
-
     def toSet(self, x):
         def appendSet(s, y):
             return s|{y} if len(y) > 0 and y != "set()" else s
@@ -64,8 +56,19 @@ class Form:
     def makeActive(self, column, value):
         self.active = self.df[self.df[column] == value].reset_index(drop=True)
 
-    def mult_choice(self, column, keys, values):
+    def mult_choice(self, column, keys = None, values = None):
         self.df[column] = self.df[column].map(dict(list(zip(keys, values))))
+
+    def checkbox(self, keys, column, options, file):
+        x = pd.Series(options).map(lambda opt: (opt, self.active[column].map(lambda s: int(opt in s))))
+        df = pd.DataFrame(dict([(key, self.active[key]) for key in keys] + list(x)))
+        self.save(df, file)
+
+    def other(self, keys, column, options, file):
+        x = (column, self.active[column].map(lambda s: s.difference(set(options))))
+        df = pd.DataFrame(dict([(key, self.active[key]) for key in keys] + [x]))
+        df = self.df_map({column})(self.toString, df[df[column].map(lambda x: len(x) > 0)].reset_index(drop=True))
+        self.save(df, "{}_Other".format(file))
 
     def checkbox_grid(self, keys, columns, rows, col_func, row_func, file):
         x = pd.Series(product(columns, rows)).map(lambda xy: (col_func(xy[0]), row_func(xy[1])))
@@ -73,20 +76,10 @@ class Form:
         df = pd.DataFrame(dict([(key, self.active[key]) for key in keys] + list(y)))
         self.save(df, file)
 
-    def checkbox(self, keys, column, options, file):
-        x = pd.Series(options).map(lambda opt: (opt, self.active[column].map(lambda s: int(opt in s))))
-        df = pd.DataFrame(dict([(key, self.active[key]) for key in keys] + list(x)))
-        self.save(df, file)
-
     def long_ans(self, keys, column, file):
         df = self.active[keys + [column]]
         self.save(df[df[column].map(lambda x: len(x) > 0)].reset_index(drop=True), file)
 
-    def guest_games_df(self):
-        gg = self.active[['Name', 'Guest_Games']]
-        gg = gg.loc[gg['Guest_Games'].map(lambda s: len(s) > 0)].reset_index(drop=True)
-        df = pd.DataFrame(gg)
-        self.save(df, "guest_games")
 
 
 
