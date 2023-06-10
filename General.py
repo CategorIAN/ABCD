@@ -15,20 +15,24 @@ class General (Form):
         keys = ['Email', 'Name']
         #=============================================================================================================
         set_features = {'Games', 'Game_Types', 'Meals', 'Allergies', 'Platforms'}
-        super().__init__('ABCD', df, set_features)
-        # =============================================================================================================
-        responses = ['"I would like to be active in your group." (You will be invited to game events.)',
+        super().__init__('ABCD', df, keys, set_features)
+
+        #Mult Choice/Create Active======================================================================================
+        status = {'"I would like to be active in your group." (You will be invited to game events.)': 'Active',
                 '"I am not available to participate in games for this season." (You will not be invited to game ' \
-                'events, but you will be asked to update this survey at least once a year.)',
+                'events, but you will be asked to update this survey at least once a year.)': 'Not_Now',
                 '"I would like to be taken off of this gaming list." (You can ask to be put back on this list ' \
-                'whenever you want.)']
-        values = ['Active', 'Not_Now', 'Please_Remove']
-        self.mult_choice("Status", responses, values)
-        cleaned_df = self.df_map(set_features)(self.toString, self.df).sort_values(by=['Status', 'Name']).reset_index(drop=True)
-        self.save(cleaned_df, "cleaned")
-        self.makeActive("Status", "Active")
+                'whenever you want.)': 'Please_Remove'}
+        mult_choice_cols = ["Status"]
+        active = self.filtered("Status", "Active", status)
+        for (col, mapping) in zip(mult_choice_cols, [status]):
+            self.mult_choice(col, mapping)
+        #Linear Scale===================================================================================================
+        lin_scale_cols = ["Max_Hours"]
+        for col in lin_scale_cols:
+            self.linear_scale(col, active)
         #Checkbox Grid=====================================================
-        self.checkbox_grid(keys, self.days, self.hours, lambda c: c, self.time_func, "Availability")
+        self.checkbox_grid(self.days, self.hours, lambda c: c, self.time_func, active, "Availability")
         #Checkbox==========================================================
         games = ['Catan', 'Chess', 'Codenames', 'War of the Ring']
         game_types = ['Abstract', 'Customizable', 'Family', 'Party', 'Strategy', 'Thematic', 'Wargames']
@@ -43,15 +47,16 @@ class General (Form):
                      'Discord (discord.com)']
         allergies = ['Gluten', 'Dairy', 'Peanuts', 'Shellfish']
         checkbox_cols = ["Games", "Game_Types", "Meals", "Platforms", "Allergies"]
-        for (col, options) in zip(checkbox_cols, [games, game_types, meals, platforms, allergies]):
-            self.checkbox(keys, col, options, col)
+        maps = [None, None, None, None, None]
+        for (col, options, mapping) in zip(checkbox_cols, [games, game_types, meals, platforms, allergies], maps):
+            self.checkbox(col, options, active, mapping)
         #Checkbox Other====================================================
         checkbox_other_cols = ["Allergies"]
         for (col, options) in zip(checkbox_other_cols, [allergies]):
-            self.other(keys, col, options, col)
+            self.other(col, options, active)
         #Long Answer=======================================================
         for col in ['Guest_Games', 'Guest_Food']:
-            self.long_ans(keys, col, col)
+            self.long_ans(col, active)
 
     def column_name_transform(self, column):
         if column == "Timestamp":
