@@ -81,13 +81,16 @@ class Form:
         df = df.sort_values(by=[column]).reset_index(drop=True)
         self.save(df, file)
 
-    def checkbox(self, column, options, active = None, mapping = None, file = None):
+    def checkbox(self, column, options, transformed = None, other_opt = False, active = None, file = None):
         active = self.df if active is None else active
         file = column if file is None else file
-        g = self.elem_map(mapping)
-        x = pd.Series(options).map(lambda opt: (opt, active[column].map(lambda s: int(opt in g(s)))))
+        g = dict(list(zip(options, options))) if transformed is None else dict(list(zip(options, transformed)))
+        x = pd.Series(options).map(lambda opt: (g[opt], active[column].map(lambda s: int(opt in s))))
         df = pd.DataFrame(dict([(key, active[key]) for key in self.keys] + list(x)))
         self.save(df, file)
+        if other_opt:
+            self.other(column, options, active, file)
+
 
     def other(self, column, options, active = None, file = None):
         active = self.df if active is None else active
