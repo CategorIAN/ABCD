@@ -37,7 +37,8 @@ class Form:
 
     def toSet(self, x):
         def appendSet(s, y):
-            return s|{y} if len(y) > 0 and y != "set()" else s
+            return s | {y} if len(y) > 0 and y != "set()" else s
+
         return reduce(appendSet, [y.strip(" {}'") for y in x.split(",")], set())
 
     def toString(self, x):
@@ -61,14 +62,15 @@ class Form:
     def column_name_transform(self, column):
         pass
 
-    def filtered(self, column, value, mapping):
-        df = self.df_map({column})(lambda x: mapping[x], self.df)
-        return df[df[column] == value].reset_index(drop=True)
+    def filtered(self, column, options, target_index = None):
+        target_index = 0 if target_index is None else target_index
+        return self.df[self.df[column] == options[target_index]].reset_index(drop=True)
 
-    def mult_choice(self, column, mapping, active = None, file = None):
+    def mult_choice(self, column, options, transformed = None, active = None, file = None):
         active = self.df if active is None else active
         file = column if file is None else file
-        x = (column, active[column].map(mapping))
+        g = dict(list(zip(options, options))) if transformed is None else dict(list(zip(options, transformed)))
+        x = (column, active[column].map(g))
         df = pd.DataFrame(dict([(key, active[key]) for key in self.keys] + [x]))
         df = df.sort_values(by=[column]).reset_index(drop=True)
         self.save(df, file)

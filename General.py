@@ -18,15 +18,21 @@ class General (Form):
         super().__init__('ABCD', df, keys, set_features)
 
         #Mult Choice/Create Active======================================================================================
-        status = {'"I would like to be active in your group." (You will be invited to game events.)': 'Active',
-                '"I am not available to participate in games for this season." (You will not be invited to game ' \
-                'events, but you will be asked to update this survey at least once a year.)': 'Not_Now',
-                '"I would like to be taken off of this gaming list." (You can ask to be put back on this list ' \
-                'whenever you want.)': 'Please_Remove'}
+        opt_set = [
+                    [
+                    '"I would like to be active in your group." (You will be invited to game events.)',
+                    '"I am not available to participate in games for this season." (You will not be invited to game ' \
+                        'events, but you will be asked to update this survey at least once a year.)',
+                    '"I would like to be taken off of this gaming list." (You can ask to be put back on this list ' \
+                        'whenever you want.)'
+                    ]
+        ]
+        new_opt_set = [['Active', 'Not_Now', 'Please_Remove']]
         mult_choice_cols = ["Status"]
-        active = self.filtered("Status", "Active", status)
-        for (col, mapping) in zip(mult_choice_cols, [status]):
-            self.mult_choice(col, mapping)
+        self.mult_choice(mult_choice_cols[0], opt_set[0], new_opt_set[0])
+        active = self.filtered(mult_choice_cols[0], opt_set[0])
+        for (col, options, transformed) in zip(mult_choice_cols[1:], opt_set[1:], new_opt_set[1:]):
+            self.mult_choice(col, options, transformed, active)
         #Linear Scale===================================================================================================
         lin_scale_cols = ["Max_Hours"]
         for col in lin_scale_cols:
@@ -55,11 +61,39 @@ class General (Form):
         for col in ['Guest_Games', 'Guest_Food']:
             self.long_ans(col, active)
 
+    col_dict = {
+        "Timestamp": "Timestamp",
+        #===========================
+        "Email Address":"Email",
+        # ===========================
+        "What is your name?": "Name",
+        # ===========================
+        "You are currently in my tabletop gaming group. What would you like your status to be? " \
+        "(If you pick the second or third option, you may skip the rest of the questions in this survey.)": "Status",
+        # ===========================
+        "Every invite you receive for a game event brings you down the queue, making you less likely to be invited " \
+        "to the next game event. Therefore, it is important I know what games you are interested in playing. " \
+        "Which of my games are you interested in playing?": "Games",
+        # ===========================
+        "What types of games do you enjoy playing?": "Game_Types",
+        # ===========================
+        "What is the maximum number of hours you are willing to play a game in one sitting?": "Max_Hours",
+        # ===========================
+        "Would you be willing to a game commitment over multiple days?": "Commitment",
+        # ===========================
+        "Are there games that you own and know how to play that you would enjoy bringing the game for game events? " \
+        "If so, which games would you enjoy bringing? (You would be responsible for bringing the game and explaining " \
+        "the rules.)": "Guest_Games",
+        # ===========================
+        "Which of my signature meals would you be willing to eat at events?": 'Meals'
+        # ===========================
+    }
+
     def column_name_transform(self, column):
         if column == "Timestamp":
             return "Timestamp"
         if column == "Email Address":
-            return 'Email'
+            return "Email"
         if column == "What is your name?":
             return 'Name'
         if column == 'You are currently in my tabletop gaming group. What would you like your status to be? ' \
