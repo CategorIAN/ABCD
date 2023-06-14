@@ -5,14 +5,13 @@ import os
 from functools import reduce
 from itertools import product
 
-
 class Form:
-    def __init__(self, name, df, keys, set_features):
+    def __init__(self, name, df, keys, set_features, col_mapping = None, grid_col_mapping = None):
         self.directory = os.getcwd() + '\\' + name + '\\'
         self.name = name
         self.keys = keys
         self.time_func = lambda row: row.partition(' to')[0]
-        df = df.rename(self.column_name_transform, axis=1)
+        df = df.rename(self.column_name_transform(col_mapping, grid_col_mapping), axis=1)
         df = df.fillna("")
         df = self.df_map(set_features)(self.toSet, df)
         df = self.removeDuplicates(df)
@@ -46,12 +45,6 @@ class Form:
             return s + y + ", "
         return reduce(appendString, x, "").strip(", ")
 
-    def elem_map(self, mapping = None):
-        g = lambda y: y if mapping is None else lambda y: mapping[y]
-        def f(x):
-            return {g(y) for y in x}
-        return f
-
     def df_map(self, features):
         def f(my_func, df):
             def transformColumn(df_dict, column):
@@ -59,8 +52,18 @@ class Form:
             return pd.DataFrame(reduce(transformColumn, features, df.to_dict('series')))
         return f
 
-    def column_name_transform(self, column):
-        pass
+    def column_name_transform(self, col_mapping=None, grid_col_mapping=None):
+        def f(column):
+            if col_mapping is None:
+                return column
+            else:
+                if column in col_mapping:
+                    return col_mapping[column]
+                else:
+                    question, _, row = column.partition(" [")
+                    new_column, row_func = grid_col_mapping[question]
+                    return "{} [{}]".format(new_column, row_func(row.strip("]")))
+        return f
 
     def filtered(self, column, options, target_index = None):
         target_index = 0 if target_index is None else target_index
@@ -93,7 +96,6 @@ class Form:
         if other_opt:
             self.other(column, options, active, file)
 
-
     def other(self, column, options, active = None, file = None):
         active = self.df if active is None else active
         file = column if file is None else file
@@ -102,10 +104,12 @@ class Form:
         df = self.df_map({column})(self.toString, df[df[column].map(lambda x: len(x) > 0)].reset_index(drop=True))
         self.save(df, "{}_Other".format(file))
 
-    def checkbox_grid(self, columns, rows, col_func, row_func, active = None, file = None):
+    def checkbox_grid(self, column, col_opts, row_opts, col_func = lambda c: c, active = None, file = None):
         active = self.df if active is None else active
-        x = pd.Series(product(columns, rows)).map(lambda xy: (col_func(xy[0]), row_func(xy[1])))
-        y = x.map(lambda xy: ("{} [{}]".format(xy[0], xy[1]), active[xy[1]].map(lambda s: int(xy[0] in s))))
+        file = column if file is None else file
+        x = pd.Series(product(col_opts, row_opts)).map(lambda ab: (col_func(ab[0]), ab[1]))
+        y = x.map(lambda ab: ("{} [{}]".format(ab[0], ab[1]),
+                              active["{} [{}]".format(column, ab[1])].map(lambda s: int(ab[0] in s))))
         df = pd.DataFrame(dict([(key, active[key]) for key in self.keys] + list(y)))
         self.save(df, file)
 

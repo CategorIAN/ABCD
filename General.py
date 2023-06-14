@@ -5,17 +5,50 @@ from itertools import product
 #======My Classes=======================
 from Form import Form
 
-
 class General (Form):
     def __init__(self, df):
         #==============================================================================================================
-        self.hours = ["11:00 AM to 12:00 PM", "12:00 PM to 1:00 PM", "1:00 PM to 2:00 PM", "2:00 PM to 3:00 PM",
-                      "3:00 PM to 4:00 PM", "4:00 PM to 5:00 PM", "5:00 PM to 6:00 PM", "6:00 PM to 7:00 PM"]
-        self.days = ['Friday', 'Saturday', 'Sunday']
         keys = ['Email', 'Name']
-        #=============================================================================================================
         set_features = {'Games', 'Game_Types', 'Meals', 'Allergies', 'Platforms'}
-        super().__init__('ABCD', df, keys, set_features)
+        col_dict = {
+            "Timestamp": "Timestamp",
+            # ===========================
+            "Email Address": "Email",
+            # ===========================
+            "What is your name?": "Name",
+            # ===========================
+            "You are currently in my tabletop gaming group. What would you like your status to be? " \
+            "(If you pick the second or third option, you may skip the rest of the questions in this survey.)": "Status",
+            # ===========================
+            "Every invite you receive for a game event brings you down the queue, making you less likely to be invited " \
+            "to the next game event. Therefore, it is important I know what games you are interested in playing. " \
+            "Which of my games are you interested in playing?": "Games",
+            # ===========================
+            "What types of games do you enjoy playing?": "Game_Types",
+            # ===========================
+            "What is the maximum number of hours you are willing to play a game in one sitting?": "Max_Hours",
+            # ===========================
+            "Would you be willing to a game commitment over multiple days?": "Commitment",
+            # ===========================
+            "Are there games that you own and know how to play that you would enjoy bringing the game for game events? " \
+            "If so, which games would you enjoy bringing? (You would be responsible for bringing the game and explaining " \
+            "the rules.)": "Guest_Games",
+            # ===========================
+            "Which of my signature meals would you be willing to eat at events?": 'Meals',
+            # ===========================
+            "What are your food allergies?": "Allergies",
+            # ===========================
+            "What food and/or drinks would you be willing to bring to a gaming event?": "Guest_Food",
+            # ===========================
+            "It is efficient to communicate using a group communication platform for invitations and coordination " \
+            "of details for events. Which of these group communication platforms would you be willing to use?": "Platforms"
+        }
+
+        grid_col_dict = {
+            "What times are you possibly available to play games?": (
+            "Availability", lambda row: row.partition(' to')[0])
+        }
+        super().__init__('ABCD', df, keys, set_features, col_dict, grid_col_dict)
 
         #Mult Choice/Create Active======================================================================================
         opt_set = [
@@ -38,7 +71,11 @@ class General (Form):
         for col in lin_scale_cols:
             self.linear_scale(col, active)
         #Checkbox Grid=====================================================
-        self.checkbox_grid(self.days, self.hours, lambda c: c, self.time_func, active, "Availability")
+        colopt_set = [['Friday', 'Saturday', 'Sunday']]
+        rowopt_set = [["11:00 AM", "12:00 PM", "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM", "6:00 PM"]]
+        checkbox_grid_cols = ["Availability"]
+        for (col, col_opts, row_opts) in zip(checkbox_grid_cols, colopt_set, rowopt_set):
+            self.checkbox_grid(col, col_opts, row_opts, active=active)
         #Checkbox==========================================================
         checkbox_cols = ["Games", "Game_Types", "Meals", "Platforms", "Allergies", "Commitment"]
         opt_set = [
@@ -58,73 +95,9 @@ class General (Form):
         for (col, options, transformed, other) in zip(checkbox_cols, opt_set, new_opt_set, other_set):
             self.checkbox(col, options, transformed, other, active)
         #Long Answer=======================================================
-        for col in ['Guest_Games', 'Guest_Food']:
+        long_ans_cols = ['Guest_Games', 'Guest_Food']
+        for col in long_ans_cols:
             self.long_ans(col, active)
-
-    col_dict = {
-        "Timestamp": "Timestamp",
-        #===========================
-        "Email Address":"Email",
-        # ===========================
-        "What is your name?": "Name",
-        # ===========================
-        "You are currently in my tabletop gaming group. What would you like your status to be? " \
-        "(If you pick the second or third option, you may skip the rest of the questions in this survey.)": "Status",
-        # ===========================
-        "Every invite you receive for a game event brings you down the queue, making you less likely to be invited " \
-        "to the next game event. Therefore, it is important I know what games you are interested in playing. " \
-        "Which of my games are you interested in playing?": "Games",
-        # ===========================
-        "What types of games do you enjoy playing?": "Game_Types",
-        # ===========================
-        "What is the maximum number of hours you are willing to play a game in one sitting?": "Max_Hours",
-        # ===========================
-        "Would you be willing to a game commitment over multiple days?": "Commitment",
-        # ===========================
-        "Are there games that you own and know how to play that you would enjoy bringing the game for game events? " \
-        "If so, which games would you enjoy bringing? (You would be responsible for bringing the game and explaining " \
-        "the rules.)": "Guest_Games",
-        # ===========================
-        "Which of my signature meals would you be willing to eat at events?": 'Meals'
-        # ===========================
-    }
-
-    def column_name_transform(self, column):
-        if column == "Timestamp":
-            return "Timestamp"
-        if column == "Email Address":
-            return "Email"
-        if column == "What is your name?":
-            return 'Name'
-        if column == 'You are currently in my tabletop gaming group. What would you like your status to be? ' \
-             '(If you pick the second or third option, you may skip the rest of the questions in this survey.)':
-            return 'Status'
-        if column == 'Every invite you receive for a game event brings you down the queue, making you less likely to be invited ' \
-            'to the next game event. Therefore, it is important I know what games you are interested in playing. ' \
-            'Which of my games are you interested in playing?':
-            return 'Games'
-        if column == 'What types of games do you enjoy playing?':
-            return 'Game_Types'
-        if column == 'What is the maximum number of hours you are willing to play a game in one sitting?':
-            return 'Max_Hours'
-        if column == 'Would you be willing to a game commitment over multiple days?':
-            return 'Commitment'
-        if column == 'Are there games that you own and know how to play that you would enjoy bringing the game for game events? ' \
-          'If so, which games would you enjoy bringing? (You would be responsible for bringing the game and explaining ' \
-          'the rules.)':
-            return 'Guest_Games'
-        if column == 'Which of my signature meals would you be willing to eat at events?':
-            return 'Meals'
-        if column == 'What are your food allergies?':
-            return 'Allergies'
-        if column == 'What food and/or drinks would you be willing to bring to a gaming event?':
-            return 'Guest_Food'
-        if column == 'It is efficient to communicate using a group communication platform for invitations and coordination ' \
-               'of details for events. Which of these group communication platforms would you be willing to use?':
-            return 'Platforms'
-        else:
-            question = "What times are you possibly available to play games?"
-            return dict([("{} [{}]".format(question, row), self.time_func(row)) for row in self.hours])[column]
 
 
 
