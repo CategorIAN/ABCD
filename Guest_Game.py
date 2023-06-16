@@ -1,4 +1,7 @@
 from Form import Form
+import pandas as pd
+from itertools import product
+import os
 
 class Guest_Game (Form):
     def __init__(self):
@@ -45,12 +48,30 @@ class Guest_Game (Form):
         checkbox_optset = []
         checkbox_newoptset = []
         otherset = []
+        self.weeks = list(range(1, 5))
+        self.days = ["Friday", "Saturday", "Sunday"]
+        self.hours = ["11:00 AM", "12:00 PM", "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM", "6:00 PM"]
         checkboxgrid_cols = ["Weekend #{}".format(i) for i in range(1, 5)]
-        checkboxgrid_coloptset = [["Friday", "Saturday", "Sunday"] for i in range(1, 5)]
-        checkboxgrid_rowoptset = [["11:00 AM", "12:00 PM", "1:00 PM", "2:00 PM",
-                                   "3:00 PM", "4:00 PM", "5:00 PM", "6:00 PM"] for i in range(1, 5)]
+        checkboxgrid_coloptset = [self.days for i in self.weeks]
+        checkboxgrid_rowoptset = [self.hours for i in self.weeks]
         mergeTuple = ("General", ["Email Address", "What is your name?"], "Email Address")
         super().__init__(name, col_mapping, grid_col_mapping, set_features, keys,
                          make_active, multchoice_cols, multchoice_optset, multchoice_newoptset,
                          linscale_cols, text_cols, checkbox_cols, checkbox_optset, checkbox_newoptset, otherset,
                          checkboxgrid_cols, checkboxgrid_coloptset, checkboxgrid_rowoptset, mergeTuple)
+
+    def availability(self, name, month):
+        info_df = pd.read_csv("\\".join([os.getcwd(), self.name, "Guest Game.csv"]), index_col=0)
+        for col in ["Min Players", "Max Players", "Guest Invite Number"]:
+            merge_df = pd.read_csv("\\".join([os.getcwd(), self.name, "{}.csv".format(col)]), index_col=0)
+            info_df = info_df.merge(right = merge_df, how = "inner", on = self.keys)
+        info_df = info_df[info_df["Name"] == name]["Guest Game", "Min Players", "Max Players", "Guest Invite Number"]
+        (game, min, max, get) = tuple(info_df.head(1))
+
+        for wk in self.weeks:
+            av_df = pd.read_csv("\\".join([os.getcwd(), self.name, "Weekend #{}.csv".format(wk)]), index_col=0)
+            i = av_df[av_df["Name"] == name].index[0]
+            y = [(day, [av_df.at[i, "{} [{}]".format(day, hour)] for hour in self.hours]) for day in self.days]
+            df = pd.DataFrame(index = self.hours, data = dict(y))
+            df.to_csv("\\".join([os.getcwd(), self.name, name, month,
+                        "{} On Weekend #{} (Min = {}, Max = {}, GuestGet = {}).csv".format(game, wk, min, max, get)]))
