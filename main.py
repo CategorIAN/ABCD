@@ -6,11 +6,6 @@ from General import General
 from Availability_General import Availability_General
 from Availability_Specific import Availability_Specific
 
-
-def general():
-    df = pd.read_csv("\\".join([os.getcwd(), 'Raw Data', "General.csv"]))
-    A = General(df)
-
 def GuestGames():
     df = pd.read_csv(os.getcwd() + '\\' + 'Raw Data' + '\\' + "GG_rawdata.csv")
     #GG = GuestGame(df)
@@ -36,6 +31,6 @@ def game_availability():
 
 
 if __name__ == '__main__':
-    general()
+    General()
 
 

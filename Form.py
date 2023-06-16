@@ -6,19 +6,42 @@ from functools import reduce
 from itertools import product
 
 class Form:
-    def __init__(self, name, df, keys, set_features, col_mapping = None, grid_col_mapping = None):
+    def __init__(self, name, col_mapping, grid_col_mapping, set_features, keys,
+                 make_active, multchoice_cols, multchoice_optset, multchoice_newoptset,
+                 linscale_cols, longans_cols, checkbox_cols, checkbox_optset, checkbox_newoptset, otherset,
+                 checkboxgrid_cols, checkboxgrid_coloptset, checkboxgrid_rowoptset):
         self.directory = os.getcwd() + '\\' + name + '\\'
-        self.name = name
-        self.keys = keys
-        self.time_func = lambda row: row.partition(' to')[0]
+        df = pd.read_csv("\\".join([os.getcwd(), 'Raw Data', "{}.csv".format(name)]))
         df = df.rename(self.column_name_transform(col_mapping, grid_col_mapping), axis=1)
         df = df.fillna("")
         df = self.df_map(set_features)(self.toSet, df)
         df = self.removeDuplicates(df)
         self.df = df
+        self.keys = keys
+        #==========================================================================================================
+        if make_active:
+            self.mult_choice(multchoice_cols[0], multchoice_optset[0], multchoice_newoptset[0])
+            active = self.filtered(multchoice_cols[0], multchoice_optset[0])
+            mult_choice_tuples = zip(multchoice_cols[1:], multchoice_optset[1:], multchoice_newoptset[1:])
+        else:
+            active = None
+            mult_choice_tuples = zip(multchoice_cols, multchoice_optset, multchoice_newoptset)
+        for (col, options, transformed) in mult_choice_tuples:
+            self.mult_choice(col, options, transformed, active)
+        #==========================================================================================================
+        for col in linscale_cols:
+            self.linear_scale(col, active)
+        #==========================================================================================================
+        for col in longans_cols:
+            self.long_ans(col, active)
+        # ==========================================================================================================
+        for (col, options, transformed, other) in zip(checkbox_cols, checkbox_optset, checkbox_newoptset, otherset):
+            self.checkbox(col, options, transformed, other, active)
+        # ==========================================================================================================
+        for (col, col_opts, row_opts) in zip(checkboxgrid_cols, checkboxgrid_coloptset, checkboxgrid_rowoptset):
+            self.checkbox_grid(col, col_opts, row_opts, active=active)
 
-    def save(self, df, ext = None):
-        file = self.name if ext is None else "{}".format(ext)
+    def save(self, df, file):
         df.to_csv(self.directory + "{}.csv".format(file))
 
     def removeDuplicates(self, df):
@@ -37,7 +60,6 @@ class Form:
     def toSet(self, x):
         def appendSet(s, y):
             return s | {y} if len(y) > 0 and y != "set()" else s
-
         return reduce(appendSet, [y.strip(" {}'") for y in x.split(",")], set())
 
     def toString(self, x):
@@ -86,6 +108,12 @@ class Form:
         df = df.sort_values(by=[column]).reset_index(drop=True)
         self.save(df, file)
 
+    def long_ans(self, column, active = None, file = None):
+        active = self.df if active is None else active
+        file = column if file is None else file
+        df = active[self.keys + [column]]
+        self.save(df[df[column].map(lambda x: len(x) > 0)].reset_index(drop=True), file)
+
     def checkbox(self, column, options, transformed = None, other_opt = False, active = None, file = None):
         active = self.df if active is None else active
         file = column if file is None else file
@@ -113,11 +141,6 @@ class Form:
         df = pd.DataFrame(dict([(key, active[key]) for key in self.keys] + list(y)))
         self.save(df, file)
 
-    def long_ans(self, column, active = None, file = None):
-        active = self.df if active is None else active
-        file = column if file is None else file
-        df = active[self.keys + [column]]
-        self.save(df[df[column].map(lambda x: len(x) > 0)].reset_index(drop=True), file)
 
 
 
