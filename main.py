@@ -3,6 +3,7 @@ import pandas as pd
 import os
 #==========My Classes===============================
 from General import General
+from Guest_Game import Guest_Game
 from Availability_General import Availability_General
 from Availability_Specific import Availability_Specific
 
@@ -31,6 +32,6 @@ def game_availability():
 
 
 if __name__ == '__main__':
-    General()
+    Guest_Game()
 
 

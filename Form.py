@@ -8,16 +8,20 @@ from itertools import product
 class Form:
     def __init__(self, name, col_mapping, grid_col_mapping, set_features, keys,
                  make_active, multchoice_cols, multchoice_optset, multchoice_newoptset,
-                 linscale_cols, longans_cols, checkbox_cols, checkbox_optset, checkbox_newoptset, otherset,
-                 checkboxgrid_cols, checkboxgrid_coloptset, checkboxgrid_rowoptset):
-        self.directory = os.getcwd() + '\\' + name + '\\'
+                 linscale_cols, text_cols, checkbox_cols, checkbox_optset, checkbox_newoptset, otherset,
+                 checkboxgrid_cols, checkboxgrid_coloptset, checkboxgrid_rowoptset, mergeTuple):
         df = pd.read_csv("\\".join([os.getcwd(), 'Raw Data', "{}.csv".format(name)]))
+        if mergeTuple is not None:
+            mergeName, mergeCols, mergeKey = mergeTuple
+            mergeDF = pd.read_csv("\\".join([os.getcwd(), "Raw Data", "{}.csv".format(mergeName)]))
+            df = mergeDF[mergeCols].merge(right=df, how='inner', on=mergeKey)
         df = df.rename(self.column_name_transform(col_mapping, grid_col_mapping), axis=1)
         df = df.fillna("")
         df = self.df_map(set_features)(self.toSet, df)
         df = self.removeDuplicates(df)
         self.df = df
         self.keys = keys
+        self.name = name
         #==========================================================================================================
         if make_active:
             self.mult_choice(multchoice_cols[0], multchoice_optset[0], multchoice_newoptset[0])
@@ -32,8 +36,8 @@ class Form:
         for col in linscale_cols:
             self.linear_scale(col, active)
         #==========================================================================================================
-        for col in longans_cols:
-            self.long_ans(col, active)
+        for col in text_cols:
+            self.text_ans(col, active)
         # ==========================================================================================================
         for (col, options, transformed, other) in zip(checkbox_cols, checkbox_optset, checkbox_newoptset, otherset):
             self.checkbox(col, options, transformed, other, active)
@@ -42,7 +46,7 @@ class Form:
             self.checkbox_grid(col, col_opts, row_opts, active=active)
 
     def save(self, df, file):
-        df.to_csv(self.directory + "{}.csv".format(file))
+        df.to_csv("\\".join([os.getcwd(), self.name, "{}.csv".format(file)]))
 
     def removeDuplicates(self, df):
         emails = set()
@@ -108,7 +112,7 @@ class Form:
         df = df.sort_values(by=[column]).reset_index(drop=True)
         self.save(df, file)
 
-    def long_ans(self, column, active = None, file = None):
+    def text_ans(self, column, active = None, file = None):
         active = self.df if active is None else active
         file = column if file is None else file
         df = active[self.keys + [column]]

@@ -55,7 +55,7 @@ class General (Form):
         ]
         multchoice_newoptset = [['Active', 'Not_Now', 'Please_Remove']]
         linscale_cols = ["Max_Hours"]
-        longans_cols = ['Guest_Games', 'Guest_Food']
+        text_cols = ['Guest_Games', 'Guest_Food']
         checkbox_cols = ["Games", "Game_Types", "Meals", "Platforms", "Allergies", "Commitment"]
         checkbox_optset = [
             ['Catan', 'Chess', 'Codenames', 'War of the Ring'],  # Games
@@ -72,12 +72,13 @@ class General (Form):
         checkbox_newoptset = [None, None, None, None, None, ["Long Game", "Tournament"]]
         otherset = [False, False, False, False, True, False]
         checkboxgrid_cols = ["Availability"]
-        checkboxgrid_coloptset = [['Friday', 'Saturday', 'Sunday']]
+        checkboxgrid_coloptset = [["Friday", "Saturday", "Sunday"]]
         checkboxgrid_rowoptset = [["11:00 AM", "12:00 PM", "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM", "6:00 PM"]]
+        mergeTuple = None
         super().__init__(name, col_mapping, grid_col_mapping, set_features, keys,
                  make_active, multchoice_cols, multchoice_optset, multchoice_newoptset,
-                 linscale_cols, longans_cols, checkbox_cols, checkbox_optset, checkbox_newoptset, otherset,
-                 checkboxgrid_cols, checkboxgrid_coloptset, checkboxgrid_rowoptset)
+                 linscale_cols, text_cols, checkbox_cols, checkbox_optset, checkbox_newoptset, otherset,
+                 checkboxgrid_cols, checkboxgrid_coloptset, checkboxgrid_rowoptset, mergeTuple)
 
 
 
