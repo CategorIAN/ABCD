@@ -3,13 +3,13 @@ import pandas as pd
 import os
 #==========My Classes===============================
 from General import General
-from Guest_Game import Guest_Game
+from GuestGame import GuestGame
 from Availability_General import Availability_General
 from Availability_Specific import Availability_Specific
 
 def GuestGames():
-    GG = Guest_Game()
-    GG.availability("Maria Gesior", "23.06")
+    GG = GuestGame()
+    GG.availability("Hannah Harris", "23.02")
 
 def availability():
     df = pd.read_csv("\\".join([os.getcwd(), 'ABCD', "ABCD_availability.csv"]), index_col = 0)
@@ -32,5 +32,6 @@ def game_availability():
 
 if __name__ == '__main__':
     GuestGames()
+    #General()
 
 

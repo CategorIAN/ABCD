@@ -23,6 +23,8 @@ class Form:
         self.keys = keys
         self.name = name
         #==========================================================================================================
+        self.key_df()
+        #==========================================================================================================
         if make_active:
             self.mult_choice(multchoice_cols[0], multchoice_optset[0], multchoice_newoptset[0])
             active = self.filtered(multchoice_cols[0], multchoice_optset[0])
@@ -94,6 +96,11 @@ class Form:
     def filtered(self, column, options, target_index = None):
         target_index = 0 if target_index is None else target_index
         return self.df[self.df[column] == options[target_index]].reset_index(drop=True)
+
+    def key_df(self):
+        df = pd.DataFrame(dict([(key, self.df[key]) for key in self.keys]))
+        df = df.sort_values(by=self.keys).reset_index(drop=True)
+        self.save(df, "Keys")
 
     def mult_choice(self, column, options, transformed = None, active = None, file = None):
         active = self.df if active is None else active

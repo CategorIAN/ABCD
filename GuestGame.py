@@ -1,80 +1,77 @@
+from Form import Form
 import pandas as pd
-import numpy as np
 import os
 
-
-class GuestGame:
-    def __init__(self, df):
-        df = df.rename(self.rename_columns, axis=1)
-        df = df.fillna("")
-        df = self.removeDuplicates(df)
-        df = df.drop(['Timestamp'], axis=1)
-        people = pd.read_csv(os.getcwd() + '\\' + 'Raw Data' + '\\' + "People.csv", index_col=0)
-        df = people.merge(right = df, how = 'inner', on = 'Email')
-        df = df.sort_values(by='Name')
-        df.reset_index(drop=True, inplace=True)
-        self.df = df
-        self.df.to_csv(self.directory + "GG_cleaned.csv")
+class GuestGame (Form):
+    def __init__(self):
+        name = "GuestGame"
+        col_mapping = {
+            "Timestamp": "Timestamp",
+            # ===========================
+            "Email Address": "Email",
+            # ===========================
+            "What is your name?": "Name",
+            # ===========================
+            "What is the name of the game you will be providing and leading?  (You will be responsible for "
+            "bringing the game and explaining the rules.)": "Guest Game",
+            # ===========================
+            "What is the maximum number of people that you would like to play this game? (See the box of the game "
+            "to see what the creators of the game recommend for the max.)": "Max Players",
+            # ===========================
+            "What is the minimum number of people that you think is usually needed to make the game interesting. "
+            "(We need to collectively get this minimum number of people committed to coming to the event at least "
+            "a week before the event.)": "Min Players",
+            # ===========================
+            "How many people do you plan on finding to commit to coming to the event? (You should notify me if "
+            "you change this number.)": "Guest Invite Number"
+        }
+        grid_col_mapping = {
+            "What times and dates are you available to lead the event? (Weekend #1 of the Month)": (
+                "Weekend #1", lambda row: row.partition(' to')[0]),
+            "What times and dates are you available to lead the event? (Weekend #2 of the Month)": (
+                "Weekend #2", lambda row: row.partition(' to')[0]),
+            "What times and dates are you available to lead the event? (Weekend #3 of the Month)": (
+                "Weekend #3", lambda row: row.partition(' to')[0]),
+            "What times and dates are you available to lead the event? (Weekend #4 of the Month)": (
+                "Weekend #4", lambda row: row.partition(' to')[0])
+        }
+        set_features = set()
+        keys = ["Email", "Name"]
+        make_active = False
+        multchoice_cols = []
+        multchoice_optset = []
+        multchoice_newoptset = []
+        linscale_cols = ["Max Players", "Min Players", "Guest Invite Number"]
+        text_cols = ["Guest Game"]
+        checkbox_cols = []
+        checkbox_optset = []
+        checkbox_newoptset = []
+        otherset = []
+        self.weeks = list(range(1, 5))
+        self.days = ["Friday", "Saturday", "Sunday"]
+        self.hours = ["11:00 AM", "12:00 PM", "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM", "6:00 PM"]
+        checkboxgrid_cols = ["Weekend #{}".format(i) for i in range(1, 5)]
+        checkboxgrid_coloptset = [self.days for i in self.weeks]
+        checkboxgrid_rowoptset = [self.hours for i in self.weeks]
+        mergeTuple = ("General", ["Email Address", "What is your name?"], "Email Address")
+        super().__init__(name, col_mapping, grid_col_mapping, set_features, keys,
+                         make_active, multchoice_cols, multchoice_optset, multchoice_newoptset,
+                         linscale_cols, text_cols, checkbox_cols, checkbox_optset, checkbox_newoptset, otherset,
+                         checkboxgrid_cols, checkboxgrid_coloptset, checkboxgrid_rowoptset, mergeTuple)
 
     def availability(self, name, month):
-        i = self.df.loc[lambda df: df["Name"] == name].index[0]
-        (game, min, max, get) = tuple(self.df.loc[i, ["Guest Game", "Min Players", "Max Players", "Guest Invite Number"]])
-        for wk in range(1, 5):
-            av = {}
-            for day in ['Friday', 'Saturday', 'Sunday']:
-                a = []
-                for h in self.hours:
-                    wk_h = "{} (Weekend #{})".format(h, wk)
-                    b = int(day in self.df.at[i, wk_h])
-                    a.append(b)
-                av[day] = a
-            pd.DataFrame(av, index=self.hours).to_csv(self.directory + name + '\\' + month + '\\'
-                          "{} On Weekend #{} (Min = {}, Max = {}, GuestGet = {}).csv".format(game, wk, min, max, get))
+        info_df = pd.read_csv("\\".join([os.getcwd(), self.name, "Keys.csv"]), index_col=0)
+        for col in ["Guest Game", "Min Players", "Max Players", "Guest Invite Number"]:
+            merge_df = pd.read_csv("\\".join([os.getcwd(), self.name, "{}.csv".format(col)]), index_col=0)
+            info_df = info_df.merge(right = merge_df, how = "inner", on = self.keys)
+        info_df = info_df[info_df["Name"] == name][["Guest Game", "Min Players", "Max Players", "Guest Invite Number"]]
+        info_df.to_csv("test.csv")
+        (game, min, max, get) = tuple(info_df.iloc[0])
 
-    def removeDuplicates(self, df):
-        emails = set()
-        for i in reversed(range(df.shape[0])):
-            e = df.at[i, 'Email']
-            if e in emails:
-                df = df.drop(i)
-            else:
-                emails.add(e)
-        return df
-
-    time_stamp = 'Timestamp'
-    email = 'Email Address'
-
-    guest_game_q = 'What is the name of the game you will be providing and leading?  (You will be responsible for ' \
-                   'bringing the game and explaining the rules.)'
-
-    max_players = 'What is the maximum number of people that you would like to play this game? (See the box of the game ' \
-                  'to see what the creators of the game recommend for the max.)'
-
-    min_players = 'What is the minimum number of people that you think is usually needed to make the game interesting. ' \
-                  '(We need to collectively get this minimum number of people committed to coming to the event at least ' \
-                  'a week before the event.)'
-
-    guest_invite_number = "How many people do you plan on finding to commit to coming to the event? (You should notify me if " \
-                   "you change this number.)"
-
-
-    rename_columns = {time_stamp: 'Timestamp', email: 'Email', guest_game_q: 'Guest Game', max_players: 'Max Players',
-                      min_players: 'Min Players', guest_invite_number: 'Guest Invite Number'}
-
-    form_hours = ["11:00 AM to 12:00 PM", "12:00 PM to 1:00 PM", "1:00 PM to 2:00 PM", "2:00 PM to 3:00 PM",
-             "3:00 PM to 4:00 PM", "4:00 PM to 5:00 PM", "5:00 PM to 6:00 PM", "6:00 PM to 7:00 PM"]
-
-    hours = pd.Series(form_hours).map(lambda h: h.partition(' to')[0])
-
-    avail_q = "What times and dates are you available to lead the event?"
-
-    for i in range(1, 5):
-        for j in range(len(form_hours)):
-            prompt = "{} (Weekend #{} of the Month) [{}]".format(avail_q, i, form_hours[j])
-            rename_columns[prompt] = "{} (Weekend #{})".format(hours[j], i)
-
-    directory = os.getcwd() + '\\' + 'Guest Games' + '\\'
-
-
-
-
+        for wk in self.weeks:
+            av_df = pd.read_csv("\\".join([os.getcwd(), self.name, "Weekend #{}.csv".format(wk)]), index_col=0)
+            i = av_df[av_df["Name"] == name].index[0]
+            y = [(day, [av_df.at[i, "{} [{}]".format(day, hour)] for hour in self.hours]) for day in self.days]
+            df = pd.DataFrame(index = self.hours, data = dict(y))
+            df.to_csv("\\".join([os.getcwd(), self.name, name, month,
+                        "{} On Weekend #{} (Min = {}, Max = {}, GuestGet = {}).csv".format(game, wk, min, max, get)]))

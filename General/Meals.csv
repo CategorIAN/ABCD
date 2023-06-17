@@ -1,36 +1,38 @@
 ,Email,Name,Chicken Cacciatore,Halibut in Lemon Wine Sauce,Hot Crab Dip,Peanut Butter Hummus,Quinoa Lentil Berry Salad,Rosemary Pork and Mushrooms,Spaghetti and Classic Marinara Sauce,Spinach and Artichoke Dip,Sweet Potato Casserole
 0,alicia933@gmail.com,Alicia Clark,1,1,1,0,0,1,1,1,1
-1,calebbaker.bt@icloud.com,Caleb Baker,1,1,1,1,1,1,1,1,1
-2,sungzhoo2@gmail.com,Chris Chung,1,0,0,0,0,1,1,0,1
-3,ciaraisaak42@gmail.com,Ciara Krause,1,1,1,1,1,1,0,1,1
-4,cleteseyle@yahoo.com,Clete Seyle,1,1,1,0,1,0,1,1,1
-5,dcflavin@gmail.com,Daniel Flavin,1,1,1,1,1,1,1,1,1
-6,dh3hearts@gmail.com,Doug Hicks,1,1,1,1,1,1,1,1,1
-7,eblom@augusta.edu,Emily Blom,1,1,1,1,1,1,1,1,1
-8,emilymcconnellwarren@gmail.com,Emily Warren,0,0,0,0,0,0,1,1,0
-9,emma.kankelborg@gmail.com,Emma Kankelborg,1,1,1,0,1,1,1,1,1
-10,erika.johnson@my.wheaton.edu,Erika Johnson,1,1,1,1,1,1,1,1,0
-11,bigeskelly@gmail.com,Ethan Skelton,1,1,0,0,0,1,1,1,1
-12,anderson.evanscott@gmail.com,Evan Anderson,1,1,1,1,1,1,1,1,1
-13,hlynharris@gmail.com,Hannah Harris ,1,1,1,0,1,1,1,1,1
-14,heather.steve21@gmail.com,Heather Stevenson,1,1,1,1,1,1,1,1,1
-15,ianholm9@gmail.com,Ian Kessler,1,1,1,1,1,1,1,1,1
-16,jake@glidewell.pro,Jake Baleat,1,0,1,1,1,1,1,1,1
-17,sometimesjames@gmail.com,James Parker ,1,1,1,1,1,1,1,1,1
-18,jtroester24@outlook.com,Jessie Troester ,0,1,0,0,0,1,0,1,0
-19,joshua.bartling@gmail.com,Josh Bartling,1,1,0,1,1,0,1,1,1
-20,kellycornell87@gmail.com,Kelly Cornell,0,0,0,0,0,0,0,0,0
-21,kennankrause15@gmail.com,Kennan Krause,1,1,1,0,0,1,0,1,0
-22,lil.lillikins@gmail.com,Lilly Ball,1,1,1,0,1,1,1,1,0
-23,lisaloumont@yahoo.com,Lisa Forsman,1,1,0,0,0,1,1,0,0
-24,maria.gesior@gmail.com,Maria Gesior,1,1,0,1,1,0,1,1,1
-25,essentiallymolli@gmail.com,Molli Weiner,1,0,1,1,0,0,1,1,1
-26,kinsey406@gmail.com,Rachel Kinsey,0,1,0,1,1,1,0,1,0
-27,shale4456@gmail.com,Sam Hale,1,1,1,1,1,1,1,1,1
-28,sjbhale@gmail.com,Sarah Hale,0,0,0,0,1,0,0,0,0
-29,sarahnitch@gmail.com,Sarah Nitzsche,1,1,0,0,0,1,1,1,1
-30,stephen.johnson3705@gmail.com,Stephen Johnson ,1,1,1,0,1,1,0,1,0
-31,saw96@aol.com,Steve Aubrecht,1,0,1,0,0,0,1,0,0
-32,taylorek126@gmail.com,Taylor Kennedy,0,1,1,1,1,0,1,1,1
-33,thl3141@gmail.com,Thomas Lipinski,1,1,1,1,1,1,1,1,1
-34,ttrouten@gmail.com,Tim Trouten,1,1,1,1,1,1,1,1,1
+1,andrewcilker@gmail.com,Andrew Cilker,1,1,1,1,0,0,1,1,1
+2,calebbaker.bt@icloud.com,Caleb Baker,1,1,1,1,1,1,1,1,1
+3,sungzhoo2@gmail.com,Chris Chung,1,0,0,0,0,1,1,0,1
+4,ciaraisaak42@gmail.com,Ciara Krause,1,1,1,1,1,1,0,1,1
+5,cleteseyle@yahoo.com,Clete Seyle,1,1,1,0,1,0,1,1,1
+6,dcflavin@gmail.com,Daniel Flavin,1,1,1,1,1,1,1,1,1
+7,dh3hearts@gmail.com,Doug Hicks,1,1,1,1,1,1,1,1,1
+8,eblom@augusta.edu,Emily Blom,1,1,1,1,1,1,1,1,1
+9,emilymcconnellwarren@gmail.com,Emily Warren,0,0,0,0,0,0,1,1,0
+10,emma.kankelborg@gmail.com,Emma Kankelborg,1,1,1,0,1,1,1,1,1
+11,erika.johnson@my.wheaton.edu,Erika Johnson,1,1,1,1,1,1,1,1,0
+12,bigeskelly@gmail.com,Ethan Skelton,1,1,0,0,0,1,1,1,1
+13,anderson.evanscott@gmail.com,Evan Anderson,1,1,1,1,1,1,1,1,1
+14,hlynharris@gmail.com,Hannah Harris,1,1,1,0,1,1,1,1,1
+15,heather.steve21@gmail.com,Heather Stevenson,1,1,1,1,1,1,1,1,1
+16,ianholm9@gmail.com,Ian Kessler,1,1,1,1,1,1,1,1,1
+17,jake@glidewell.pro,Jake Baleat,1,0,1,1,1,1,1,1,1
+18,sometimesjames@gmail.com,James Parker ,1,1,1,1,1,1,1,1,1
+19,jtroester24@outlook.com,Jessie Troester ,0,1,0,0,0,1,0,1,0
+20,joshua.bartling@gmail.com,Josh Bartling,1,1,0,1,1,0,1,1,1
+21,kellycornell87@gmail.com,Kelly Cornell,0,0,0,0,0,0,0,0,0
+22,kennankrause15@gmail.com,Kennan Krause,1,1,1,0,0,1,0,1,0
+23,lil.lillikins@gmail.com,Lilly Ball,1,1,1,0,1,1,1,1,0
+24,lisaloumont@yahoo.com,Lisa Forsman,1,1,0,0,0,1,1,0,0
+25,maria.gesior@gmail.com,Maria Gesior,1,1,0,1,1,0,1,1,1
+26,essentiallymolli@gmail.com,Molli Weiner,1,0,1,1,0,0,1,1,1
+27,kinsey406@gmail.com,Rachel Kinsey,0,1,0,1,1,1,0,1,0
+28,shale4456@gmail.com,Sam Hale,1,1,1,1,1,1,1,1,1
+29,sjbhale@gmail.com,Sarah Hale,0,0,0,0,1,0,0,0,0
+30,sarahnitch@gmail.com,Sarah Nitzsche,1,1,0,0,0,1,1,1,1
+31,stephen.johnson3705@gmail.com,Stephen Johnson ,1,1,1,0,1,1,0,1,0
+32,saw96@aol.com,Steve Aubrecht,1,0,1,0,0,0,1,0,0
+33,zunigatadeo@gmail.com,Tadeo Zuniga,1,1,1,1,0,1,1,1,1
+34,taylorek126@gmail.com,Taylor Kennedy,0,1,1,1,1,0,1,1,1
+35,thl3141@gmail.com,Thomas Lipinski,1,1,1,1,1,1,1,1,1
+36,ttrouten@gmail.com,Tim Trouten,1,1,1,1,1,1,1,1,1
