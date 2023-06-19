@@ -1,9 +1,11 @@
-,Name,Friday [11:00 AM],Friday [12:00 PM],Friday [1:00 PM],Friday [2:00 PM],Friday [3:00 PM],Friday [4:00 PM],Friday [5:00 PM],Saturday [11:00 AM],Saturday [12:00 PM],Saturday [1:00 PM],Saturday [2:00 PM],Saturday [3:00 PM],Saturday [4:00 PM],Saturday [5:00 PM],Sunday [11:00 AM],Sunday [12:00 PM],Sunday [1:00 PM],Sunday [2:00 PM],Sunday [3:00 PM],Sunday [4:00 PM],Sunday [5:00 PM]
-1,Caleb Baker,0,0,0,0,0,1,1,0,0,0,0,0,1,1,0,0,0,0,0,1,1
-7,Emily Warren,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,1,1,0
-8,Emma Kankelborg,1,1,1,0,0,0,0,1,1,1,1,1,1,1,0,0,0,1,1,0,0
-10,Ethan Skelton,0,0,0,0,1,1,1,0,0,0,0,0,0,0,1,1,1,0,0,0,0
-13,Heather Stevenson,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0
-18,Josh Bartling,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1
-21,Lilly Ball,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1
-7,Total,1,1,1,0,1,2,4,3,3,4,3,3,4,5,1,1,2,3,3,3,3
+,Email,Name,Friday [11:00 AM],Friday [12:00 PM],Friday [1:00 PM],Friday [2:00 PM],Friday [3:00 PM],Friday [4:00 PM],Friday [5:00 PM],Saturday [11:00 AM],Saturday [12:00 PM],Saturday [1:00 PM],Saturday [2:00 PM],Saturday [3:00 PM],Saturday [4:00 PM],Saturday [5:00 PM],Sunday [11:00 AM],Sunday [12:00 PM],Sunday [1:00 PM],Sunday [2:00 PM],Sunday [3:00 PM],Sunday [4:00 PM],Sunday [5:00 PM]
+0,calebbaker.bt@icloud.com,Caleb Baker,0,0,0,0,0,1,1,0,0,0,0,0,1,1,0,0,0,0,0,1,1
+1,emilymcconnellwarren@gmail.com,Emily Warren,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,1,1,0
+2,emma.kankelborg@gmail.com,Emma Kankelborg,1,1,1,0,0,0,0,1,1,1,1,1,1,1,0,0,0,1,1,0,0
+3,bigeskelly@gmail.com,Ethan Skelton,0,0,0,0,1,1,1,0,0,0,0,0,0,0,1,1,1,0,0,0,0
+4,heather.steve21@gmail.com,Heather Stevenson,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0
+5,joshua.bartling@gmail.com,Josh Bartling,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1
+6,lil.lillikins@gmail.com,Lilly Ball,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1
+7,zunigatadeo@gmail.com,Tadeo Zuniga,0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,1,1,1,1,1,0
+8,taylorek126@gmail.com,Taylor Kennedy,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,1,1,1
+9,,Total,1,1,1,0,1,2,4,3,4,5,4,5,6,6,1,2,3,4,5,5,4

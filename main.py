@@ -4,7 +4,6 @@ import os
 #==========My Classes===============================
 from General import General
 from GuestGame import GuestGame
-from Availability_General import Availability_General
 from Availability_Specific import Availability_Specific
 
 def GuestGames():
@@ -12,26 +11,19 @@ def GuestGames():
     GG.availability("Hannah Harris", "23.02")
 
 def availability():
-    df = pd.read_csv("\\".join([os.getcwd(), 'ABCD', "ABCD_availability.csv"]), index_col = 0)
-    Av = Availability_General()
-    Av.dayAvailability()
+    G = General()
     for i in [1, 2, 3]:
-        Av.gameAv(i)
-    for game in ["Codenames", "Catan"]:
-        Av.newbAv(game)
-
-def newb_availability():
-    df = pd.read_csv("\\".join([os.getcwd(), 'ABCD', "ABCD_availability.csv"]), index_col=0)
-    Av = Availability_General()
-    print(Av.newbAv("War of the Ring"))
+        G.gameAv(i)
+    for game in G.game_duration.keys():
+        G.newbAv(game)
 
 def game_availability():
     Av = Availability_Specific()
-    Av.availability(["Steve Aubrecht"], "23.06", 3)
+    Av.availability(["Stephen Johnson"], "23.07", 3)
 
 
 if __name__ == '__main__':
-    GuestGames()
+    availability()
     #General()
 
 

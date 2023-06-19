@@ -58,6 +58,7 @@ class GuestGame (Form):
                          make_active, multchoice_cols, multchoice_optset, multchoice_newoptset,
                          linscale_cols, text_cols, checkbox_cols, checkbox_optset, checkbox_newoptset, otherset,
                          checkboxgrid_cols, checkboxgrid_coloptset, checkboxgrid_rowoptset, mergeTuple)
+    #===================================================================================================================
 
     def availability(self, name, month):
         info_df = pd.read_csv("\\".join([os.getcwd(), self.name, "Keys.csv"]), index_col=0)

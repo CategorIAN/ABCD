@@ -1,7 +1,20 @@
 from Form import Form
+import os
+import pandas as pd
+from functools import reduce
 
 class General (Form):
     def __init__(self):
+        self.days = ["Friday", "Saturday", "Sunday"]
+        self.hours = ["11:00 AM", "12:00 PM", "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM", "6:00 PM"]
+        self.military_hours = lambda duration: ["11", "12", "13", "14", "15", "16", "17", "18"][:(9 - duration)]
+        self.day_hours = lambda duration, day: ["{} [{}]".format(day, hour) for hour in self.hours][:(9 - duration)]
+        self.newbs = {"Jaimi Boyd", "Tim Trouten", "Lilly Ball", "Chioma", "Andrew Cilker", "Alicia Clark",
+                      "Ethan Skelton", "Caleb Baker", "Jessie Troester", "Tadeo Zuniga", "Josh Bartling",
+                      "Patrick Flemming", "Lilly Kiefert", "Heather Stevenson", "Emma Kankelborg", "Taylor Kennedy",
+                      "Audrey Alvarado", "Katie Sparks", "Alex Davis", "Emily Davis", "Julio Figueroa", "Eric Wierda",
+                      "Emily Elias", "Rashad Bettis", "Emily Warren"}
+        self.game_duration = {"Codenames": 1, "Catan": 2}
         name = "General"
         col_mapping = {
             "Timestamp": "Timestamp",
@@ -72,14 +85,58 @@ class General (Form):
         checkbox_newoptset = [None, None, None, None, None, ["Long Game", "Tournament"]]
         otherset = [False, False, False, False, True, False]
         checkboxgrid_cols = ["Availability"]
-        checkboxgrid_coloptset = [["Friday", "Saturday", "Sunday"]]
-        checkboxgrid_rowoptset = [["11:00 AM", "12:00 PM", "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM", "6:00 PM"]]
+        checkboxgrid_coloptset = [self.days]
+        checkboxgrid_rowoptset = [self.hours]
         mergeTuple = None
         super().__init__(name, col_mapping, grid_col_mapping, set_features, keys,
                  make_active, multchoice_cols, multchoice_optset, multchoice_newoptset,
                  linscale_cols, text_cols, checkbox_cols, checkbox_optset, checkbox_newoptset, otherset,
                  checkboxgrid_cols, checkboxgrid_coloptset, checkboxgrid_rowoptset, mergeTuple)
+        #===============================================================================================================
+    def toMilitary(self, duration, day):
+        return dict([("Name", "Name")] + list(zip(self.day_hours(duration, day), self.military_hours(duration))))
 
+    def toStandard(self, duration, day):
+        return dict([("Name", "Name")] + list(zip(self.military_hours(duration), self.day_hours(duration, day))))
+
+    def gameDayAv(self, duration):
+        av = pd.read_csv("\\".join([os.getcwd(), "General", "Availability.csv"]), index_col=0)
+        def f(day):
+            day_df = av.loc[:, self.keys + self.day_hours(1, day)].rename(self.toMilitary(1, day), axis=1)
+            def person_av(hour):
+                hours = [str(h) for h in range(int(hour), int(hour) + duration)]
+                return day_df.index.map(lambda i: day_df.loc[i, hours].product())
+            start_hours = self.military_hours(duration)
+            gameDayAv_df = pd.DataFrame(dict([(key, day_df[key]) for key in self.keys] +
+                                             [(h, person_av(h)) for h in start_hours]))
+            gameDayAv_df.to_csv("\\".join([os.getcwd(), "General", "Availability", "{}_{}hrs.csv".format(day, duration)]))
+            return gameDayAv_df
+        return f
+
+    def gameAv(self, duration):
+        dayAv = self.gameDayAv(duration)
+        av = pd.read_csv("\\".join([os.getcwd(), "General", "Availability.csv"]), index_col=0)
+        def appendDf(df, day):
+            gameDayAv = dayAv(day).rename(self.toStandard(duration, day), axis=1)
+            return df.merge(right = gameDayAv, how = "inner", on = self.keys)
+        gameAv_df = reduce(appendDf, self.days, av[self.keys])
+        gameAv_df.to_csv("\\".join([os.getcwd(), "General", "Availability", "Availability_{}hrs.csv".format(duration)]))
+        return gameAv_df
+
+    def newbAv(self, game):
+        game_df = pd.read_csv("\\".join([os.getcwd(), "General", "Games.csv"]), index_col=0)
+        if game in self.game_duration:
+            av_df = pd.read_csv("\\".join([os.getcwd(), "General", "Availability",
+                                           "Availability_{}hrs.csv".format(self.game_duration[game])]), index_col=0)
+            names = set(game_df[game_df[game] == 1]["Name"]).intersection(self.newbs)
+        else:
+            raise ValueError("Not Appropriate Game")
+        df = game_df.merge(right = av_df, how = 'inner', on = self.keys)
+        df = df[df["Name"].isin(names)].loc[:, self.keys + list(av_df.columns[2:])]
+        total = dict([("Name", "Total")] + [(col, df[col].sum()) for col in av_df.columns[2:]])
+        df = pd.concat([df, pd.DataFrame(total, index=[df.shape[0]])]).reset_index(drop=True)
+        df.to_csv("\\".join([os.getcwd(), "General", "Availability", "NewbAv_{}.csv".format(game)]))
+        return df
 
 
 

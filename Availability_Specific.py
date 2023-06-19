@@ -13,7 +13,7 @@ class Availability_Specific:
         self.wk_hours = lambda wk: ["Weekend #{} [{}]".format(wk, h) for h in self.hours]
         self.day_hours = lambda duration, day: ["{} [{}]".format(day, hour) for hour in self.hours][:(9 - duration)]
 
-        df = pd.read_csv("\\".join([os.getcwd(), 'Raw Data', "GA_rawdata.csv"]))
+        df = pd.read_csv("\\".join([os.getcwd(), 'Raw Data', "GA.csv"]))
         df = df.rename(self.column_name_transform, axis=1)
         df = df.fillna("")
         df = self.removeDuplicates(df)
