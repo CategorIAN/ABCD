@@ -1,29 +1,25 @@
-#==========Python Packages==========================
-import pandas as pd
-import os
 #==========My Classes===============================
 from General import General
 from GuestGame import GuestGame
-from Availability_Specific import Availability_Specific
+from GameAvailability import GameAvailability
 
-def GuestGames():
+def availabilityGG():
     GG = GuestGame()
     GG.availability("Hannah Harris", "23.02")
 
-def availability():
+def availabilityGeneral():
     G = General()
     for i in [1, 2, 3]:
         G.gameAv(i)
     for game in G.game_duration.keys():
         G.newbAv(game)
 
-def game_availability():
-    Av = Availability_Specific()
-    Av.availability(["Stephen Johnson"], "23.07", 3)
+def availabilityGame():
+    Av = GameAvailability()
+    Av.availability({"Stephen Johnson"}, "23.07", 3)
 
 
 if __name__ == '__main__':
-    availability()
-    #General()
+    pass
 
 
