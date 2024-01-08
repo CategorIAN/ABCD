@@ -32,6 +32,7 @@ class GameAvailability (Form):
         }
         set_features = set()
         keys = ["Email", "Name"]
+        #keys = ["Email"]
         make_active = False
         multchoice_cols = []
         multchoice_optset = []
@@ -46,6 +47,7 @@ class GameAvailability (Form):
         checkboxgrid_coloptset = [self.days for i in self.weeks]
         checkboxgrid_rowoptset = [self.hours for i in self.weeks]
         mergeTuple = ("General", ["Email Address", "What is your name?"], "Email Address")
+        #mergeTuple = None
         super().__init__(name, col_mapping, grid_col_mapping, set_features, keys,
                          make_active, multchoice_cols, multchoice_optset, multchoice_newoptset,
                          linscale_cols, text_cols, checkbox_cols, checkbox_optset, checkbox_newoptset, otherset,

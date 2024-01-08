@@ -16,10 +16,10 @@ def availabilityGeneral():
 
 def availabilityGame():
     Av = GameAvailability()
-    Av.availability({"Stephen Johnson"}, "23.07", 3)
+    Av.availability({"Steve Aubrecht", "Tim Trouten"}, "24.01", 3)
 
 
 if __name__ == '__main__':
-    pass
+    availabilityGame()
 
 
