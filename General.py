@@ -9,11 +9,7 @@ class General (Form):
         self.hours = ["11:00 AM", "12:00 PM", "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM", "6:00 PM"]
         self.military_hours = lambda duration: ["11", "12", "13", "14", "15", "16", "17", "18"][:(9 - duration)]
         self.day_hours = lambda duration, day: ["{} [{}]".format(day, hour) for hour in self.hours][:(9 - duration)]
-        self.newbs = {"Jaimi Boyd", "Tim Trouten", "Lilly Ball", "Chioma", "Andrew Cilker", "Alicia Clark",
-                      "Ethan Skelton", "Caleb Baker", "Jessie Troester", "Tadeo Zuniga", "Josh Bartling",
-                      "Patrick Flemming", "Lilly Kiefert", "Heather Stevenson", "Emma Kankelborg", "Taylor Kennedy",
-                      "Audrey Alvarado", "Katie Sparks", "Alex Davis", "Emily Davis", "Julio Figueroa", "Eric Wierda",
-                      "Emily Elias", "Rashad Bettis", "Emily Warren"}
+
         self.game_duration = {"Codenames": 1, "Catan": 2}
         name = "General"
         col_mapping = {
@@ -124,6 +120,7 @@ class General (Form):
         return gameAv_df
 
     def newbAv(self, game):
+        print(self.newbs)
         game_df = pd.read_csv("\\".join([os.getcwd(), "General", "Games.csv"]), index_col=0)
         if game in self.game_duration:
             av_df = pd.read_csv("\\".join([os.getcwd(), "General", "Availability",
@@ -137,6 +134,31 @@ class General (Form):
         df = pd.concat([df, pd.DataFrame(total, index=[df.shape[0]])]).reset_index(drop=True)
         df.to_csv("\\".join([os.getcwd(), "General", "Availability", "NewbAv_{}.csv".format(game)]))
         return df
+
+    newbs = {
+        "Alicia Clark",
+        "Amber",
+        "Andrew Cilker",
+        "Ben Vogel",
+        "Bryce Morrow",
+        "Caleb Baker",
+        "Dan Ray",
+        "Daniel Miller",
+        "Emily Warren",
+        "Ethan Skelton",
+        "Heather Koyuk",
+        "Helen Paris",
+        "Jared May",
+        "Jazzy",
+        "Jessie Troester",
+        "Josh Bartling",
+        "Leeza Burkland",
+        "Lilly Ball",
+        "Natasha Gesker",
+        "Nolan Jenko",
+        "Tadeo Zuniga",
+        "Valerie Livingston"
+    }
 
 
 

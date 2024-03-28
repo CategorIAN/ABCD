@@ -20,6 +20,6 @@ def availabilityGame():
 
 
 if __name__ == '__main__':
-    pass
+    availabilityGeneral()
 
 

@@ -11,13 +11,10 @@ class Form:
                  linscale_cols, text_cols, checkbox_cols, checkbox_optset, checkbox_newoptset, otherset,
                  checkboxgrid_cols, checkboxgrid_coloptset, checkboxgrid_rowoptset, mergeTuple):
         df = pd.read_csv("\\".join([os.getcwd(), 'Raw Data', "{}.csv".format(name)]))
-        df.to_csv("test1.csv")
         if mergeTuple is not None:
             mergeName, mergeCols, mergeKey = mergeTuple
             mergeDF = pd.read_csv("\\".join([os.getcwd(), "Raw Data", "{}.csv".format(mergeName)]))
-            mergeDF.to_csv("test2.csv")
             df = mergeDF[mergeCols].merge(right=df, how='inner', on=mergeKey)
-            df.to_csv("test3.csv")
         df = df.rename(self.column_name_transform(col_mapping, grid_col_mapping), axis=1)
         df = df.fillna("")
         df = self.df_map(set_features)(self.toSet, df)
