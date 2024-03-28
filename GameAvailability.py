@@ -9,7 +9,7 @@ class GameAvailability (Form):
         self.hours = ["11:00 AM", "12:00 PM", "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM", "6:00 PM"]
         self.military_hours = lambda duration: ["11", "12", "13", "14", "15", "16", "17", "18"][:(9 - duration)]
         self.day_hours = lambda duration, day: ["{} [{}]".format(day, hour) for hour in self.hours][:(9 - duration)]
-        self.weeks = list(range(1, 5))
+        self.weeks = list(range(0+1, 4+1))
 
 
         name = "GameAvailability"
@@ -18,7 +18,6 @@ class GameAvailability (Form):
             # ===========================
             "Email Address": "Email",
             # ===========================
-            "What is your name?": "Name"
         }
         grid_col_mapping = {
             "What times and dates are you available to play the game? (Weekend #1 of the Month)": (
@@ -31,8 +30,8 @@ class GameAvailability (Form):
                 "Weekend #4", lambda row: row.partition(' to')[0])
         }
         set_features = set()
-        keys = ["Email", "Name"]
-        #keys = ["Email"]
+        #keys = ["Email", "Name"]
+        keys = ["Email"]
         make_active = False
         multchoice_cols = []
         multchoice_optset = []
@@ -46,8 +45,8 @@ class GameAvailability (Form):
         checkboxgrid_cols = ["Weekend #{}".format(i) for i in self.weeks]
         checkboxgrid_coloptset = [self.days for i in self.weeks]
         checkboxgrid_rowoptset = [self.hours for i in self.weeks]
-        mergeTuple = ("General", ["Email Address", "What is your name?"], "Email Address")
-        #mergeTuple = None
+        #mergeTuple = ("General", ["Email Address", "What is your name?"], "Email Address")
+        mergeTuple = None
         super().__init__(name, col_mapping, grid_col_mapping, set_features, keys,
                          make_active, multchoice_cols, multchoice_optset, multchoice_newoptset,
                          linscale_cols, text_cols, checkbox_cols, checkbox_optset, checkbox_newoptset, otherset,
@@ -65,11 +64,9 @@ class GameAvailability (Form):
             return df.index.map(lambda i: df.loc[i, hours].product())
         return f
 
-    def availability(self, names, month, duration):
-        index = self.df.loc[lambda df: df["Name"].isin(names)].index
+    def availability(self, month, duration):
         for wk in self.weeks:
             wk_df_grid = pd.read_csv("\\".join([os.getcwd(), self.name, "Weekend #{}.csv".format(wk)]), index_col=0)
-            wk_df_grid = wk_df_grid.loc[index, :]
 
             def appendDf(df, day):
                 day_df = wk_df_grid.loc[:, self.keys + self.day_hours(1, day)].rename(self.toMilitary(1, day), axis=1)

@@ -21,7 +21,7 @@ class Form:
         df = df.rename(self.column_name_transform(col_mapping, grid_col_mapping), axis=1)
         df = df.fillna("")
         df = self.df_map(set_features)(self.toSet, df)
-        df = self.removeDuplicates(df)
+        #df = self.removeDuplicates(df)
         self.df = df
         self.keys = keys
         self.name = name

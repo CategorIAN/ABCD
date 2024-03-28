@@ -20,6 +20,7 @@ def availabilityGame():
 
 
 if __name__ == '__main__':
-    availabilityGame()
+    Av = GameAvailability()
+
 
 
