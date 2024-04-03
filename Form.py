@@ -9,14 +9,8 @@ class Form:
     def __init__(self, name, q_map, r_map, set_features, keys,
                  make_active, multchoice_cols, multchoice_optset, multchoice_newoptset,
                  linscale_cols, text_cols, checkbox_cols, checkbox_optset, checkbox_newoptset, otherset,
-                 checkboxgrid_cols, checkboxgrid_coloptset, checkboxgrid_rowoptset):
+                 checkboxgrid_dict):
         df = pd.read_csv("\\".join([os.getcwd(), 'Raw Data', "{}.csv".format(name)]))
-        """
-        if mergeTuple is not None:
-            mergeName, mergeCols, mergeKey = mergeTuple
-            mergeDF = pd.read_csv("\\".join([os.getcwd(), "Raw Data", "{}.csv".format(mergeName)]))
-            df = mergeDF[mergeCols].merge(right=df, how='inner', on=mergeKey)
-        """
         df = df.rename(self.prod_func(q_map, r_map), axis=1)
         df = df.fillna("")
         df = self.df_map(set_features)(self.toSet, df)
@@ -46,7 +40,8 @@ class Form:
         for (col, options, transformed, other) in zip(checkbox_cols, checkbox_optset, checkbox_newoptset, otherset):
             self.checkbox(col, options, transformed, other, active)
         # ==========================================================================================================
-        for (col, col_opts, row_opts) in zip(checkboxgrid_cols, checkboxgrid_coloptset, checkboxgrid_rowoptset):
+        for (col, opts) in checkboxgrid_dict.items():
+            col_opts, row_opts = opts
             self.checkbox_grid(col, col_opts, row_opts, active=active)
 
     def save(self, df, file):
@@ -89,20 +84,7 @@ class Form:
             else:
                 return "{} [{}]".format(q_func(question), r_func(row.strip("]")))
         return f
-    """
-    def column_name_transform(self, col_mapping=None, grid_col_mapping=None):
-        def f(column):
-            if col_mapping is None:
-                return column
-            else:
-                if column in col_mapping:
-                    return col_mapping[column]
-                else:
-                    question, _, row = column.partition(" [")
-                    new_column, row_func = grid_col_mapping[question]
-                    return "{} [{}]".format(new_column, row_func(row.strip("]")))
-        return f
-    """
+
     def filtered(self, column, options, target_index = None):
         target_index = 0 if target_index is None else target_index
         return self.df[self.df[column] == options[target_index]].reset_index(drop=True)

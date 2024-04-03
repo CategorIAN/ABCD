@@ -16,10 +16,11 @@ def availabilityGeneral():
 
 def availabilityGame():
     Av = GameAvailability()
-    Av.availability({"Elizabeth Andreas"}, "24.04", 3)
+    Av.availability("24.04", 3)
 
 
 if __name__ == '__main__':
     availabilityGame()
+
 
 

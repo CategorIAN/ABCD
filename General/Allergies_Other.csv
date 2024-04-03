@@ -1,10 +1,14 @@
 ,Email,Name,Allergies
 0,alicia933@gmail.com,Alicia Clark,Tree Nuts
+<<<<<<< HEAD
 1,andrewcilker@gmail.com,Andrew Cilker,"Animal-Based Oil, Soy Oil, Vegetable Oil, Canola Oil, Rapeseed Oil"
+=======
+1,andrewcilker@gmail.com,Andrew Cilker,"Vegetable Oil, Rapeseed Oil, Animal-Based Oil, Canola Oil, Soy Oil"
+>>>>>>> 61b73f6a5b6e38b2d97b6ab5595cd954ab0460b9
 2,R_PRINCESS_MT@AOL.COM,Cassandra Glidden,"Pumpkin Seeds, Pineapple"
 3,emilymcconnellwarren@gmail.com,Emily Warren,"Avocado, Bananas"
 4,fatimaododo@gmail.com,Fatima Ododo,Pork
 5,matricialyn@yahoo.com,Jeff Johnson ,High Fructose Corn Syrup
 6,jtroester24@outlook.com,Jessie Troester,Potatoes
 7,docbartley@gmail.com,Meridith Bartley,Meat
-8,kinsey406@gmail.com,Rachel Kinsey,"Walnuts, Pecans"
+8,kinsey406@gmail.com,Rachel Kinsey,"Pecans, Walnuts"
