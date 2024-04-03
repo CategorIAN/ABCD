@@ -3,10 +3,11 @@ import pandas as pd
 import os
 from functools import reduce
 
-class GameAvailability (Form):
+class GameAvailability2 (Form):
     def __init__(self):
         self.days = ["Friday", "Saturday", "Sunday"]
         self.hours = ["11:00 AM", "12:00 PM", "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM", "6:00 PM"]
+        self.nextHour = self.nextMap(self.hours)
         self.military_hours = lambda duration: ["11", "12", "13", "14", "15", "16", "17", "18"][:(9 - duration)]
         self.day_hours = lambda duration, day: ["{} [{}]".format(day, hour) for hour in self.hours][:(9 - duration)]
         self.weeks = list(range(1, 5))
@@ -51,7 +52,16 @@ class GameAvailability (Form):
         super().__init__(name, col_mapping, grid_col_mapping, set_features, keys,
                          make_active, multchoice_cols, multchoice_optset, multchoice_newoptset,
                          linscale_cols, text_cols, checkbox_cols, checkbox_optset, checkbox_newoptset, otherset,
-                         checkboxgrid_cols, checkboxgrid_coloptset, checkboxgrid_rowoptset, mergeTuple)
+                         checkboxgrid_cols, checkboxgrid_coloptset, checkboxgrid_rowoptset)
+
+    def nextMap(self, times):
+        def go(map, current, remaining):
+            if len(remaining) == 0:
+                return map
+            else:
+                next = remaining[0]
+                return go(map | {current: next}, next, remaining[1:])
+        return go({}, times[0], times[1:]) if len(times) > 0 else {}
 
     def toMilitary(self, duration, day):
         return dict(list(zip(self.day_hours(duration, day), self.military_hours(duration))))

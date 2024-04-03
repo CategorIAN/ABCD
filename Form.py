@@ -6,16 +6,18 @@ from functools import reduce
 from itertools import product
 
 class Form:
-    def __init__(self, name, col_mapping, grid_col_mapping, set_features, keys,
+    def __init__(self, name, q_map, r_map, set_features, keys,
                  make_active, multchoice_cols, multchoice_optset, multchoice_newoptset,
                  linscale_cols, text_cols, checkbox_cols, checkbox_optset, checkbox_newoptset, otherset,
-                 checkboxgrid_cols, checkboxgrid_coloptset, checkboxgrid_rowoptset, mergeTuple):
+                 checkboxgrid_cols, checkboxgrid_coloptset, checkboxgrid_rowoptset):
         df = pd.read_csv("\\".join([os.getcwd(), 'Raw Data', "{}.csv".format(name)]))
+        """
         if mergeTuple is not None:
             mergeName, mergeCols, mergeKey = mergeTuple
             mergeDF = pd.read_csv("\\".join([os.getcwd(), "Raw Data", "{}.csv".format(mergeName)]))
             df = mergeDF[mergeCols].merge(right=df, how='inner', on=mergeKey)
-        df = df.rename(self.column_name_transform(col_mapping, grid_col_mapping), axis=1)
+        """
+        df = df.rename(self.prod_func(q_map, r_map), axis=1)
         df = df.fillna("")
         df = self.df_map(set_features)(self.toSet, df)
         df = self.removeDuplicates(df)
@@ -59,7 +61,6 @@ class Form:
             else:
                 emails.add(e)
         df = df.drop(['Timestamp'], axis=1)
-        df = df.sort_values(by='Name')
         df.reset_index(drop=True, inplace=True)
         return df
 
@@ -80,6 +81,15 @@ class Form:
             return pd.DataFrame(reduce(transformColumn, features, df.to_dict('series')))
         return f
 
+    def prod_func(self, q_func, r_func):
+        def f(column):
+            question, _, row = column.partition(" [")
+            if len(row) == 0:
+                return q_func(question)
+            else:
+                return "{} [{}]".format(q_func(question), r_func(row.strip("]")))
+        return f
+    """
     def column_name_transform(self, col_mapping=None, grid_col_mapping=None):
         def f(column):
             if col_mapping is None:
@@ -92,7 +102,7 @@ class Form:
                     new_column, row_func = grid_col_mapping[question]
                     return "{} [{}]".format(new_column, row_func(row.strip("]")))
         return f
-
+    """
     def filtered(self, column, options, target_index = None):
         target_index = 0 if target_index is None else target_index
         return self.df[self.df[column] == options[target_index]].reset_index(drop=True)
