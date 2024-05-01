@@ -12,43 +12,7 @@ class General (Form):
 
         self.game_duration = {"Codenames": 1, "Catan": 2}
         name = "General"
-        col_mapping = {
-            "Timestamp": "Timestamp",
-            # ===========================
-            "Email Address": "Email",
-            # ===========================
-            "What is your name?": "Name",
-            # ===========================
-            "You are currently in my tabletop gaming group. What would you like your status to be? " \
-            "(If you pick the second or third option, you may skip the rest of the questions in this survey.)": "Status",
-            # ===========================
-            "Every invite you receive for a game event brings you down the queue, making you less likely to be invited " \
-            "to the next game event. Therefore, it is important I know what games you are interested in playing. " \
-            "Which of my games are you interested in playing?": "Games",
-            # ===========================
-            "What types of games do you enjoy playing?": "Game_Types",
-            # ===========================
-            "What is the maximum number of hours you are willing to play a game in one sitting?": "Max_Hours",
-            # ===========================
-            "Would you be willing to a game commitment over multiple days?": "Commitment",
-            # ===========================
-            "Are there games that you own and know how to play that you would enjoy bringing the game for game events? " \
-            "If so, which games would you enjoy bringing? (You would be responsible for bringing the game and explaining " \
-            "the rules.)": "Guest_Games",
-            # ===========================
-            "Which of my signature meals would you be willing to eat at events?": 'Meals',
-            # ===========================
-            "What are your food allergies?": "Allergies",
-            # ===========================
-            "What food and/or drinks would you be willing to bring to a gaming event?": "Guest_Food",
-            # ===========================
-            "It is efficient to communicate using a group communication platform for invitations and coordination " \
-            "of details for events. Which of these group communication platforms would you be willing to use?": "Platforms"
-        }
-        grid_col_mapping = {
-            "What times are you possibly available to play games?": (
-            "Availability", lambda row: row.partition(' to')[0])
-        }
+
         set_features = {'Games', 'Game_Types', 'Meals', 'Allergies', 'Platforms'}
         keys = ["Email", "Name"]
         make_active = True
@@ -80,14 +44,12 @@ class General (Form):
         ]
         checkbox_newoptset = [None, None, None, None, None, ["Long Game", "Tournament"]]
         otherset = [False, False, False, False, True, False]
-        checkboxgrid_cols = ["Availability"]
-        checkboxgrid_coloptset = [self.days]
-        checkboxgrid_rowoptset = [self.hours]
-        mergeTuple = None
-        super().__init__(name, col_mapping, grid_col_mapping, set_features, keys,
+
+        checkboxgrid_dict = {"Availability": (self.days, self.hours)}
+        super().__init__(name, self.q_map(), self.r_map(), set_features, keys,
                  make_active, multchoice_cols, multchoice_optset, multchoice_newoptset,
                  linscale_cols, text_cols, checkbox_cols, checkbox_optset, checkbox_newoptset, otherset,
-                 checkboxgrid_cols, checkboxgrid_coloptset, checkboxgrid_rowoptset, mergeTuple)
+                         checkboxgrid_dict)
 
     def toMilitary(self, duration, day):
         return dict([("Name", "Name")] + list(zip(self.day_hours(duration, day), self.military_hours(duration))))
@@ -159,6 +121,46 @@ class General (Form):
         "Tadeo Zuniga",
         "Valerie Livingston"
     }
+
+    def q_map(self):
+        col_mapping = {
+            "Timestamp": "Timestamp",
+            # ===========================
+            "Email Address": "Email",
+            # ===========================
+            "What is your name?": "Name",
+            # ===========================
+            "You are currently in my tabletop gaming group. What would you like your status to be? " \
+            "(If you pick the second or third option, you may skip the rest of the questions in this survey.)": "Status",
+            # ===========================
+            "Every invite you receive for a game event brings you down the queue, making you less likely to be invited " \
+            "to the next game event. Therefore, it is important I know what games you are interested in playing. " \
+            "Which of my games are you interested in playing?": "Games",
+            # ===========================
+            "What types of games do you enjoy playing?": "Game_Types",
+            # ===========================
+            "What is the maximum number of hours you are willing to play a game in one sitting?": "Max_Hours",
+            # ===========================
+            "Would you be willing to a game commitment over multiple days?": "Commitment",
+            # ===========================
+            "Are there games that you own and know how to play that you would enjoy bringing the game for game events? " \
+            "If so, which games would you enjoy bringing? (You would be responsible for bringing the game and explaining " \
+            "the rules.)": "Guest_Games",
+            # ===========================
+            "Which of my signature meals would you be willing to eat at events?": 'Meals',
+            # ===========================
+            "What are your food allergies?": "Allergies",
+            # ===========================
+            "What food and/or drinks would you be willing to bring to a gaming event?": "Guest_Food",
+            # ===========================
+            "It is efficient to communicate using a group communication platform for invitations and coordination " \
+            "of details for events. Which of these group communication platforms would you be willing to use?": "Platforms",
+            "What times are you possibly available to play games?": "Availability"
+        }
+        return lambda q: col_mapping.get(q, q)
+
+    def r_map(self):
+        return lambda r: r.partition(' to')[0]
 
 
 

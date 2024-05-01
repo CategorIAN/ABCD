@@ -25,7 +25,7 @@ def availabilityMeeting():
 
 
 if __name__ == '__main__':
-    availabilityMeeting()
+    General()
 
 
 
