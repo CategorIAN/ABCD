@@ -7,7 +7,7 @@ from itertools import product
 
 class Form:
     def __init__(self, name, q_map, r_map, set_features, keys,
-                 make_active, multchoice_cols, multchoice_optset, multchoice_newoptset,
+                 active_pair, mult_choice_dict,
                  linscale_cols, text_cols, checkbox_cols, checkbox_optset, checkbox_newoptset, otherset,
                  checkboxgrid_dict):
         df = pd.read_csv("\\".join([os.getcwd(), 'Raw Data', "{}.csv".format(name)]))
@@ -21,28 +21,21 @@ class Form:
         #==========================================================================================================
         self.key_df()
         #==========================================================================================================
-        if make_active:
-            self.mult_choice(multchoice_cols[0], multchoice_optset[0], multchoice_newoptset[0])
-            active = self.filtered(multchoice_cols[0], multchoice_optset[0])
-            mult_choice_tuples = zip(multchoice_cols[1:], multchoice_optset[1:], multchoice_newoptset[1:])
-        else:
-            active = None
-            mult_choice_tuples = zip(multchoice_cols, multchoice_optset, multchoice_newoptset)
-        for (col, options, transformed) in mult_choice_tuples:
-            self.mult_choice(col, options, transformed, active)
-        #==========================================================================================================
-        for col in linscale_cols:
-            self.linear_scale(col, active)
-        #==========================================================================================================
-        for col in text_cols:
-            self.text_ans(col, active)
-        # ==========================================================================================================
+        self.active_pair = active_pair
+        self.active_df = self.getActive_df()
+        '''
         for (col, options, transformed, other) in zip(checkbox_cols, checkbox_optset, checkbox_newoptset, otherset):
             self.checkbox(col, options, transformed, other, active)
         # ==========================================================================================================
         for (col, opts) in checkboxgrid_dict.items():
             col_opts, row_opts = opts
             self.checkbox_grid(col, col_opts, row_opts, active=active)
+        # ==========================================================================================================
+        '''
+        # ==========================================================================================================
+        self.mult_choice(mult_choice_dict)
+        self.linear_scale(linscale_cols)
+        self.text_ans(text_cols)
 
     def save(self, df, file):
         df.to_csv("\\".join([os.getcwd(), self.name, "{}.csv".format(file)]))
@@ -85,6 +78,17 @@ class Form:
                 return "{} [{}]".format(q_func(question), r_func(row.strip("]")))
         return f
 
+    def getActive_df(self):
+        if self.active_pair is None:
+            return self.df
+        else:
+            column, active_option = self.active_pair
+            return self.df[self.df[column] == active_option].reset_index(drop=True)
+
+    def concatKeys(self, df, full = False):
+        key_df = self.df.loc[:, self.keys] if full else self.active_df.loc[:, self.keys]
+        return pd.concat([key_df, df], axis=1)
+
     def filtered(self, column, options, target_index = None):
         target_index = 0 if target_index is None else target_index
         return self.df[self.df[column] == options[target_index]].reset_index(drop=True)
@@ -94,28 +98,29 @@ class Form:
         df = df.sort_values(by=self.keys).reset_index(drop=True)
         self.save(df, "Keys")
 
-    def mult_choice(self, column, options, transformed = None, active = None, file = None):
-        active = self.df if active is None else active
-        file = column if file is None else file
-        g = dict(list(zip(options, options))) if transformed is None else dict(list(zip(options, transformed)))
-        x = (column, active[column].map(g))
-        df = pd.DataFrame(dict([(key, active[key]) for key in self.keys] + [x]))
-        df = df.sort_values(by=[column]).reset_index(drop=True)
-        self.save(df, file)
+    def mult_choice(self, dict):
+        def toCSV(col):
+            source_df, full = (self.df, True) if col == self.active_pair[0] else (self.active_df, False)
+            transform_dict = dict[col]
+            new_values = source_df[col].map(lambda v: transform_dict.get(v, v))
+            df = self.concatKeys(pd.DataFrame({col: new_values}), full).sort_values(by=[col]).reset_index(drop=True)
+            self.save(df, col)
+        [toCSV(col) for col in dict.keys()]
 
-    def linear_scale(self, column, active = None, file = None):
-        active = self.df if active is None else active
-        file = column if file is None else file
-        x = (column, active[column].map(lambda x: np.nan if x == "" else x))
-        df = pd.DataFrame(dict([(key, active[key]) for key in self.keys] + [x]))
-        df = df.sort_values(by=[column]).reset_index(drop=True)
-        self.save(df, file)
+    def linear_scale(self, cols):
+        def toCSV(col):
+            new_values = self.active_df[col].map(lambda x: np.nan if x == "" else x)
+            df = self.concatKeys(pd.DataFrame({col: new_values})).sort_values(by=[col]).reset_index(drop=True)
+            self.save(df, col)
+        [toCSV(col) for col in cols]
 
-    def text_ans(self, column, active = None, file = None):
-        active = self.df if active is None else active
-        file = column if file is None else file
-        df = active[self.keys + [column]]
-        self.save(df[df[column].map(lambda x: len(x) > 0)].reset_index(drop=True), file)
+    def text_ans(self, cols):
+        def toCSV(col):
+            new_values = self.active_df[col]
+            df = self.concatKeys(pd.DataFrame({col: new_values})).sort_values(by=[col])
+            df = df[df[col].map(lambda x: len(x) > 0)].reset_index(drop=True)
+            self.save(df, col)
+        [toCSV(col) for col in cols]
 
     def checkbox(self, column, options, transformed = None, other_opt = False, active = None, file = None):
         active = self.df if active is None else active

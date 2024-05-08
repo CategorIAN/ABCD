@@ -15,18 +15,7 @@ class General (Form):
 
         set_features = {'Games', 'Game_Types', 'Meals', 'Allergies', 'Platforms'}
         keys = ["Email", "Name"]
-        make_active = True
-        multchoice_cols = ["Status"]
-        multchoice_optset = [
-            [
-                '"I would like to be active in your group." (You will be invited to game events.)',
-                '"I am not available to participate in games for this season." (You will not be invited to game ' \
-                'events, but you will be asked to update this survey at least once a year.)',
-                '"I would like to be taken off of this gaming list." (You can ask to be put back on this list ' \
-                'whenever you want.)'
-            ]
-        ]
-        multchoice_newoptset = [['Active', 'Not_Now', 'Please_Remove']]
+
         linscale_cols = ["Max_Hours"]
         text_cols = ['Guest_Games', 'Guest_Food']
         checkbox_cols = ["Games", "Game_Types", "Meals", "Platforms", "Allergies", "Commitment"]
@@ -44,10 +33,19 @@ class General (Form):
         ]
         checkbox_newoptset = [None, None, None, None, None, ["Long Game", "Tournament"]]
         otherset = [False, False, False, False, True, False]
+        active_pair = ("Status", '"I would like to be active in your group." (You will be invited to game events.)')
+        mult_choice_dict = \
+            {"Status":
+                {'"I would like to be active in your group." (You will be invited to game events.)': 'Active',
+                '"I am not available to participate in games for this season." (You will not be invited to game ' \
+                'events, but you will be asked to update this survey at least once a year.)': 'Not_Now',
+             '"I would like to be taken off of this gaming list." (You can ask to be put back on this list ' \
+             'whenever you want.)': 'Please_Remove'}
+             }
 
         checkboxgrid_dict = {"Availability": (self.days, self.hours)}
         super().__init__(name, self.q_map(), self.r_map(), set_features, keys,
-                 make_active, multchoice_cols, multchoice_optset, multchoice_newoptset,
+                 active_pair, mult_choice_dict,
                  linscale_cols, text_cols, checkbox_cols, checkbox_optset, checkbox_newoptset, otherset,
                          checkboxgrid_dict)
 
