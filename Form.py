@@ -6,37 +6,17 @@ from functools import reduce
 from itertools import product
 
 class Form:
-    def __init__(self, name, q_map, r_map, set_features, keys,
-                 active_pair, mult_choice_dict,
-                 linscale_cols, text_cols, checkbox_dict, otherset,
-                 checkboxgrid_dict):
-        df = pd.read_csv("\\".join([os.getcwd(), 'Raw Data', "{}.csv".format(name)]))
-        df = df.rename(self.prod_func(q_map, r_map), axis=1)
-        df = df.fillna("")
-        df = self.df_map(set_features)(self.toSet, df)
-        df = self.removeDuplicates(df)
-        self.df = df
-        self.keys = keys
-        self.name = name
-        #==========================================================================================================
-        self.key_df()
-        #==========================================================================================================
-        self.active_pair = active_pair
+    def __init__(self, name, set_features, keys, active_pair, mult_choice, linscale, text, checkbox, checkboxgrid):
+        self.df = self.createDF(name, set_features)
+        self.name, self.keys, self.active_pair = name, keys, active_pair
+        self.csvs = self.getCSVnames(mult_choice, linscale, text, checkbox, checkboxgrid)
         self.active_df = self.getActive_df()
-        '''
-        for (col, options, transformed, other) in zip(checkbox_cols, checkbox_optset, checkbox_newoptset, otherset):
-            self.checkbox(col, options, transformed, other, active)
-        # ==========================================================================================================
-        for (col, opts) in checkboxgrid_dict.items():
-            col_opts, row_opts = opts
-            self.checkbox_grid(col, col_opts, row_opts, active=active)
-        # ==========================================================================================================
-        '''
-        # ==========================================================================================================
-        self.mult_choice(mult_choice_dict)
-        self.linear_scale(linscale_cols)
-        self.text_ans(text_cols)
-        self.checkbox_2(checkbox_dict)
+        self.key_df()
+        self.mult_choice_dfs(mult_choice)
+        self.linear_scale_dfs(linscale)
+        self.text_ans_dfs(text)
+        self.checkbox_dfs(checkbox)
+        self.checkbox_grid_dfs(checkboxgrid)
 
     def save(self, df, file):
         df.to_csv("\\".join([os.getcwd(), self.name, "{}.csv".format(file)]))
@@ -54,30 +34,41 @@ class Form:
         return df
 
     def toSet(self, x):
-        def appendSet(s, y):
-            return s | {y} if len(y) > 0 and y != "set()" else s
+        appendSet = lambda s, y: s | {y} if len(y) > 0 and y != "set()" else s
         return reduce(appendSet, [y.strip(" {}'") for y in x.split(",")], set())
 
     def toString(self, x):
-        def appendString(s, y):
-            return s + y + ", "
+        appendString = lambda s, y: s + y + ", "
         return reduce(appendString, x, "").strip(", ")
 
     def df_map(self, features):
         def f(my_func, df):
-            def transformColumn(df_dict, column):
-                return df_dict | {column: [my_func(x) for x in df_dict[column]]}
+            transformColumn = lambda df_dict, column: df_dict | {column: [my_func(x) for x in df_dict[column]]}
             return pd.DataFrame(reduce(transformColumn, features, df.to_dict('series')))
         return f
 
-    def prod_func(self, q_func, r_func):
+    def q_map(self, q):
+        pass
+
+    def r_map(self, r):
+        pass
+
+    def prod_func(self):
         def f(column):
             question, _, row = column.partition(" [")
             if len(row) == 0:
-                return q_func(question)
+                return self.q_map(question)
             else:
-                return "{} [{}]".format(q_func(question), r_func(row.strip("]")))
+                return "{} [{}]".format(self.q_map(question), self.r_map(row.strip("]")))
         return f
+
+    def createDF(self, name, set_features):
+        df = pd.read_csv("\\".join([os.getcwd(), 'Raw Data', "{}.csv".format(name)]))
+        df = df.rename(self.prod_func(), axis=1)
+        df = df.fillna("")
+        df = self.df_map(set_features)(self.toSet, df)
+        df = self.removeDuplicates(df)
+        return df
 
     def getActive_df(self):
         if self.active_pair is None:
@@ -86,34 +77,31 @@ class Form:
             column, active_option = self.active_pair
             return self.df[self.df[column] == active_option].reset_index(drop=True)
 
+    def key_df(self):
+        self.save(self.df.loc[:, self.keys].sort_values(by=self.keys).reset_index(drop=True), "Keys")
+
     def concatKeys(self, df, full = False):
         key_df = self.df.loc[:, self.keys] if full else self.active_df.loc[:, self.keys]
         return pd.concat([key_df, df], axis=1)
 
-    def filtered(self, column, options, target_index = None):
-        target_index = 0 if target_index is None else target_index
-        return self.df[self.df[column] == options[target_index]].reset_index(drop=True)
-
-    def key_df(self):
-        self.save(self.df.loc[:, self.keys].sort_values(by=self.keys).reset_index(drop=True), "Keys")
-
-    def mult_choice(self, my_dict):
+    def mult_choice_dfs(self, my_dict):
         def toCSV(col):
-            source_df, full = (self.df, True) if col == self.active_pair[0] else (self.active_df, False)
+            f = lambda pair: (self.df, True) if pair is not None and col == pair[0] else (self.active_df, False)
+            source_df, full = f(self.active_pair)
             transform_dict = my_dict[col]
             new_values = source_df[col].map(lambda v: transform_dict.get(v, v))
             df = self.concatKeys(pd.DataFrame({col: new_values}), full).sort_values(by=[col]).reset_index(drop=True)
             self.save(df, col)
         [toCSV(col) for col in my_dict.keys()]
 
-    def linear_scale(self, cols):
+    def linear_scale_dfs(self, cols):
         def toCSV(col):
             new_values = self.active_df[col].map(lambda x: np.nan if x == "" else x)
             df = self.concatKeys(pd.DataFrame({col: new_values})).sort_values(by=[col]).reset_index(drop=True)
             self.save(df, col)
         [toCSV(col) for col in cols]
 
-    def text_ans(self, cols):
+    def text_ans_dfs(self, cols):
         def toCSV(col):
             new_values = self.active_df[col]
             df = self.concatKeys(pd.DataFrame({col: new_values})).sort_values(by=[col])
@@ -121,40 +109,59 @@ class Form:
             self.save(df, col)
         [toCSV(col) for col in cols]
 
-    def checkbox(self, column, options, transformed = None, other_opt = False, active = None, file = None):
-        active = self.df if active is None else active
-        file = column if file is None else file
-        g = dict(list(zip(options, options))) if transformed is None else dict(list(zip(options, transformed)))
-        x = pd.Series(options).map(lambda opt: (g[opt], active[column].map(lambda s: int(opt in s))))
-        df = pd.DataFrame(dict([(key, active[key]) for key in self.keys] + list(x)))
-        self.save(df, file)
-        if other_opt:
-            self.other(column, options, active, file)
+    def other_df(self, col, options):
+        new_values = self.active_df[col].map(lambda s: s.difference(set(options)))
+        df = self.concatKeys(pd.DataFrame({col: new_values})).sort_values(by=[col])
+        df = self.df_map({col})(self.toString, df[df[col].map(lambda x: len(x) > 0)].reset_index(drop=True))
+        self.save(df, "{}_Other".format(col))
 
-    def checkbox_2(self, my_dict):
+    def checkbox_dfs(self, my_dict):
         def toCSV(col):
-            g = my_dict[col]
+            g, other_opt = my_dict[col]
             h = lambda name: name if g[name] is None else g[name]
             df = pd.DataFrame(dict([(h(opt), self.active_df[col].map(lambda s: int(opt in s))) for opt in g.keys()]))
             self.save(self.concatKeys(df), col)
+            if other_opt:
+                self.other_df(col, g.keys())
         [toCSV(col) for col in my_dict.keys()]
 
-    def other(self, column, options, active = None, file = None):
-        active = self.df if active is None else active
-        file = column if file is None else file
-        x = (column, active[column].map(lambda s: s.difference(set(options))))
-        df = pd.DataFrame(dict([(key, active[key]) for key in self.keys] + [x]))
-        df = self.df_map({column})(self.toString, df[df[column].map(lambda x: len(x) > 0)].reset_index(drop=True))
-        self.save(df, "{}_Other".format(file))
+    def checkbox_grid_dfs(self, my_dict):
+        def toCSV(col):
+            col_opts, row_opts = my_dict[col]
+            x = pd.Series(product(col_opts, row_opts))
+            y = x.map(lambda ab: ("{} [{}]".format(ab[0], ab[1]),
+                                  self.active_df["{} [{}]".format(col, ab[1])].map(lambda s: int(ab[0] in s))))
+            df = self.concatKeys(pd.DataFrame(dict(list(y))))
+            self.save(df, col)
+        [toCSV(col) for col in my_dict.keys()]
 
-    def checkbox_grid(self, column, col_opts, row_opts, col_func = lambda c: c, active = None, file = None):
-        active = self.df if active is None else active
-        file = column if file is None else file
-        x = pd.Series(product(col_opts, row_opts)).map(lambda ab: (col_func(ab[0]), ab[1]))
-        y = x.map(lambda ab: ("{} [{}]".format(ab[0], ab[1]),
-                              active["{} [{}]".format(column, ab[1])].map(lambda s: int(ab[0] in s))))
-        df = pd.DataFrame(dict([(key, active[key]) for key in self.keys] + list(y)))
-        self.save(df, file)
+    def nextMap(self, times):
+        def go(map, current, remaining):
+            if len(remaining) == 0:
+                return map
+            else:
+                next = remaining[0]
+                return go(map | {current: next}, next, remaining[1:])
+        return go({}, times[0], times[1:]) if len(times) > 0 else {}
+
+    def startTimeAvailability(self, day, df, duration, time_units):
+        next_dict = self.nextMap(time_units)
+        def cont_hours(hours, current, remaining):
+            if remaining == 0:
+                return hours
+            else:
+                next = next_dict[current]
+                return cont_hours(hours + [next], next, remaining - 1)
+        def f(hour):
+            day_hours = ["{} [{}]".format(day, hr) for hr in cont_hours([hour], hour, duration - 1)]
+            return df.index.map(lambda i: df.loc[i, day_hours].product())
+        return f
+
+    def getCSVnames(self, mult_choice, linscale, text, checkbox, checkboxgrid):
+        names_main = list(mult_choice.keys()) + linscale + text + list(checkbox.keys()) + list(checkboxgrid.keys())
+        names_other = ["{}_Other".format(key) for key in checkbox.keys() if checkbox[key][1]]
+        return sorted(names_main + names_other)
+
 
 
 
