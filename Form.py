@@ -8,7 +8,7 @@ from itertools import product
 class Form:
     def __init__(self, name, q_map, r_map, set_features, keys,
                  active_pair, mult_choice_dict,
-                 linscale_cols, text_cols, checkbox_cols, checkbox_optset, checkbox_newoptset, otherset,
+                 linscale_cols, text_cols, checkbox_dict, otherset,
                  checkboxgrid_dict):
         df = pd.read_csv("\\".join([os.getcwd(), 'Raw Data', "{}.csv".format(name)]))
         df = df.rename(self.prod_func(q_map, r_map), axis=1)
@@ -36,6 +36,7 @@ class Form:
         self.mult_choice(mult_choice_dict)
         self.linear_scale(linscale_cols)
         self.text_ans(text_cols)
+        self.checkbox_2(checkbox_dict)
 
     def save(self, df, file):
         df.to_csv("\\".join([os.getcwd(), self.name, "{}.csv".format(file)]))
@@ -94,18 +95,16 @@ class Form:
         return self.df[self.df[column] == options[target_index]].reset_index(drop=True)
 
     def key_df(self):
-        df = pd.DataFrame(dict([(key, self.df[key]) for key in self.keys]))
-        df = df.sort_values(by=self.keys).reset_index(drop=True)
-        self.save(df, "Keys")
+        self.save(self.df.loc[:, self.keys].sort_values(by=self.keys).reset_index(drop=True), "Keys")
 
-    def mult_choice(self, dict):
+    def mult_choice(self, my_dict):
         def toCSV(col):
             source_df, full = (self.df, True) if col == self.active_pair[0] else (self.active_df, False)
-            transform_dict = dict[col]
+            transform_dict = my_dict[col]
             new_values = source_df[col].map(lambda v: transform_dict.get(v, v))
             df = self.concatKeys(pd.DataFrame({col: new_values}), full).sort_values(by=[col]).reset_index(drop=True)
             self.save(df, col)
-        [toCSV(col) for col in dict.keys()]
+        [toCSV(col) for col in my_dict.keys()]
 
     def linear_scale(self, cols):
         def toCSV(col):
@@ -131,6 +130,14 @@ class Form:
         self.save(df, file)
         if other_opt:
             self.other(column, options, active, file)
+
+    def checkbox_2(self, my_dict):
+        def toCSV(col):
+            g = my_dict[col]
+            h = lambda name: name if g[name] is None else g[name]
+            df = pd.DataFrame(dict([(h(opt), self.active_df[col].map(lambda s: int(opt in s))) for opt in g.keys()]))
+            self.save(self.concatKeys(df), col)
+        [toCSV(col) for col in my_dict.keys()]
 
     def other(self, column, options, active = None, file = None):
         active = self.df if active is None else active

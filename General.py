@@ -18,20 +18,23 @@ class General (Form):
 
         linscale_cols = ["Max_Hours"]
         text_cols = ['Guest_Games', 'Guest_Food']
-        checkbox_cols = ["Games", "Game_Types", "Meals", "Platforms", "Allergies", "Commitment"]
-        checkbox_optset = [
-            ['Catan', 'Chess', 'Codenames', 'War of the Ring'],  # Games
-            ['Abstract', 'Customizable', 'Family', 'Party', 'Strategy', 'Thematic', 'Wargames'],  # Game_Types
-            ['Chicken Cacciatore', 'Halibut in Lemon Wine Sauce', 'Hot Crab Dip', 'Peanut Butter Hummus',
-             'Quinoa Lentil Berry Salad', 'Rosemary Pork and Mushrooms', 'Spaghetti and Classic Marinara Sauce',
-             'Spinach and Artichoke Dip', 'Sweet Potato Casserole'],  # Meals
-            ['Google Groups [Group Email] (groups.google.com)', 'Evite (evite.com)',
-             'Google Chat (chat.google.com)', 'Slack (slack.com)', 'Discord (discord.com)'],  # Platforms
-            ['Gluten', 'Dairy', 'Peanuts', 'Shellfish'],  # Allergies
-            ["Yes, I would be willing to commit to playing a long game over multiple days.",
-             "Yes, I would be willing to participate in a tournament that lasts for multiple days."],  # Commitment
-        ]
-        checkbox_newoptset = [None, None, None, None, None, ["Long Game", "Tournament"]]
+
+        checkbox_dict = {
+            "Games": dict(list(zip(["Catan", "Chess", "Codenames", "War of the Ring"], 4 * [None]))),
+            "Game_Types": dict(list(zip(['Abstract', 'Customizable', 'Family', 'Party', 'Strategy', 'Thematic',
+                                         'Wargames'], 7 * [None]))),
+            "Meals": dict(list(zip(['Chicken Cacciatore', 'Halibut in Lemon Wine Sauce', 'Hot Crab Dip',
+            'Peanut Butter Hummus', 'Quinoa Lentil Berry Salad', 'Rosemary Pork and Mushrooms',
+            'Spaghetti and Classic Marinara Sauce', 'Spinach and Artichoke Dip', 'Sweet Potato Casserole'],
+                                   9 * [None]))),
+            "Platforms": dict(list(zip(['Google Groups [Group Email] (groups.google.com)', 'Evite (evite.com)',
+             'Google Chat (chat.google.com)', 'Slack (slack.com)', 'Discord (discord.com)'], 5 * [None]))),
+            "Allergies": dict(list(zip(['Gluten', 'Dairy', 'Peanuts', 'Shellfish'], 4 * [None]))),
+            "Commitment": dict(list(zip(
+                ["Yes, I would be willing to commit to playing a long game over multiple days.",
+                 "Yes, I would be willing to participate in a tournament that lasts for multiple days."],
+                ["Long Game", "Tournament"])))
+        }
         otherset = [False, False, False, False, True, False]
         active_pair = ("Status", '"I would like to be active in your group." (You will be invited to game events.)')
         mult_choice_dict = \
@@ -46,7 +49,7 @@ class General (Form):
         checkboxgrid_dict = {"Availability": (self.days, self.hours)}
         super().__init__(name, self.q_map(), self.r_map(), set_features, keys,
                  active_pair, mult_choice_dict,
-                 linscale_cols, text_cols, checkbox_cols, checkbox_optset, checkbox_newoptset, otherset,
+                 linscale_cols, text_cols, checkbox_dict, otherset,
                          checkboxgrid_dict)
 
     def toMilitary(self, duration, day):
