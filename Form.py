@@ -78,11 +78,28 @@ class Form:
             return self.df[self.df[column] == active_option].reset_index(drop=True)
 
     def key_df(self):
-        self.save(self.df.loc[:, self.keys].sort_values(by=self.keys).reset_index(drop=True), "Keys")
+        try:
+            df = pd.read_csv("\\".join([os.getcwd(), self.name, "Keys.csv"]), index_col=0)
+            print("Read Keys")
+        except FileNotFoundError:
+            df = self.df.loc[:, self.keys].sort_values(by=self.keys).reset_index(drop=True)
+            self.save(df, "Keys")
+        return df
 
     def concatKeys(self, df, full = False):
         key_df = self.df.loc[:, self.keys] if full else self.active_df.loc[:, self.keys]
         return pd.concat([key_df, df], axis=1)
+
+    def lookFirst(self, toCSV_func, other_opt = False):
+        def f(col):
+            try:
+                df = pd.read_csv("\\".join([os.getcwd(), self.name, "{}.csv".format(col)]), index_col=0)
+                print("Read {}".format(col))
+                return df
+            except FileNotFoundError:
+                df = toCSV_func(col)
+                return df
+        return f
 
     def mult_choice_dfs(self, my_dict):
         def toCSV(col):
@@ -92,14 +109,16 @@ class Form:
             new_values = source_df[col].map(lambda v: transform_dict.get(v, v))
             df = self.concatKeys(pd.DataFrame({col: new_values}), full).sort_values(by=[col]).reset_index(drop=True)
             self.save(df, col)
-        [toCSV(col) for col in my_dict.keys()]
+            return df
+        return [self.lookFirst(toCSV)(col) for col in my_dict.keys()]
 
     def linear_scale_dfs(self, cols):
         def toCSV(col):
             new_values = self.active_df[col].map(lambda x: np.nan if x == "" else x)
             df = self.concatKeys(pd.DataFrame({col: new_values})).sort_values(by=[col]).reset_index(drop=True)
             self.save(df, col)
-        [toCSV(col) for col in cols]
+            return df
+        return [self.lookFirst(toCSV)(col) for col in cols]
 
     def text_ans_dfs(self, cols):
         def toCSV(col):
@@ -107,13 +126,15 @@ class Form:
             df = self.concatKeys(pd.DataFrame({col: new_values})).sort_values(by=[col])
             df = df[df[col].map(lambda x: len(x) > 0)].reset_index(drop=True)
             self.save(df, col)
-        [toCSV(col) for col in cols]
+            return df
+        return [self.lookFirst(toCSV)(col) for col in cols]
 
     def other_df(self, col, options):
         new_values = self.active_df[col].map(lambda s: s.difference(set(options)))
         df = self.concatKeys(pd.DataFrame({col: new_values})).sort_values(by=[col])
         df = self.df_map({col})(self.toString, df[df[col].map(lambda x: len(x) > 0)].reset_index(drop=True))
         self.save(df, "{}_Other".format(col))
+        return df
 
     def checkbox_dfs(self, my_dict):
         def toCSV(col):
@@ -122,7 +143,10 @@ class Form:
             df = pd.DataFrame(dict([(h(opt), self.active_df[col].map(lambda s: int(opt in s))) for opt in g.keys()]))
             self.save(self.concatKeys(df), col)
             if other_opt:
-                self.other_df(col, g.keys())
+                df_other = self.other_df(col, g.keys())
+                return df, df_other
+            else:
+                return df
         [toCSV(col) for col in my_dict.keys()]
 
     def checkbox_grid_dfs(self, my_dict):
