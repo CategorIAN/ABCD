@@ -21,6 +21,12 @@ class Form:
     def save(self, df, file):
         df.to_csv("\\".join([os.getcwd(), self.name, "{}.csv".format(file)]))
 
+    def transformTime(self, df):
+        f = lambda weights, s, sep: sum([w * int(t) for (w, t) in zip(weights, s.split(sep))])
+        h = lambda l: 10000 * f([100, 1, 10000], l[0], "/") + f([10000, 100, 1], l[1], ":")
+        df_new = self.df_map({"Timestamp"})(lambda s: h(s.split(" ")), df)
+        return df_new
+
     def removeDuplicates(self, df):
         emails = set()
         for i in reversed(range(df.shape[0])):
@@ -29,10 +35,15 @@ class Form:
                 df = df.drop(i)
             else:
                 emails.add(e)
-        df = df.drop(['Timestamp'], axis=1)
-        df.reset_index(drop=True, inplace=True)
+        #df = df.drop(['Timestamp'], axis=1)
+        df = df.reset_index(drop=True)
         return df
-
+    '''
+    def removeDuplicates_2(self, df):
+        def appendEmail(my_dict, email):
+            if email in my_dict:
+                if my_dict[email]
+    '''
     def toSet(self, x):
         appendSet = lambda s, y: s | {y} if len(y) > 0 and y != "set()" else s
         return reduce(appendSet, [y.strip(" {}'") for y in x.split(",")], set())
@@ -68,6 +79,7 @@ class Form:
         df = df.fillna("")
         df = self.df_map(set_features)(self.toSet, df)
         df = self.removeDuplicates(df)
+        df = self.transformTime(df)
         return df
 
     def getActive_df(self):

@@ -26,7 +26,7 @@ def availabilityMeeting():
 
 if __name__ == '__main__':
     G = General()
-    G.readPersonalFile("Ian Kessler")
+    print(G.df["Timestamp"])
 
 
 
