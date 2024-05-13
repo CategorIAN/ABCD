@@ -23,7 +23,7 @@ class Form:
 
     def transformTime(self, df):
         f = lambda weights, s, sep: sum([w * int(t) for (w, t) in zip(weights, s.split(sep))])
-        h = lambda l: 10000 * f([100, 1, 10000], l[0], "/") + f([10000, 100, 1], l[1], ":")
+        h = lambda l: 1000000 * f([100, 1, 10000], l[0], "/") + f([10000, 100, 1], l[1], ":")
         df_new = self.df_map({"Timestamp"})(lambda s: h(s.split(" ")), df)
         return df_new
 
