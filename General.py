@@ -11,7 +11,6 @@ class General (Form):
         self.game_duration = {"Codenames": 1, "Catan": 2}
         #=============================================================================================================
         name = "General"
-        set_features = {'Games', 'Game_Types', 'Meals', 'Allergies', 'Platforms'}
         keys = ["Email", "Name"]
         active_pair = ("Status", '"I would like to be active in your group." (You will be invited to game events.)')
         mult_choice = \
@@ -25,23 +24,23 @@ class General (Form):
         linscale = ["Max_Hours"]
         text = ['Guest_Games', 'Guest_Food']
         checkbox = {
-            "Games": (dict(list(zip(["Catan", "Chess", "Codenames", "War of the Ring"], 4 * [None]))), False),
-            "Game_Types": (dict(list(zip(['Abstract', 'Customizable', 'Family', 'Party', 'Strategy', 'Thematic',
-                                         'Wargames'], 7 * [None]))), False),
-            "Meals": (dict(list(zip(['Chicken Cacciatore', 'Halibut in Lemon Wine Sauce', 'Hot Crab Dip',
-            'Peanut Butter Hummus', 'Quinoa Lentil Berry Salad', 'Rosemary Pork and Mushrooms',
-            'Spaghetti and Classic Marinara Sauce', 'Spinach and Artichoke Dip', 'Sweet Potato Casserole'],
-                                   9 * [None]))), False),
-            "Platforms": (dict(list(zip(['Google Groups [Group Email] (groups.google.com)', 'Evite (evite.com)',
-             'Google Chat (chat.google.com)', 'Slack (slack.com)', 'Discord (discord.com)'], 5 * [None]))), False),
-            "Allergies": (dict(list(zip(['Gluten', 'Dairy', 'Peanuts', 'Shellfish'], 4 * [None]))), True),
-            "Commitment": (dict(list(zip(
-                ["Yes, I would be willing to commit to playing a long game over multiple days.",
-                 "Yes, I would be willing to participate in a tournament that lasts for multiple days."],
-                ["Long Game", "Tournament"]))), False)
+            "Games": dict(list(zip(["Catan", "Chess", "Codenames", "War of the Ring"], 4 * [None]))),
+            "Game_Types": dict(list(zip(['Abstract', 'Customizable', 'Family', 'Party', 'Strategy', 'Thematic',
+                                         'Wargames'], 7 * [None]))),
+            "Meals": dict(list(zip(['Chicken Cacciatore', 'Halibut in Lemon Wine Sauce', 'Hot Crab Dip',
+                'Peanut Butter Hummus', 'Quinoa Lentil Berry Salad', 'Rosemary Pork and Mushrooms',
+                'Spaghetti and Classic Marinara Sauce', 'Spinach and Artichoke Dip', 'Sweet Potato Casserole'],
+                                   9 * [None]))),
+            "Platforms": dict(list(zip(['Google Groups [Group Email] (groups.google.com)', 'Evite (evite.com)',
+             'Google Chat (chat.google.com)', 'Slack (slack.com)', 'Discord (discord.com)'], 5 * [None]))),
+            "Allergies": dict(list(zip(['Gluten', 'Dairy', 'Peanuts', 'Shellfish'], 4 * [None]))),
+            "Commitment": dict(list(zip(
+                ['"Yes, I would be willing to commit to playing a long game over multiple days."',
+                 '"Yes, I would be willing to participate in a tournament that lasts for multiple days."'],
+                ["Long Game", "Tournament"])))
         }
         checkboxgrid = {"Availability": (self.days, self.hours)}
-        super().__init__(name, set_features, keys, active_pair, mult_choice, linscale, text, checkbox, checkboxgrid)
+        super().__init__(name, keys, active_pair, mult_choice, linscale, text, checkbox, checkboxgrid)
 
     def gameDayAv(self, duration):
         av = pd.read_csv("\\".join([os.getcwd(), "General", "Availability.csv"]), index_col=0)
