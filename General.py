@@ -140,7 +140,7 @@ class General (Form):
         return r.partition(' to')[0]
 
     def readPersonalFile(self, name):
-        for csv_name in self.csvs:
+        for csv_name in self.dfs.keys():
             print((20 * "=") + csv_name + (20 * "="))
             df = pd.read_csv("\\".join([os.getcwd(), self.name, "{}.csv".format(csv_name)]), index_col=0)
             name_df = df[df["Name"] == name].iloc[:, 2:].reset_index(drop=True)

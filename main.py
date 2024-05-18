@@ -26,7 +26,12 @@ def availabilityMeeting():
 
 if __name__ == '__main__':
     G = General()
-    print(G.df["Timestamp"])
+    #print(("\n" + 20 * "-" + "\n").join([str(df) for df in G.dfs.values()]))
+    #G.readPersonalFile("Ian Kessler")
+    my_dict = G.updateResults(1, 22, 2024)
+    for csv in my_dict.keys():
+        df = my_dict[csv]
+        df.to_csv("x_{}.csv".format(csv))
 
 
 
