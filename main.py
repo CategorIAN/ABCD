@@ -1,7 +1,7 @@
 #==========My Classes===============================
 from General import General
 from GuestGame import GuestGame
-from GameAvailability import GameAvailability
+from EventAvailability import EventAvailability
 from MeetingAvailability import MeetingAvailability
 
 def availabilityGG():
@@ -16,22 +16,17 @@ def availabilityGeneral():
         G.newbAv(game)
 
 def availabilityGame():
-    Av = GameAvailability()
+    Av = EventAvailability()
     Av.availability("24.04", 3)
 
 def availabilityMeeting():
     Av = MeetingAvailability()
     Av.availability(1)
 
-
 if __name__ == '__main__':
     G = General()
-    #print(("\n" + 20 * "-" + "\n").join([str(df) for df in G.dfs.values()]))
-    #G.readPersonalFile("Ian Kessler")
-    my_dict = G.updateResults(1, 22, 2024)
-    for csv in my_dict.keys():
-        df = my_dict[csv]
-        df.to_csv("x_{}.csv".format(csv))
+    #G.updateResults(5, 19, 2024)
+    #my_dict = G.updateResults(1, 22, 2024)
 
 
 

@@ -15,7 +15,6 @@ class Form:
         self.key_df()
         self.dfs = self.getFullDFDict()
 
-
     def save(self, df, file):
         df.to_csv("\\".join([os.getcwd(), self.name, "{}.csv".format(file)]))
 
@@ -25,16 +24,16 @@ class Form:
         return h(s.split(" "))
 
     def removeDuplicates(self, df):
-        def appendDF(df_emails, index):
-            current_df, emails, df_row = df_emails + (df.loc[[index], :],)
-            email = df_row.at[index, "Email"]
-            return (current_df, emails) if email in emails else (pd.concat([df_row, current_df]), emails | {email})
+        def appendDF(df_keys, index):
+            current_df, key_set, df_row = df_keys + (df.loc[[index], :],)
+            keys = tuple(df_row.loc[index, self.keys])
+            return (current_df, key_set) if keys in key_set else (pd.concat([df_row, current_df]), key_set | {keys})
         initial_df = pd.DataFrame(columns=df.columns)
         return reduce(appendDF, reversed(df.index), (initial_df, set()))[0].reset_index(drop=True)
 
     def toSet(self, x):
         appendSet = lambda s, y: s | {y} if len(y) > 0 and y != "set()" else s
-        return reduce(appendSet, [y.strip(" {}'") for y in x.split(",")], set())
+        return reduce(appendSet, [self.trim_paren(y.strip(" {}'")) for y in x.split(",")], set())
 
     def toString(self, x):
         appendString = lambda s, y: s + y + ", "
@@ -52,18 +51,16 @@ class Form:
     def r_map(self, r):
         pass
 
-    def prod_func(self):
-        def f(column):
-            question, _, row = column.partition(" [")
-            if len(row) == 0:
-                return self.q_map(question)
-            else:
-                return "{} [{}]".format(self.q_map(question), self.r_map(row.strip("]")))
-        return f
+    def prod_func(self, column):
+        question, _, row = column.partition(" [")
+        if len(row) == 0:
+            return self.q_map(question)
+        else:
+            return "{} [{}]".format(self.q_map(question), self.r_map(row.strip("]")))
 
     def createDF(self, set_features):
         df = pd.read_csv("\\".join([os.getcwd(), 'Raw Data', "{}.csv".format(self.name)]))
-        df = df.rename(self.prod_func(), axis=1)
+        df = df.rename(self.prod_func, axis=1)
         df = df.fillna("")
         df = self.df_map(set_features)(self.toSet, df)
         df = self.removeDuplicates(df)
@@ -83,12 +80,11 @@ class Form:
             df = pd.read_csv("\\".join([os.getcwd(), self.name, "Keys.csv"]), index_col=0)
             print("Read Keys")
         except FileNotFoundError:
-            df = self.df.loc[:, self.keys].sort_values(by=self.keys).reset_index(drop=True)
+            df = self.df.loc[:, self.keys].sort_values(by=self.keys)
             self.save(df, "Keys")
         return df
 
-    def concatKeys(self, df, full = False):
-        #key_df = self.df.loc[:, self.keys] if full else self.active_df.loc[:, self.keys]
+    def concatKeys(self, df):
         key_df = self.df.loc[df.index, self.keys]
         return pd.concat([key_df, df], axis=1)
 
@@ -101,6 +97,7 @@ class Form:
             except FileNotFoundError:
                 df = toCSV_func(col)
                 self.save(df, col)
+                print("Created {}".format(col))
                 return df
         return f
 
@@ -108,15 +105,21 @@ class Form:
         our_func = self.lookFirst(df_func) if checkCSV else df_func
         return dict([(col, our_func(col)) for col in cols])
 
+    def trim_paren(self, v):
+        return v.partition(" (")[0]
+
+    def createDict(self, keys, values = None):
+        values = keys if values is None else values
+        return dict(list(zip(keys, values)))
+
     def multchoice_dfs(self, source_df = None):
         full_df, active_df = self.df, self.active_df if source_df is None else (source_df, self.getActive_df(source_df))
         def f(my_dict):
             def getDF(col):
-                f = lambda pair: (full_df, True) if pair is not None and col == pair[0] else (active_df, False)
-                my_df, full = f(self.active_pair)
+                my_df = full_df if self.active_pair is not None and col == self.active_pair[0] else active_df
                 transform_dict = my_dict[col]
-                new_values = my_df[col].map(lambda v: transform_dict.get(v, v))
-                df = self.concatKeys(pd.DataFrame({col: new_values}, index=my_df.index), full).sort_values(by=[col])
+                new_values = my_df[col].map(lambda v: transform_dict.get(self.trim_paren(v), self.trim_paren(v)))
+                df = self.concatKeys(pd.DataFrame({col: new_values}, index=my_df.index)).sort_values(by=[col])
                 return df
             return self.getSubDFDict(my_dict.keys(), getDF, source_df is None)
         return f
@@ -147,8 +150,7 @@ class Form:
         def f(my_dict):
             def getDF(col):
                 g = my_dict[col]
-                h = lambda name: name if g[name] is None else g[name]
-                df_dict = dict([(h(opt), active_df[col].map(lambda s: int(opt in s))) for opt in g.keys()])
+                df_dict = dict([(g[opt], active_df[col].map(lambda s: int(opt in s))) for opt in g.keys()])
                 df = pd.DataFrame(df_dict, index=active_df.index)
                 other_values = active_df[col].map(lambda s: self.toString(s.difference(set(g.keys()))))
                 other_df = pd.DataFrame({"Other": other_values}, index=active_df.index)
@@ -175,10 +177,21 @@ class Form:
         data = [self.multchoice, self.linscale, self.textans, self.checkbox, self.checkboxgrid]
         return reduce(lambda d1, d2: d1 | d2, [g(source_df)(x) for g, x in zip(gs, data)], {})
 
+    def mergeDFs(self, dfs_1, dfs_2, df_names = None, save = False):
+        df_names = dfs_1.keys() if df_names is None else df_names
+        def merge(key):
+            df = self.removeDuplicates(pd.concat([dfs_1[key], dfs_2[key]], ignore_index=True))
+            if save:
+                self.save(df, key)
+                print("Updated {}".format(key))
+            return df
+        return dict([(key, merge(key)) for key in df_names])
+
     def updateResults(self, month, day, year):
         timestamp = self.hashTime("/".join([str(x) for x in [month, day, year]]) + " 0:00")
-        to_update = self.df.loc[lambda df: df["Timestamp"] >= timestamp]
-        return self.getFullDFDict(to_update)
+        update_with = self.df.loc[lambda df: df["Timestamp"] >= timestamp]
+        df_dict = self.getFullDFDict(update_with)
+        return self.mergeDFs(self.dfs, df_dict, save = True)
 
     def nextMap(self, times):
         def go(map, current, remaining):

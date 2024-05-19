@@ -6,7 +6,8 @@ from functools import reduce
 class General (Form):
     def __init__(self):
         self.days = ["Friday", "Saturday", "Sunday"]
-        self.hours = ["11:00 AM", "12:00 PM", "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM", "6:00 PM"]
+        self.hours = ["11:00 AM", "12:00 PM", "1:00 PM", "2:00 PM",
+                      "3:00 PM", "4:00 PM", "5:00 PM", "6:00 PM", "7:00 PM"]
         self.day_hours = lambda duration, day: ["{} [{}]".format(day, hour) for hour in self.hours][:(9 - duration)]
         self.game_duration = {"Codenames": 1, "Catan": 2}
         #=============================================================================================================
@@ -15,29 +16,27 @@ class General (Form):
         active_pair = ("Status", '"I would like to be active in your group." (You will be invited to game events.)')
         mult_choice = \
             {"Status":
-                 {'"I would like to be active in your group." (You will be invited to game events.)': 'Active',
-                  '"I am not available to participate in games for this season." (You will not be invited to game ' \
-                  'events, but you will be asked to update this survey at least once a year.)': 'Not_Now',
-                  '"I would like to be taken off of this gaming list." (You can ask to be put back on this list ' \
-                  'whenever you want.)': 'Please_Remove'}
+                 {'"I would like to be active in your group."': 'Active',
+                  '"I am not available to participate in games for this season."': 'Not_Now',
+                  '"I would like to be taken off of this gaming list."': 'Please_Remove'},
+             "Earliest_Invite": self.createDict(["24 Hours", "3 Days", "1 Week", "2 Weeks", "3 Weeks", "1 Month"]),
+             "Latest_Invite": self.createDict(["24 Hours", "3 Days", "1 Week", "2 Weeks", "3 Weeks", "1 Month"])
              }
         linscale = ["Max_Hours"]
         text = ['Guest_Games', 'Guest_Food']
         checkbox = {
-            "Games": dict(list(zip(["Catan", "Chess", "Codenames", "War of the Ring"], 4 * [None]))),
-            "Game_Types": dict(list(zip(['Abstract', 'Customizable', 'Family', 'Party', 'Strategy', 'Thematic',
-                                         'Wargames'], 7 * [None]))),
-            "Meals": dict(list(zip(['Chicken Cacciatore', 'Halibut in Lemon Wine Sauce', 'Hot Crab Dip',
-                'Peanut Butter Hummus', 'Quinoa Lentil Berry Salad', 'Rosemary Pork and Mushrooms',
-                'Spaghetti and Classic Marinara Sauce', 'Spinach and Artichoke Dip', 'Sweet Potato Casserole'],
-                                   9 * [None]))),
-            "Platforms": dict(list(zip(['Google Groups [Group Email] (groups.google.com)', 'Evite (evite.com)',
-             'Google Chat (chat.google.com)', 'Slack (slack.com)', 'Discord (discord.com)'], 5 * [None]))),
-            "Allergies": dict(list(zip(['Gluten', 'Dairy', 'Peanuts', 'Shellfish'], 4 * [None]))),
-            "Commitment": dict(list(zip(
-                ['"Yes, I would be willing to commit to playing a long game over multiple days."',
-                 '"Yes, I would be willing to participate in a tournament that lasts for multiple days."'],
-                ["Long Game", "Tournament"])))
+            "Games": self.createDict(["Catan", "Codenames", "The Lord of the Rings: The Card Game",
+                                      "The Witcher: Old World", "War of the Ring", "Zombicide: Black Plague"]),
+            "Game_Types": self.createDict(['Abstract','Customizable','Family','Party','Strategy','Thematic','Wargames']),
+            "Meals": self.createDict(['Halibut in Lemon Wine Sauce', 'Hot Crab Dip', 'Peanut Butter Hummus',
+                                      'Rosemary Pork and Mushrooms', 'Spaghetti and Classic Marinara Sauce',
+                                      'Spinach Dip', 'Sweet Potato Casserole']),
+            "Platforms": self.createDict(['Google Groups', 'Google Chat', 'Slack', 'Discord']),
+            "Allergies": self.createDict(['Gluten', 'Dairy', 'Peanuts', 'Shellfish']),
+            "Commitment": self.createDict(
+                ['"I would be willing to commit to playing a long game over multiple days."',
+                 '"I would be willing to participate in a tournament that lasts for multiple days."'],
+                ["Long Game", "Tournament"])
         }
         checkboxgrid = {"Availability": (self.days, self.hours)}
         super().__init__(name, keys, active_pair, mult_choice, linscale, text, checkbox, checkboxgrid)
@@ -107,34 +106,34 @@ class General (Form):
             # ===========================
             "What is your name?": "Name",
             # ===========================
-            "You are currently in my tabletop gaming group. What would you like your status to be? " \
-            "(If you pick the second or third option, you may skip the rest of the questions in this survey.)": "Status",
+            "You are currently in my tabletop gaming group. What would you like your status to be?": "Status",
             # ===========================
-            "Every invite you receive for a game event brings you down the queue, making you less likely to be invited " \
-            "to the next game event. Therefore, it is important I know what games you are interested in playing. " \
+            "What times are you possibly available to play games?": "Availability",
+            # ===========================
             "Which of my games are you interested in playing?": "Games",
             # ===========================
             "What types of games do you enjoy playing?": "Game_Types",
             # ===========================
             "What is the maximum number of hours you are willing to play a game in one sitting?": "Max_Hours",
             # ===========================
-            "Would you be willing to a game commitment over multiple days?": "Commitment",
+            "Would you be willing to partake in a game commitment over multiple days?": "Commitment",
             # ===========================
-            "Are there games that you own and know how to play that you would enjoy bringing the game for game events? " \
-            "If so, which games would you enjoy bringing? (You would be responsible for bringing the game and explaining " \
-            "the rules.)": "Guest_Games",
+            "Are there games that you own and know how to play that you would enjoy bringing for game events?"
+            " If so, which games would you enjoy bringing?": "Guest_Games",
             # ===========================
-            "Which of my signature meals would you be willing to eat at events?": 'Meals',
+            "Which of my meals would you be willing to eat at events?": 'Meals',
             # ===========================
-            "What are your food allergies?": "Allergies",
+            "What are your food allergies and restrictions?": "Allergies",
             # ===========================
-            "What food and/or drinks would you be willing to bring to a gaming event?": "Guest_Food",
+            "What food and/or drinks would you be willing to bring to gaming events?": "Guest_Food",
             # ===========================
-            "It is efficient to communicate using a group communication platform for invitations and coordination " \
-            "of details for events. Which of these group communication platforms would you be willing to use?": "Platforms",
-            "What times are you possibly available to play games?": "Availability"
+            "What is the earliest time you would like to receive invitations to game events?": "Earliest_Invite",
+            # ===========================
+            "What is the latest time you would like to receive invitations to game events?": "Latest_Invite",
+            # ===========================
+            "Which of these group communication platforms would you be willing to use?": "Platforms"
         }
-        return col_mapping.get(q, q)
+        return col_mapping.get(self.trim_paren(q), self.trim_paren(q))
 
     def r_map(self, r):
         return r.partition(' to')[0]

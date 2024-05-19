@@ -3,24 +3,24 @@ import pandas as pd
 import os
 from functools import reduce
 
-class GameAvailability (Form):
+class EventAvailability (Form):
     def __init__(self):
-        self.days = ["Friday", "Saturday", "Sunday"]
-        self.hours = ["11:00 AM", "12:00 PM", "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM", "6:00 PM"]
+        self.days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+        self.hours = ["10:00 AM", "11:00 AM", "12:00 PM", "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM",
+                      "5:00 PM", "6:00 PM", "7:00 PM", "8:00 PM"]
         self.weeks = list(range(1, 5))
         self.day_hours = lambda duration, day: ["{} [{}]".format(day, hour) for hour in self.hours][:(9 - duration)]
         self.day_hours_all = lambda duration: reduce(lambda l, day: l + self.day_hours(duration, day), self.days, [])
 
-        name = "GameAvailability"
-        set_features = set()
-        keys = ["Email"]
+        name = "EventAvailability"
+        keys = ["Email", "Name"]
         active_pair = None
-        multchoice = {}
+        multchoice = {"Purpose": self.createDict(["Tabletop Gaming", "Floating", "Coffee"])}
         linscale = []
         text = []
         checkbox = {}
-        checkboxgrid = dict([("Weekend #{}".format(i), (self.days, self.hours)) for i in self.weeks])
-        super().__init__(name, set_features, keys, active_pair, multchoice, linscale, text, checkbox, checkboxgrid)
+        checkboxgrid = dict([("Week #{}".format(i), (self.days, self.hours)) for i in self.weeks])
+        super().__init__(name, keys, active_pair, multchoice, linscale, text, checkbox, checkboxgrid)
 
     def availability(self, month, duration):
         for wk in self.weeks:
@@ -43,13 +43,12 @@ class GameAvailability (Form):
                 "\\".join([os.getcwd(), "GameAvailability", month, "Wk{}_Availability.csv".format(wk)]))
 
     def q_map(self, q):
-        d1 = {"Email Address": "Email", "What is your name?": "Name"}
-        game_question = "What times and dates are you available to play the game?"
-        weekends = ["Weekend #{}".format(i) for i in self.weeks]
-        d2 = dict([("{} ({} of the Month)".format(game_question, wk), wk) for wk in weekends])
+        d1 = {"Email Address": "Email", "What is your name?": "Name", "What is the purpose of the event?": "Purpose"}
+        weeks = ["Week #{}".format(i) for i in self.weeks]
+        d2 = dict([("{} Availability For Event".format(wk), wk) for wk in weeks])
         d = d1 | d2
-        return d.get(q, q)
+        return d.get(self.trim_paren(q), self.trim_paren(q))
 
     def r_map(self, r):
-        return r.partition(' to')[0]
+        return r.partition(" to")[0]
 
