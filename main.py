@@ -27,6 +27,7 @@ if __name__ == '__main__':
     G = General()
     #G.updateResults(5, 19, 2024)
     #my_dict = G.updateResults(1, 22, 2024)
+    G.readPersonalFile("Ian Kessler")
 
 
 

@@ -113,11 +113,14 @@ class Form:
         return dict(list(zip(keys, values)))
 
     def multchoice_dfs(self, source_df = None):
-        full_df, active_df = self.df, self.active_df if source_df is None else (source_df, self.getActive_df(source_df))
+        full_df, active_df = (self.df, self.active_df) if source_df is None else (source_df, self.getActive_df(source_df))
         def f(my_dict):
             def getDF(col):
                 my_df = full_df if self.active_pair is not None and col == self.active_pair[0] else active_df
                 transform_dict = my_dict[col]
+                print(col)
+                print(my_df)
+                print(my_df[col])
                 new_values = my_df[col].map(lambda v: transform_dict.get(self.trim_paren(v), self.trim_paren(v)))
                 df = self.concatKeys(pd.DataFrame({col: new_values}, index=my_df.index)).sort_values(by=[col])
                 return df
