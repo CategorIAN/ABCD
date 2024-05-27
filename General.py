@@ -5,7 +5,7 @@ from functools import reduce
 
 class General (Form):
     def __init__(self):
-        self.days = ["Friday", "Saturday", "Sunday"]
+        self.days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
         self.hours = ["11:00 AM", "12:00 PM", "1:00 PM", "2:00 PM",
                       "3:00 PM", "4:00 PM", "5:00 PM", "6:00 PM", "7:00 PM"]
         self.day_hours = lambda duration, day: ["{} [{}]".format(day, hour) for hour in self.hours][:(9 - duration)]
@@ -19,19 +19,21 @@ class General (Form):
                  {'"I would like to be active in your group."': 'Active',
                   '"I am not available to participate in games for this season."': 'Not_Now',
                   '"I would like to be taken off of this gaming list."': 'Please_Remove'},
-             "Earliest_Invite": self.createDict(["24 Hours", "3 Days", "1 Week", "2 Weeks", "3 Weeks", "1 Month"]),
-             "Latest_Invite": self.createDict(["24 Hours", "3 Days", "1 Week", "2 Weeks", "3 Weeks", "1 Month"])
+             "Earliest_Invite": self.createDict(["1 Month", "3 Weeks", "2 Weeks", "1 Week", "3 Days", "24 Hours"]),
+             "Latest_Invite": self.createDict(["1 Month", "3 Weeks", "2 Weeks", "1 Week", "3 Days", "24 Hours"])
              }
         linscale = ["Max_Hours"]
         text = ['Guest_Games', 'Guest_Food']
         checkbox = {
+            "Location": self.createDict(["My Home", "Board Game Store", "Coffee Shop", "Public Library"]),
             "Games": self.createDict(["Catan", "Codenames", "The Lord of the Rings: The Card Game",
                                       "The Witcher: Old World", "War of the Ring", "Zombicide: Black Plague"]),
             "Game_Types": self.createDict(['Abstract','Customizable','Family','Party','Strategy','Thematic','Wargames']),
             "Meals": self.createDict(['Halibut in Lemon Wine Sauce', 'Hot Crab Dip', 'Peanut Butter Hummus',
                                       'Rosemary Pork and Mushrooms', 'Spaghetti and Classic Marinara Sauce',
                                       'Spinach Dip', 'Sweet Potato Casserole']),
-            "Platforms": self.createDict(['Google Groups', 'Google Chat', 'Slack', 'Discord']),
+            "Platforms": self.createDict(['Google Groups', 'Google Chat', 'Slack',
+                                          'Discord', 'Facebook Groups', 'Meetup']),
             "Allergies": self.createDict(['Gluten', 'Dairy', 'Peanuts', 'Shellfish']),
             "Commitment": self.createDict(
                 ['"I would be willing to commit to playing a long game over multiple days."',
@@ -107,6 +109,8 @@ class General (Form):
             "What is your name?": "Name",
             # ===========================
             "You are currently in my tabletop gaming group. What would you like your status to be?": "Status",
+            # ===========================
+            "Where would you be willing to play games?": "Location",
             # ===========================
             "What times are you possibly available to play games?": "Availability",
             # ===========================
