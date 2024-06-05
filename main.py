@@ -3,6 +3,7 @@ from General import General
 from GuestGame import GuestGame
 from EventAvailability import EventAvailability
 from MeetingAvailability import MeetingAvailability
+from General_DB import General_DB
 
 def availabilityGG():
     GG = GuestGame()
@@ -24,9 +25,8 @@ def availabilityMeeting():
     Av.availability(1)
 
 if __name__ == '__main__':
-    G = General()
-    G.updateResults(5, 27, 2024)
-    #my_dict = G.updateResults(1, 22, 2024)
+    G = General_DB()
+    G.createPersonDB()
 
 
 

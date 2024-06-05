@@ -16,25 +16,27 @@ class General (Form):
         active_pair = ("Status", '"I would like to be active in your group." (You will be invited to game events.)')
         mult_choice = \
             {"Status":
-                 {'"I would like to be active in your group."': 'Active',
-                  '"I am not available to participate in games for this season."': 'Not_Now',
-                  '"I would like to be taken off of this gaming list."': 'Please_Remove'},
+                 {'"I would like to be active in your group."': "Active",
+                  '"I am not available to participate in games for this season."': "Not_Now",
+                  '"I would like to be taken off of this gaming list."': "Please_Remove"},
              "Earliest_Invite": self.createDict(["1 Month", "3 Weeks", "2 Weeks", "1 Week", "3 Days", "24 Hours"]),
              "Latest_Invite": self.createDict(["1 Month", "3 Weeks", "2 Weeks", "1 Week", "3 Days", "24 Hours"])
              }
         linscale = ["Max_Hours"]
-        text = ['Guest_Games', 'Guest_Food']
+        text = ["Guest_Games", "Guest_Food"]
         checkbox = {
             "Location": self.createDict(["My Home", "Board Game Store", "Coffee Shop", "Public Library"]),
             "Games": self.createDict(["Catan", "Codenames", "The Lord of the Rings: The Card Game",
                                       "The Witcher: Old World", "War of the Ring", "Zombicide: Black Plague"]),
-            "Game_Types": self.createDict(['Abstract','Customizable','Family','Party','Strategy','Thematic','Wargames']),
-            "Meals": self.createDict(['Halibut in Lemon Wine Sauce', 'Hot Crab Dip', 'Peanut Butter Hummus',
-                                      'Rosemary Pork and Mushrooms', 'Spaghetti and Classic Marinara Sauce',
-                                      'Spinach Dip', 'Sweet Potato Casserole']),
-            "Platforms": self.createDict(['Google Groups', 'Google Chat', 'Slack',
-                                          'Discord', 'Facebook Groups', 'Meetup']),
-            "Allergies": self.createDict(['Gluten', 'Dairy', 'Peanuts', 'Shellfish']),
+            "Game_Types": self.createDict(["Abstract","Customizable","Family","Party","Strategy","Thematic","Wargames"]),
+            "Meals": self.createDict(["Halibut in Lemon Wine Sauce", "Hot Crab Dip", "Peanut Butter Hummus",
+                                      "Rosemary Pork and Mushrooms", "Spaghetti and Classic Marinara Sauce",
+                                      "Spinach Dip", "Sweet Potato Casserole"]),
+            "Platforms": self.createDict(["Google Groups", "Google Chat", "Slack",
+                                          "Discord", "Facebook Groups", "Meetup"]),
+            "Allergies": self.createDict(["Avocado", "Bananas", "Canola Oil", "Dairy", "Gluten", "Meat",
+                                         "Peanuts", "Pineapple", "Potatoes", "Pumpkin Seeds", "Shellfish", "Tree Nuts",
+                                          "Vegetable Oil"]),
             "Commitment": self.createDict(
                 ['"I would be willing to commit to playing a long game over multiple days."',
                  '"I would be willing to participate in a tournament that lasts for multiple days."'],
@@ -125,7 +127,7 @@ class General (Form):
             "Are there games that you own and know how to play that you would enjoy bringing for game events?"
             " If so, which games would you enjoy bringing?": "Guest_Games",
             # ===========================
-            "Which of my meals would you be willing to eat at events?": 'Meals',
+            "Which of my meals would you be willing to eat at events?": "Meals",
             # ===========================
             "What are your food allergies and restrictions?": "Allergies",
             # ===========================

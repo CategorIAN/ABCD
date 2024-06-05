@@ -59,7 +59,7 @@ class Form:
             return "{} [{}]".format(self.q_map(question), self.r_map(row.strip("]")))
 
     def createDF(self, set_features):
-        df = pd.read_csv("\\".join([os.getcwd(), 'Raw Data', "{}.csv".format(self.name)]))
+        df = pd.read_csv("\\".join([os.getcwd(), "Raw Data", "{}.csv".format(self.name)]))
         df = df.rename(self.prod_func, axis=1)
         df = df.fillna("")
         df = self.df_map(set_features)(self.toSet, df)
