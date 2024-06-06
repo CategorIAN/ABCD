@@ -16,17 +16,16 @@ def availabilityGeneral():
     for game in G.game_duration.keys():
         G.newbAv(game)
 
-def availabilityGame():
+def availabilityEvent():
     Av = EventAvailability()
-    Av.availability("24.04", 3)
+    Av.availability("24.06", 3)
 
 def availabilityMeeting():
     Av = MeetingAvailability()
     Av.availability(1)
 
 if __name__ == '__main__':
-    G = General_DB()
-    G.createPersonDB()
+    availabilityEvent()
 
 
 

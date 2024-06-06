@@ -24,7 +24,7 @@ class EventAvailability (Form):
 
     def availability(self, month, duration):
         for wk in self.weeks:
-            wk_df_grid = pd.read_csv("\\".join([os.getcwd(), self.name, "Weekend #{}.csv".format(wk)]), index_col=0)
+            wk_df_grid = pd.read_csv("\\".join([os.getcwd(), self.name, "Week #{}.csv".format(wk)]), index_col=0)
 
             def appendDf(df, day):
                 day_df = wk_df_grid.loc[:, self.keys + self.day_hours(1, day)]
@@ -40,7 +40,7 @@ class EventAvailability (Form):
             total = dict([("Email", "Total")] + [(col, gameAv_df[col].sum()) for col in self.day_hours_all(duration)])
             gameAv_df = pd.concat([gameAv_df, pd.DataFrame(total, index=[gameAv_df.shape[0]])]).reset_index(drop=True)
             gameAv_df.to_csv(
-                "\\".join([os.getcwd(), "GameAvailability", month, "Wk{}_Availability.csv".format(wk)]))
+                "\\".join([os.getcwd(), self.name, month, "Wk{}_Availability.csv".format(wk)]))
 
     def q_map(self, q):
         d1 = {"Email Address": "Email", "What is your name?": "Name", "What is the purpose of the event?": "Purpose"}
