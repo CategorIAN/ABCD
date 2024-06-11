@@ -1,10 +1,16 @@
 import os
 import pandas as pd
 from functools import reduce
+import psycopg2
+import numpy as np
 
 class General_DB:
     def __init__(self):
         self.name = "General_DB"
+        self.df = self.createDF()
+        form_types = ["Keys", "Text", "LinScale", "MultChoice"]
+        sql_types = ["VARCHAR(160) PRIMARY KEY", "VARCHAR(160)", "INT", "VARCHAR(160)"]
+        self.type_dict = dict(zip(form_types, sql_types))
 
     def trim_paren(self, v):
         return v.partition(" (")[0]
@@ -46,17 +52,59 @@ class General_DB:
         self.save(df, "original")
         return df
 
-    def getTypeNames(self, form_type, sql_type):
+    def transform(self, form_type, df):
+        def f(id):
+            if form_type == "MultChoice":
+                sub_df = df[df["ID"] == id]
+                transform_dict = dict(zip(sub_df["OldValue"], sub_df["NewValue"]))
+                return lambda v: transform_dict.get(self.trim_paren(v), self.trim_paren(v))
+            else:
+                return lambda v: v
+        return f
+
+    def getTypeNames(self, form_type, with_sql_type = False):
         form_columns = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "Columns.csv"]))
         type_columns = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "{}.csv".format(form_type)]))
-        names = set(pd.merge(form_columns, type_columns, how="inner", left_on="ID", right_on="ColumnID")["Name"])
-        return ["{} {}".format(name, sql_type) for name in names]
+        df = pd.merge(form_columns, type_columns, how="inner", left_on="ID", right_on="ColumnID")
+        sql_type = " " + self.type_dict[form_type] if with_sql_type else ""
+        name = lambda id: "{}{}".format(df[df["ID"] == id]["Name"].iat[0], sql_type)
+        transform_func = self.transform(form_type, df)
+        return dict([(name(col_id), transform_func(col_id)) for col_id in set(df.ID)])
+
+    def getDBDict(self, with_sql_type = False):
+        return reduce(lambda d, t: d | self.getTypeNames(t, with_sql_type), self.type_dict.keys(), {})
 
     def createPersonDB(self):
-        form_types = ["Keys", "Text", "LinScale", "MultChoice"]
-        sql_types = ["VARCHAR(160) PRIMARY KEY", "VARCHAR(160)", "INT", "VARCHAR(160)"]
-        create = ",\n".join(reduce(lambda l, t: l + self.getTypeNames(*t), list(zip(form_types, sql_types)), []))
-        return "CREATE TABLE person (\n{}\n);".format(create)
+        db_cols = ",\n".join(self.getDBDict(True).keys())
+        return "CREATE TABLE person (\n{}\n);".format(db_cols)
+
+    def insertRows(self):
+        db_dict = self.getDBDict()
+        db_cols = list(db_dict.keys())
+        df = self.df[db_cols]
+        appendRow = lambda rows, i: rows + [str(tuple([db_dict[col](df.at[i, col]) for col in db_cols]))]
+        rows = ",\n".join(reduce(appendRow, df.index, [])).replace("''", "NULL")
+        return "INSERT INTO person ({}) VALUES\n{};".format(", ".join(db_cols), rows)
+
+    def executeSQL(self, command):
+        try:
+            connection = psycopg2.connect(user = "postgres",
+                                          password = "WeAreGroot",
+                                          host = "database-1.cbeq26equftn.us-east-2.rds.amazonaws.com",
+                                          port = "5432",
+                                          database = "postgres")
+            cursor = connection.cursor()
+            cursor.execute(command)
+            connection.commit()
+            print(10 * "=" + "Executed" + 10 * "=" + "\n" + command)
+        except psycopg2.Error as e:
+            print(e)
+        finally:
+            if connection:
+                cursor.close()
+                connection.close()
+                print("PostgreSQL connection is closed.")
+
 
 
 

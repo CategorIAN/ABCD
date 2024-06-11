@@ -1,6 +1,6 @@
 ID,Name,Question
 0,Timestamp,Timestamp
-1,Email,Email  Address
+1,Email,Email Address
 2,Name,What is your name?
 3,Status,You are currently in my tabletop gaming group. What would you like your status to be?
 4,Location,Where would you be willing to play games?

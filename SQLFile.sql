@@ -1,1 +1,1 @@
-SELECT * FROM albums;
+SELECT Email FROM person;

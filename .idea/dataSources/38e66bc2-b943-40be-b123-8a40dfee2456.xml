@@ -8,7 +8,7 @@
 16384||10|T|G
 16412||-9223372036854775808|C|G
 16412||16386|C|G</Grants>
-      <IntrospectionStateNumber>1127</IntrospectionStateNumber>
+      <IntrospectionStateNumber>3094</IntrospectionStateNumber>
       <ServerVersion>16.2</ServerVersion>
       <StartupTime>1717450738</StartupTime>
       <TimeZones>true ACDT
@@ -806,7 +806,7 @@ false Zulu
 14149||10|C|G
 14149||-9223372036854775808|U|G
 14149||10|U|G</Grants>
-      <IntrospectionStateNumber>1127</IntrospectionStateNumber>
+      <IntrospectionStateNumber>3094</IntrospectionStateNumber>
       <ObjectId>5</ObjectId>
       <OwnerName>postgres</OwnerName>
     </database>
@@ -814,52 +814,72 @@ false Zulu
       <ObjectId>16384</ObjectId>
       <OwnerName>rdsadmin</OwnerName>
     </database>
-    <role id="4" parent="1" name="pg_database_owner">
+    <role id="4" parent="1" name="pg_checkpoint">
+      <ObjectId>4544</ObjectId>
+    </role>
+    <role id="5" parent="1" name="pg_create_subscription">
+      <ObjectId>6304</ObjectId>
+    </role>
+    <role id="6" parent="1" name="pg_database_owner">
       <ObjectId>6171</ObjectId>
     </role>
-    <role id="5" parent="1" name="pg_read_all_data">
-      <ObjectId>6181</ObjectId>
+    <role id="7" parent="1" name="pg_execute_server_program">
+      <ObjectId>4571</ObjectId>
     </role>
-    <role id="6" parent="1" name="pg_write_all_data">
-      <ObjectId>6182</ObjectId>
-    </role>
-    <role id="7" parent="1" name="pg_monitor">
+    <role id="8" parent="1" name="pg_monitor">
       <ObjectId>3373</ObjectId>
       <RoleGrants>3374
 3375
 3377</RoleGrants>
     </role>
-    <role id="8" parent="1" name="pg_read_all_settings">
+    <role id="9" parent="1" name="pg_read_all_data">
+      <ObjectId>6181</ObjectId>
+    </role>
+    <role id="10" parent="1" name="pg_read_all_settings">
       <ObjectId>3374</ObjectId>
     </role>
-    <role id="9" parent="1" name="pg_read_all_stats">
+    <role id="11" parent="1" name="pg_read_all_stats">
       <ObjectId>3375</ObjectId>
     </role>
-    <role id="10" parent="1" name="pg_stat_scan_tables">
-      <ObjectId>3377</ObjectId>
-    </role>
-    <role id="11" parent="1" name="pg_read_server_files">
+    <role id="12" parent="1" name="pg_read_server_files">
       <ObjectId>4569</ObjectId>
     </role>
-    <role id="12" parent="1" name="pg_write_server_files">
-      <ObjectId>4570</ObjectId>
-    </role>
-    <role id="13" parent="1" name="pg_execute_server_program">
-      <ObjectId>4571</ObjectId>
-    </role>
-    <role id="14" parent="1" name="pg_signal_backend">
+    <role id="13" parent="1" name="pg_signal_backend">
       <ObjectId>4200</ObjectId>
     </role>
-    <role id="15" parent="1" name="pg_checkpoint">
-      <ObjectId>4544</ObjectId>
+    <role id="14" parent="1" name="pg_stat_scan_tables">
+      <ObjectId>3377</ObjectId>
     </role>
-    <role id="16" parent="1" name="pg_use_reserved_connections">
+    <role id="15" parent="1" name="pg_use_reserved_connections">
       <ObjectId>4550</ObjectId>
     </role>
-    <role id="17" parent="1" name="pg_create_subscription">
-      <ObjectId>6304</ObjectId>
+    <role id="16" parent="1" name="pg_write_all_data">
+      <ObjectId>6182</ObjectId>
     </role>
-    <role id="18" parent="1" name="rds_superuser">
+    <role id="17" parent="1" name="pg_write_server_files">
+      <ObjectId>4570</ObjectId>
+    </role>
+    <role id="18" parent="1" name="postgres">
+      <CanLogin>1</CanLogin>
+      <CreateDb>1</CreateDb>
+      <CreateRole>1</CreateRole>
+      <ObjectId>16413</ObjectId>
+      <RoleGrants>16386</RoleGrants>
+      <ValidUntil>infinity</ValidUntil>
+    </role>
+    <role id="19" parent="1" name="rds_ad">
+      <ObjectId>16397</ObjectId>
+    </role>
+    <role id="20" parent="1" name="rds_iam">
+      <ObjectId>16389</ObjectId>
+    </role>
+    <role id="21" parent="1" name="rds_password">
+      <ObjectId>16392</ObjectId>
+    </role>
+    <role id="22" parent="1" name="rds_replication">
+      <ObjectId>16387</ObjectId>
+    </role>
+    <role id="23" parent="1" name="rds_superuser">
       <ObjectId>16386</ObjectId>
       <RoleGrants>16387!
 16392!
@@ -870,23 +890,6 @@ false Zulu
 6181!
 6182!
 6304!</RoleGrants>
-    </role>
-    <role id="19" parent="1" name="rds_replication">
-      <ObjectId>16387</ObjectId>
-    </role>
-    <role id="20" parent="1" name="rds_iam">
-      <ObjectId>16389</ObjectId>
-    </role>
-    <role id="21" parent="1" name="rds_password">
-      <ObjectId>16392</ObjectId>
-    </role>
-    <role id="22" parent="1" name="rds_ad">
-      <ObjectId>16397</ObjectId>
-    </role>
-    <role id="23" parent="1" name="rdsrepladmin">
-      <Inherit>0</Inherit>
-      <ObjectId>16415</ObjectId>
-      <Replication>1</Replication>
     </role>
     <role id="24" parent="1" name="rdsadmin">
       <BypassRls>1</BypassRls>
@@ -914,13 +917,10 @@ default_transaction_read_only=off</Config>
       <SuperRole>1</SuperRole>
       <ValidUntil>infinity</ValidUntil>
     </role>
-    <role id="25" parent="1" name="postgres">
-      <CanLogin>1</CanLogin>
-      <CreateDb>1</CreateDb>
-      <CreateRole>1</CreateRole>
-      <ObjectId>16413</ObjectId>
-      <RoleGrants>16386</RoleGrants>
-      <ValidUntil>infinity</ValidUntil>
+    <role id="25" parent="1" name="rdsrepladmin">
+      <Inherit>0</Inherit>
+      <ObjectId>16415</ObjectId>
+      <Replication>1</Replication>
     </role>
     <tablespace id="26" parent="1" name="pg_default">
       <ObjectId>1663</ObjectId>
@@ -4289,8 +4289,8 @@ default_transaction_read_only=off</Config>
     <schema id="272" parent="2" name="public">
       <Comment>standard public schema</Comment>
       <Current>1</Current>
-      <IntrospectionStateNumber>1127</IntrospectionStateNumber>
-      <LastIntrospectionLocalTimestamp>2024-06-04.20:15:48</LastIntrospectionLocalTimestamp>
+      <IntrospectionStateNumber>3094</IntrospectionStateNumber>
+      <LastIntrospectionLocalTimestamp>2024-06-11.17:07:52</LastIntrospectionLocalTimestamp>
       <ObjectId>2200</ObjectId>
       <StateNumber>524</StateNumber>
       <OwnerName>pg_database_owner</OwnerName>
@@ -4301,23 +4301,85 @@ default_transaction_read_only=off</Config>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>postgres</OwnerName>
     </table>
-    <column id="274" parent="273" name="albumid">
+    <table id="274" parent="272" name="person">
+      <ObjectId>16427</ObjectId>
+      <StateNumber>3092</StateNumber>
+      <AccessMethodId>2</AccessMethodId>
+      <OwnerName>postgres</OwnerName>
+    </table>
+    <column id="275" parent="273" name="albumid">
       <DasType>integer|0s</DasType>
       <Position>1</Position>
       <StateNumber>1121</StateNumber>
       <TypeId>23</TypeId>
     </column>
-    <column id="275" parent="273" name="title">
+    <column id="276" parent="273" name="title">
       <DasType>varchar(160)|0s</DasType>
       <Position>2</Position>
       <StateNumber>1121</StateNumber>
       <TypeId>1043</TypeId>
     </column>
-    <column id="276" parent="273" name="artistid">
+    <column id="277" parent="273" name="artistid">
       <DasType>integer|0s</DasType>
       <Position>3</Position>
       <StateNumber>1121</StateNumber>
       <TypeId>23</TypeId>
     </column>
+    <column id="278" parent="274" name="email">
+      <DasType>varchar(160)|0s</DasType>
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <StateNumber>3092</StateNumber>
+      <TypeId>1043</TypeId>
+    </column>
+    <column id="279" parent="274" name="name">
+      <DasType>varchar(160)|0s</DasType>
+      <Position>2</Position>
+      <StateNumber>3092</StateNumber>
+      <TypeId>1043</TypeId>
+    </column>
+    <column id="280" parent="274" name="max_hours">
+      <DasType>integer|0s</DasType>
+      <Position>3</Position>
+      <StateNumber>3092</StateNumber>
+      <TypeId>23</TypeId>
+    </column>
+    <column id="281" parent="274" name="status">
+      <DasType>varchar(160)|0s</DasType>
+      <Position>4</Position>
+      <StateNumber>3092</StateNumber>
+      <TypeId>1043</TypeId>
+    </column>
+    <column id="282" parent="274" name="earliest_invite">
+      <DasType>varchar(160)|0s</DasType>
+      <Position>5</Position>
+      <StateNumber>3092</StateNumber>
+      <TypeId>1043</TypeId>
+    </column>
+    <column id="283" parent="274" name="latest_invite">
+      <DasType>varchar(160)|0s</DasType>
+      <Position>6</Position>
+      <StateNumber>3092</StateNumber>
+      <TypeId>1043</TypeId>
+    </column>
+    <index id="284" parent="274" name="person_pkey">
+      <ColNames>email</ColNames>
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>16432</ObjectId>
+      <Primary>1</Primary>
+      <StateNumber>3092</StateNumber>
+      <Unique>1</Unique>
+      <AccessMethodId>403</AccessMethodId>
+      <CollationNames>default</CollationNames>
+      <CollationIds>100</CollationIds>
+      <CollationParentNames>pg_catalog</CollationParentNames>
+    </index>
+    <key id="285" parent="274" name="person_pkey">
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>16433</ObjectId>
+      <Primary>1</Primary>
+      <StateNumber>3092</StateNumber>
+      <UnderlyingIndexId>16432</UnderlyingIndexId>
+    </key>
   </database-model>
 </dataSource>

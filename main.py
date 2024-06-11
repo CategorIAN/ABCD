@@ -26,8 +26,8 @@ def availabilityMeeting():
 
 if __name__ == '__main__':
     G = General_DB()
-    print(G.createPersonDB())
-    #print(G.getTypeNames("MultChoice", "VarChar(160)"))
+    print(G.insertRows())
+    G.executeSQL(G.insertRows())
 
 
 
