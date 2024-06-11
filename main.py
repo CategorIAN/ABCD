@@ -25,7 +25,9 @@ def availabilityMeeting():
     Av.availability(1)
 
 if __name__ == '__main__':
-    availabilityEvent()
+    G = General_DB()
+    print(G.createPersonDB())
+    #print(G.getTypeNames("MultChoice", "VarChar(160)"))
 
 
 
