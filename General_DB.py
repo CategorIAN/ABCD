@@ -114,6 +114,29 @@ class General_DB:
         stmt = lambda id: "INSERT INTO {} (Name, Other) VALUES \n{}\n;".format(name(id), values(id))
         return [stmt(col_id) for col_id in set(df.ID)]
 
+    def createCheckBoxJoinDBs(self):
+        form_columns = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "Columns.csv"]))
+        type_columns = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "CheckBox.csv"]))
+        df = pd.merge(form_columns, type_columns, how="inner", left_on="ID", right_on="ColumnID")
+        name = lambda id: df[df["ID"] == id]["Name"].iat[0]
+        db_cols = lambda id: ",\n".join(["PersonID VARCHAR(160) REFERENCES Person",
+                                         "{}ID VARCHAR(160) REFERENCES {}".format(name(id), name(id))])
+        stmt = lambda id: "CREATE TABLE PERSON_{} (\n{}\n);".format(name(id), db_cols(id))
+        return [stmt(col_id) for col_id in set(df.ID)]
+
+    def insertCheckBoxJoinRows(self):
+        form_columns = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "Columns.csv"]))
+        type_columns = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "CheckBox.csv"]))
+        checkbox_df = pd.merge(form_columns, type_columns, how="inner", left_on="ID", right_on="ColumnID")
+        checkbox_name = lambda id: checkbox_df[checkbox_df["ID"] == id]["Name"].iat[0]
+        person_df = self.df
+        def getRows(index, ch_id):
+            ch_name = checkbox_name(ch_id)
+            return [(person_df.at[index, "Email"], item) for item in person_df.at[index, ch_name].split]
+        appendRow = lambda rows, i: rows + [str(tuple([db_dict[col](df.at[i, col]) for col in db_cols]))]
+        rows = ",\n".join(reduce(appendRow, df.index, [])).replace("''", "NULL")
+        return "INSERT INTO person ({}) VALUES\n{};".format(", ".join(db_cols), rows)
+
     def executeSQL(self, commands):
         try:
             connection = psycopg2.connect(user = "postgres",
