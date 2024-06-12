@@ -1,1 +1,1 @@
-SELECT Email FROM person;
+Select * From Game_Types;

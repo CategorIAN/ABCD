@@ -26,8 +26,9 @@ def availabilityMeeting():
 
 if __name__ == '__main__':
     G = General_DB()
-    print(G.insertRows())
-    G.executeSQL(G.insertRows())
+    #G.executeSQL(G.createCheckBoxDBs())
+    print(G.insertCheckBoxRows())
+    G.executeSQL(G.insertCheckBoxRows())
 
 
 

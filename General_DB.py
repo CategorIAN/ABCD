@@ -7,10 +7,19 @@ import numpy as np
 class General_DB:
     def __init__(self):
         self.name = "General_DB"
+        self.keys = ["Email"]
         self.df = self.createDF()
         form_types = ["Keys", "Text", "LinScale", "MultChoice"]
         sql_types = ["VARCHAR(160) PRIMARY KEY", "VARCHAR(160)", "INT", "VARCHAR(160)"]
         self.type_dict = dict(zip(form_types, sql_types))
+
+    def removeDuplicates(self, df):
+        def appendDF(df_keys, index):
+            current_df, key_set, df_row = df_keys + (df.loc[[index], :],)
+            keys = tuple(df_row.loc[index, self.keys])
+            return (current_df, key_set) if keys in key_set else (pd.concat([df_row, current_df]), key_set | {keys})
+        initial_df = pd.DataFrame(columns=df.columns)
+        return reduce(appendDF, reversed(df.index), (initial_df, set()))[0].reset_index(drop=True)
 
     def trim_paren(self, v):
         return v.partition(" (")[0]
@@ -45,10 +54,11 @@ class General_DB:
         return h(s.split(" "))
 
     def createDF(self):
-        rename = lambda df: df.rename(self.prod_func, axis=1)
-        fillna = lambda df: df.fillna("")
-        hashTime = lambda df: self.df_map({"Timestamp"}, self.hashTime)(df)
-        df = hashTime(fillna(rename(pd.read_csv("\\".join([os.getcwd(), "Raw Data", "{}.csv".format(self.name)])))))
+        ren = lambda df: df.rename(self.prod_func, axis=1)
+        f = lambda df: df.fillna("")
+        h = lambda df: self.df_map({"Timestamp"}, self.hashTime)(df)
+        rem = lambda df: self.removeDuplicates(df)
+        df = h(rem(f(ren(pd.read_csv("\\".join([os.getcwd(), "Raw Data", "{}.csv".format(self.name)]))))))
         self.save(df, "original")
         return df
 
@@ -78,7 +88,7 @@ class General_DB:
         db_cols = ",\n".join(self.getDBDict(True).keys())
         return "CREATE TABLE person (\n{}\n);".format(db_cols)
 
-    def insertRows(self):
+    def insertPersonRows(self):
         db_dict = self.getDBDict()
         db_cols = list(db_dict.keys())
         df = self.df[db_cols]
@@ -86,7 +96,25 @@ class General_DB:
         rows = ",\n".join(reduce(appendRow, df.index, [])).replace("''", "NULL")
         return "INSERT INTO person ({}) VALUES\n{};".format(", ".join(db_cols), rows)
 
-    def executeSQL(self, command):
+    def createCheckBoxDBs(self):
+        form_columns = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "Columns.csv"]))
+        type_columns = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "CheckBox.csv"]))
+        df = pd.merge(form_columns, type_columns, how="inner", left_on="ID", right_on="ColumnID")
+        name = lambda id: df[df["ID"] == id]["Name"].iat[0]
+        db_cols = ",\n".join(["Name VARCHAR(160) PRIMARY KEY", "Other BOOLEAN"])
+        stmt = lambda id: "CREATE TABLE {} (\n{}\n);".format(name(id), db_cols)
+        return [stmt(col_id) for col_id in set(df.ID)]
+
+    def insertCheckBoxRows(self):
+        form_columns = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "Columns.csv"]))
+        type_columns = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "CheckBox.csv"]))
+        df = pd.merge(form_columns, type_columns, how="inner", left_on="ID", right_on="ColumnID")
+        name = lambda id: df[df["ID"] == id]["Name"].iat[0]
+        values = lambda id: ",\n".join([str((name, False)) for name in df[df["ID"] == id]["NewValue"]])
+        stmt = lambda id: "INSERT INTO {} (Name, Other) VALUES \n{}\n;".format(name(id), values(id))
+        return [stmt(col_id) for col_id in set(df.ID)]
+
+    def executeSQL(self, commands):
         try:
             connection = psycopg2.connect(user = "postgres",
                                           password = "WeAreGroot",
@@ -94,9 +122,11 @@ class General_DB:
                                           port = "5432",
                                           database = "postgres")
             cursor = connection.cursor()
-            cursor.execute(command)
-            connection.commit()
-            print(10 * "=" + "Executed" + 10 * "=" + "\n" + command)
+            for command in commands:
+                cursor.execute(command)
+                connection.commit()
+                print(10 * "=" + "Executed" + 10 * "=" + "\n" + command)
+
         except psycopg2.Error as e:
             print(e)
         finally:
