@@ -64,7 +64,7 @@ class General_DB:
 
     def transform(self, form_type, df):
         def f(id):
-            if form_type == "MultChoice":
+            if form_type in {"MultChoice", "CheckBox"}:
                 sub_df = df[df["ID"] == id]
                 transform_dict = dict(zip(sub_df["OldValue"], sub_df["NewValue"]))
                 return lambda v: transform_dict.get(self.trim_paren(v), self.trim_paren(v))
@@ -72,10 +72,13 @@ class General_DB:
                 return lambda v: v
         return f
 
-    def getTypeNames(self, form_type, with_sql_type = False):
+    def typeDF(self, form_type):
         form_columns = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "Columns.csv"]))
         type_columns = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "{}.csv".format(form_type)]))
-        df = pd.merge(form_columns, type_columns, how="inner", left_on="ID", right_on="ColumnID")
+        return pd.merge(form_columns, type_columns, how="inner", left_on="ID", right_on="ColumnID")
+
+    def getTypeNames(self, form_type, with_sql_type = False):
+        df = self.typeDF(form_type)
         sql_type = " " + self.type_dict[form_type] if with_sql_type else ""
         name = lambda id: "{}{}".format(df[df["ID"] == id]["Name"].iat[0], sql_type)
         transform_func = self.transform(form_type, df)
@@ -84,58 +87,38 @@ class General_DB:
     def getDBDict(self, with_sql_type = False):
         return reduce(lambda d, t: d | self.getTypeNames(t, with_sql_type), self.type_dict.keys(), {})
 
-    def createPersonDB(self):
-        db_cols = ",\n".join(self.getDBDict(True).keys())
-        return "CREATE TABLE person (\n{}\n);".format(db_cols)
-
-    def insertPersonRows(self):
-        db_dict = self.getDBDict()
+    def createPersonTable(self):
+        db_cols = ",\n".join(self.getDBDict(with_sql_type = True).keys())
+        create_stmt = "CREATE TABLE person (\n{}\n);".format(db_cols)
+        db_dict = self.getDBDict(with_sql_type = False)
         db_cols = list(db_dict.keys())
-        df = self.df[db_cols]
-        appendRow = lambda rows, i: rows + [str(tuple([db_dict[col](df.at[i, col]) for col in db_cols]))]
-        rows = ",\n".join(reduce(appendRow, df.index, [])).replace("''", "NULL")
-        return "INSERT INTO person ({}) VALUES\n{};".format(", ".join(db_cols), rows)
+        appendRow = lambda rows, i: rows + [str(tuple([db_dict[col](self.df.at[i, col]) for col in db_cols]))]
+        rows = ",\n".join(reduce(appendRow, self.df.index, [])).replace("''", "NULL")
+        insert_stmt = "INSERT INTO person ({}) VALUES\n{};".format(", ".join(db_cols), rows)
+        return [create_stmt, insert_stmt]
 
-    def createCheckBoxDBs(self):
-        form_columns = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "Columns.csv"]))
-        type_columns = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "CheckBox.csv"]))
-        df = pd.merge(form_columns, type_columns, how="inner", left_on="ID", right_on="ColumnID")
+    def createCheckBoxTables(self):
+        df = self.typeDF("CheckBox")
         name = lambda id: df[df["ID"] == id]["Name"].iat[0]
         db_cols = ",\n".join(["Name VARCHAR(160) PRIMARY KEY", "Other BOOLEAN"])
-        stmt = lambda id: "CREATE TABLE {} (\n{}\n);".format(name(id), db_cols)
-        return [stmt(col_id) for col_id in set(df.ID)]
-
-    def insertCheckBoxRows(self):
-        form_columns = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "Columns.csv"]))
-        type_columns = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "CheckBox.csv"]))
-        df = pd.merge(form_columns, type_columns, how="inner", left_on="ID", right_on="ColumnID")
-        name = lambda id: df[df["ID"] == id]["Name"].iat[0]
         values = lambda id: ",\n".join([str((name, False)) for name in df[df["ID"] == id]["NewValue"]])
-        stmt = lambda id: "INSERT INTO {} (Name, Other) VALUES \n{}\n;".format(name(id), values(id))
-        return [stmt(col_id) for col_id in set(df.ID)]
+        create_stmt = lambda id: "CREATE TABLE {} (\n{}\n);".format(name(id), db_cols)
+        insert_stmt = lambda id: "INSERT INTO {} (Name, Other) VALUES \n{}\n;".format(name(id), values(id))
+        return reduce(lambda l, col_id: l + [create_stmt(col_id), insert_stmt(col_id)], set(df.ID), [])
 
-    def createCheckBoxJoinDBs(self):
-        form_columns = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "Columns.csv"]))
-        type_columns = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "CheckBox.csv"]))
-        df = pd.merge(form_columns, type_columns, how="inner", left_on="ID", right_on="ColumnID")
-        name = lambda id: df[df["ID"] == id]["Name"].iat[0]
+    def createCheckBoxJoinTables(self):
+        checkbox_df = self.typeDF("CheckBox")
+        name = lambda id: checkbox_df[checkbox_df["ID"] == id]["Name"].iat[0]
         db_cols = lambda id: ",\n".join(["PersonID VARCHAR(160) REFERENCES Person",
                                          "{}ID VARCHAR(160) REFERENCES {}".format(name(id), name(id))])
-        stmt = lambda id: "CREATE TABLE PERSON_{} (\n{}\n);".format(name(id), db_cols(id))
-        return [stmt(col_id) for col_id in set(df.ID)]
-
-    def insertCheckBoxJoinRows(self):
-        form_columns = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "Columns.csv"]))
-        type_columns = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "CheckBox.csv"]))
-        checkbox_df = pd.merge(form_columns, type_columns, how="inner", left_on="ID", right_on="ColumnID")
-        checkbox_name = lambda id: checkbox_df[checkbox_df["ID"] == id]["Name"].iat[0]
-        person_df = self.df
-        def getRows(index, ch_id):
-            ch_name = checkbox_name(ch_id)
-            return [(person_df.at[index, "Email"], item) for item in person_df.at[index, ch_name].split]
-        appendRow = lambda rows, i: rows + [str(tuple([db_dict[col](df.at[i, col]) for col in db_cols]))]
-        rows = ",\n".join(reduce(appendRow, df.index, [])).replace("''", "NULL")
-        return "INSERT INTO person ({}) VALUES\n{};".format(", ".join(db_cols), rows)
+        create_stmt = lambda id: "CREATE TABLE PERSON_{} (\n{}\n);".format(name(id), db_cols(id))
+        tr_func = self.transform("CheckBox", checkbox_df)
+        opts = lambda ch_id: set(checkbox_df[checkbox_df["ID"] == ch_id]["NewValue"])
+        items = lambda ch_id, i: set([tr_func(ch_id)(x) for x in self.df.at[i, name(ch_id)].split(", ")])
+        personRows = lambda ch_id, i: [str((self.df.at[i, "Email"], x)) for x in items(ch_id, i) if x in opts(ch_id)]
+        values = lambda id: ",\n".join(reduce(lambda l, i: l + personRows(id, i), self.df.index, []))
+        insert_stmt = lambda id: "INSERT INTO Person_{} VALUES \n{}\n;".format(name(id), values(id))
+        return reduce(lambda l, col_id: l + [create_stmt(col_id), insert_stmt(col_id)], set(checkbox_df.ID), [])
 
     def executeSQL(self, commands):
         try:
