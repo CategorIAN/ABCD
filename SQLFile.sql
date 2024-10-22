@@ -1,0 +1,1 @@
+Select * From Game_Types;

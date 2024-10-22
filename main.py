@@ -1,7 +1,9 @@
 #==========My Classes===============================
 from General import General
 from GuestGame import GuestGame
-from GameAvailability import GameAvailability
+from EventAvailability import EventAvailability
+from MeetingAvailability import MeetingAvailability
+from General_DB import General_DB
 
 def availabilityGG():
     GG = GuestGame()
@@ -14,13 +16,19 @@ def availabilityGeneral():
     for game in G.game_duration.keys():
         G.newbAv(game)
 
-def availabilityGame():
-    Av = GameAvailability()
-    Av.availability("24.04", 3)
+def availabilityEvent():
+    Av = EventAvailability()
+    Av.availability("24.06", 3)
 
+def availabilityMeeting():
+    Av = MeetingAvailability()
+    Av.availability(1)
 
 if __name__ == '__main__':
-    availabilityGame()
+    G = General()
+    G.readPersonalFile("Laramie Kyhl")
+    #G.updateResults(8,31,2024)
+
 
 
 
