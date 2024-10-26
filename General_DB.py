@@ -3,6 +3,7 @@ import pandas as pd
 from functools import reduce
 import psycopg2
 import numpy as np
+from itertools import product
 
 class General_DB:
     def __init__(self):
@@ -12,7 +13,7 @@ class General_DB:
         form_types = ["Keys", "Text", "LinScale", "MultChoice"]
         sql_types = ["VARCHAR(160) PRIMARY KEY", "VARCHAR(160)", "INT", "VARCHAR(160)"]
         self.type_dict = dict(zip(form_types, sql_types))
-
+    #=================================================================================================================
     def removeDuplicates(self, df):
         def appendDF(df_keys, index):
             current_df, key_set, df_row = df_keys + (df.loc[[index], :],)
@@ -25,7 +26,7 @@ class General_DB:
         return v.partition(" (")[0]
 
     def q_map(self, q):
-        form_columns = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "Columns.csv"]))
+        form_columns = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "Questions.csv"]))
         col_mapping = dict(list(zip(form_columns["Question"], form_columns["Name"])))
         return col_mapping.get(self.trim_paren(q), self.trim_paren(q))
 
@@ -61,8 +62,13 @@ class General_DB:
         df = h(rem(f(ren(pd.read_csv("\\".join([os.getcwd(), "Raw Data", "{}.csv".format(self.name)]))))))
         self.save(df, "original")
         return df
-
+    # =================================================================================================================
     def transform(self, form_type, df):
+        '''
+        :param form_type:
+        :param df:
+        :return:
+        '''
         def f(id):
             if form_type in {"MultChoice", "CheckBox"}:
                 sub_df = df[df["ID"] == id]
@@ -73,11 +79,20 @@ class General_DB:
         return f
 
     def typeDF(self, form_type):
-        form_columns = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "Columns.csv"]))
+        '''
+        :param form_type: Either 'CheckBox', 'CheckBoxGrid', 'LinScale', 'MultChoice', or 'Text'
+        :return: A pandas dataframe showing transformations of the question and options for that type.
+        '''
+        form_columns = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "Questions.csv"]))
         type_columns = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "{}.csv".format(form_type)]))
-        return pd.merge(form_columns, type_columns, how="inner", left_on="ID", right_on="ColumnID")
+        return pd.merge(form_columns, type_columns, how="inner", left_on="ID", right_on="QID")
 
     def getTypeNames(self, form_type, with_sql_type = False):
+        '''
+        :param form_type: Either 'CheckBox', 'CheckBoxGrid', 'LinScale', 'MultChoice', or 'Text'.
+        :param with_sql_type: Determines whether to append the appropriate SQL type.
+        :return: A dictionary mapping question names to transformation function for answers to the question.
+        '''
         df = self.typeDF(form_type)
         sql_type = " " + self.type_dict[form_type] if with_sql_type else ""
         name = lambda id: "{}{}".format(df[df["ID"] == id]["Name"].iat[0], sql_type)
@@ -85,10 +100,14 @@ class General_DB:
         return dict([(name(col_id), transform_func(col_id)) for col_id in set(df.ID)])
 
     def getDBDict(self, with_sql_type = False):
+        '''
+        :param with_sql_type: Determines whether to append the appropriate SQL type.
+        :return:
+        '''
         return reduce(lambda d, t: d | self.getTypeNames(t, with_sql_type), self.type_dict.keys(), {})
-
+    # =================================================================================================================
     def createPersonTable(self):
-        db_cols = ",\n".join(self.getDBDict(with_sql_type = True).keys())
+        db_cols = ",\n".join(self.getDBDict(with_sql_type = True).keys()) #Getting the names of fields from questions.
         create_stmt = "CREATE TABLE person (\n{}\n);".format(db_cols)
         db_dict = self.getDBDict(with_sql_type = False)
         db_cols = list(db_dict.keys())
@@ -120,6 +139,66 @@ class General_DB:
         insert_stmt = lambda id: "INSERT INTO Person_{} VALUES \n{}\n;".format(name(id), values(id))
         return reduce(lambda l, col_id: l + [create_stmt(col_id), insert_stmt(col_id)], set(checkbox_df.ID), [])
 
+    #=================================================================================================================
+    def createGridColumnTables(self):
+        df = self.typeDF("GridColumn")
+        q_df = lambda qid: df[df["ID"] == qid]
+        name = lambda qid: q_df(qid)["Name"].iat[0]
+        db_cols = ",\n".join(["ColumnID INT PRIMARY KEY", "ColumnName VARCHAR(160)"])
+        values = lambda qid: ",\n".join([str(tuple(df.loc[i, ["ColumnID", "ColumnName"]])) for i in q_df(qid).index])
+        create_stmt = lambda qid: "CREATE TABLE {}_Column (\n{}\n);".format(name(qid), db_cols)
+        insert_stmt = lambda qid: "INSERT INTO {}_Column (ColumnID, ColumnName) VALUES \n{}\n;".format(name(qid), values(qid))
+        return reduce(lambda l, qid: l + [create_stmt(qid), insert_stmt(qid)], set(df.ID), [])
+
+    def createGridRowTables(self):
+        df = self.typeDF("GridRow")
+        q_df = lambda qid: df[df["ID"] == qid]
+        name = lambda qid: q_df(qid)["Name"].iat[0]
+        db_cols = ",\n".join(["RowID INT PRIMARY KEY", "RowName VARCHAR(160)"])
+        values = lambda qid: ",\n".join([str(tuple(df.loc[i, ["RowID", "RowName"]])) for i in q_df(qid).index])
+        create_stmt = lambda qid: "CREATE TABLE {}_Row (\n{}\n);".format(name(qid), db_cols)
+        insert_stmt = lambda qid: "INSERT INTO {}_Row (RowID, RowName) VALUES \n{}\n;".format(name(qid), values(qid))
+        return reduce(lambda l, qid: l + [create_stmt(qid), insert_stmt(qid)], set(df.ID), [])
+
+    def createGridTables(self):
+        questions = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "Questions.csv"]))
+        grid_columns = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "GridColumn.csv"]))
+        grid_rows = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "GridRow.csv"]))
+        append_df = lambda left_df, right_df: left_df.merge(right_df, how="inner", left_on="ID", right_on="QID")
+        df = append_df(append_df(questions, grid_columns), grid_rows)
+        q_df = lambda qid: df[df["ID"] == qid].reindex()
+        name = lambda qid: q_df(qid)["Name"].iat[0]
+        db_cols = lambda qid: ",\n".join(["ID INT PRIMARY KEY", f"ColumnID INT REFERENCES {name(qid)}_Column",
+                              f"RowID INT REFERENCES {name(qid)}_Row"])
+        values = lambda qid: ",\n".join([str((i,) + tuple(df.loc[i, ["ColumnID", "RowID"]])) for i in q_df(qid).index])
+        create_stmt = lambda qid: "CREATE TABLE {} (\n{}\n);".format(name(qid), db_cols(qid))
+        insert_stmt = lambda qid: "INSERT INTO {} (ID, ColumnID, RowID) VALUES \n{}\n;".format(name(qid), values(qid))
+        return reduce(lambda l, qid: l + [create_stmt(qid), insert_stmt(qid)], set(df.ID), [])
+
+    def getGridIndex(self, df, qid, col, row):
+        return df[(df["ID"] == qid) & (df["ColumnName"] == col) & (df["RowName"] == row)].index[0]
+
+    def createGridJoinTables(self):
+        questions = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "Questions.csv"]))
+        grid_columns = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "GridColumn.csv"]))
+        grid_rows = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "GridRow.csv"]))
+        append_df = lambda left_df, right_df: left_df.merge(right_df, how="inner", left_on="ID", right_on="QID")
+        df = append_df(append_df(questions, grid_columns), grid_rows)
+        q_df = lambda qid: df[df["ID"] == qid].reindex()
+        name = lambda qid: q_df(qid)["Name"].iat[0]
+        db_cols = lambda qid: ",\n".join(["PersonID VARCHAR(160) REFERENCES Person",
+                                         "{}ID INT REFERENCES {}".format(name(qid), name(qid))])
+        create_stmt = lambda qid: "CREATE TABLE PERSON_{} (\n{}\n);".format(name(qid), db_cols(qid))
+
+        opts = lambda qid: set(product(df[df["ID"] == qid]["ColumnName"], df[df["ID"] == qid]["RowName"]))
+        cols = lambda qid, row, i: set(self.df.at[i, f"{name(qid)} [{row}]"].split(", "))
+        personRows = lambda qid, i: [str((self.df.at[i, "Email"], self.getGridIndex(df, qid, col, row)))
+                                     for col, row in opts(qid) if col in cols(qid, row, i)]
+        values = lambda qid: ",\n".join(reduce(lambda l, i: l + personRows(qid, i), self.df.index, []))
+        insert_stmt = lambda qid: "INSERT INTO Person_{} VALUES \n{}\n;".format(name(qid), values(qid))
+        return reduce(lambda l, qid: l + [create_stmt(qid), insert_stmt(qid)], set(df.ID), [])
+
+    # =================================================================================================================
     def executeSQL(self, commands):
         try:
             connection = psycopg2.connect(user = "postgres",

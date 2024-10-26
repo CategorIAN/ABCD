@@ -1,4 +1,4 @@
-﻿OldValue,NewValue,ColumnID
+﻿OldValue,NewValue,QID
 """I would like to be active in your group.""",Active,3
 """I am not available to participate in games for this season.""",Not_Now,3
 """I would like to be taken off of this gaming list.""",Please_Remove,3

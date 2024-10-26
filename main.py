@@ -24,10 +24,17 @@ def availabilityMeeting():
     Av = MeetingAvailability()
     Av.availability(1)
 
+def createPersonDB():
+    G = General_DB()
+    G.executeSQL(G.createPersonTable())
+
+def createCheckBoxJoinTables():
+    G = General_DB()
+    G.executeSQL(G.createCheckBoxJoinTables())
+
 if __name__ == '__main__':
-    G = General()
-    G.readPersonalFile("Donovan Amunrud")
-    #G.updateResults(10,18,2024)
+    G = General_DB()
+    G.executeSQL(G.createGridJoinTables())
 
 
 

@@ -1,1 +1,1 @@
-Select * From Game_Types;
+Select * From person;
