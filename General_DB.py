@@ -4,6 +4,8 @@ from functools import reduce
 import psycopg2
 import numpy as np
 from itertools import product
+from prettytable import PrettyTable
+
 
 class General_DB:
     def __init__(self):
@@ -175,9 +177,6 @@ class General_DB:
         insert_stmt = lambda qid: "INSERT INTO {} (ID, ColumnID, RowID) VALUES \n{}\n;".format(name(qid), values(qid))
         return reduce(lambda l, qid: l + [create_stmt(qid), insert_stmt(qid)], set(df.ID), [])
 
-    def getGridIndex(self, df, qid, col, row):
-        return df[(df["ID"] == qid) & (df["ColumnName"] == col) & (df["RowName"] == row)].index[0]
-
     def createGridJoinTables(self):
         questions = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "Questions.csv"]))
         grid_columns = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "GridColumn.csv"]))
@@ -192,12 +191,31 @@ class General_DB:
 
         opts = lambda qid: set(product(df[df["ID"] == qid]["ColumnName"], df[df["ID"] == qid]["RowName"]))
         cols = lambda qid, row, i: set(self.df.at[i, f"{name(qid)} [{row}]"].split(", "))
-        personRows = lambda qid, i: [str((self.df.at[i, "Email"], self.getGridIndex(df, qid, col, row)))
+        f = lambda qid, col, row: df[(df["ID"] == qid) & (df["ColumnName"] == col) & (df["RowName"] == row)].index[0]
+        personRows = lambda qid, i: [str((self.df.at[i, "Email"], f(qid, col, row)))
                                      for col, row in opts(qid) if col in cols(qid, row, i)]
         values = lambda qid: ",\n".join(reduce(lambda l, i: l + personRows(qid, i), self.df.index, []))
         insert_stmt = lambda qid: "INSERT INTO Person_{} VALUES \n{}\n;".format(name(qid), values(qid))
         return reduce(lambda l, qid: l + [create_stmt(qid), insert_stmt(qid)], set(df.ID), [])
 
+    # =================================================================================================================
+    def readText(self, email = None, name = None):
+        df = self.typeDF("Text")
+        cols = ", ".join(set(["Email", "Name"] + list(df["Name"])))
+        filter = f"WHERE Email='{email}'" if email is not None else f"WHERE Name LIKE '%{name}%'" if name is not None else ""
+        return [f"SELECT {cols} FROM PERSON " + filter + ";"]
+
+    def readLinScale(self, email = None, name = None):
+        df = self.typeDF("LinScale")
+        cols = ", ".join(set(["Email", "Name"] + list(df["Name"])))
+        filter = f"WHERE Email='{email}'" if email is not None else f"WHERE Name LIKE '%{name}%'" if name is not None else ""
+        return [f"SELECT {cols} FROM PERSON " + filter + ";"]
+
+    def readMultChoice(self, email = None, name = None):
+        df = self.typeDF("MultChoice")
+        cols = ", ".join(set(["Email", "Name"] + list(df["Name"])))
+        filter = f"WHERE Email='{email}'" if email is not None else f"WHERE Name LIKE '%{name}%'" if name is not None else ""
+        return [f"SELECT {cols} FROM PERSON " + filter + ";"]
     # =================================================================================================================
     def executeSQL(self, commands):
         try:
@@ -209,6 +227,15 @@ class General_DB:
             cursor = connection.cursor()
             for command in commands:
                 cursor.execute(command)
+                results = cursor.fetchall()
+                columns = [desc[0] for desc in cursor.description]
+                data = [{col: x for col, x in zip(columns, row)} for row in results]
+                table = PrettyTable()
+                table.field_names = data[0].keys()
+                for entry in data:
+                    table.add_row(entry.values())
+                print(table)
+
                 connection.commit()
                 print(10 * "=" + "Executed" + 10 * "=" + "\n" + command)
 

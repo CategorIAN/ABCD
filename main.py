@@ -5,6 +5,7 @@ from EventAvailability import EventAvailability
 from MeetingAvailability import MeetingAvailability
 from General_DB import General_DB
 
+
 def availabilityGG():
     GG = GuestGame()
     GG.availability("Hannah Harris", "23.02")
@@ -34,7 +35,7 @@ def createCheckBoxJoinTables():
 
 if __name__ == '__main__':
     G = General_DB()
-    G.executeSQL(G.createGridJoinTables())
+    G.executeSQL(G.readMultChoice(name="Kessler"))
 
 
 
