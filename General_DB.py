@@ -216,6 +216,16 @@ class General_DB:
         cols = ", ".join(set(["Email", "Name"] + list(df["Name"])))
         filter = f"WHERE Email='{email}'" if email is not None else f"WHERE Name LIKE '%{name}%'" if name is not None else ""
         return [f"SELECT {cols} FROM PERSON " + filter + ";"]
+
+    def readCheckBox(self, email = None, name = None):
+        df = self.typeDF("CheckBox")
+        q_df = lambda qid: df[df["ID"] == qid].reindex()
+        q_name = lambda qid: q_df(qid)["Name"].iat[0]
+        filter = f"WHERE Email='{email}'" if email is not None else f"WHERE Name LIKE '%{name}%'" if name is not None else ""
+        values = lambda qid: (f"SELECT EMAIL, NAME, {q_name(qid)}ID FROM PERSON INNER JOIN PERSON_{q_name(qid)} "
+                              f"ON PERSON.EMAIL = PERSON_{q_name(qid)}.PERSONID ")
+        return [values(qid) + filter + ";" for qid in set(df.ID)]
+
     # =================================================================================================================
     def executeSQL(self, commands):
         try:
@@ -230,12 +240,13 @@ class General_DB:
                 results = cursor.fetchall()
                 columns = [desc[0] for desc in cursor.description]
                 data = [{col: x for col, x in zip(columns, row)} for row in results]
-                table = PrettyTable()
-                table.field_names = data[0].keys()
-                for entry in data:
-                    table.add_row(entry.values())
-                print(table)
 
+                if len(data) > 0:
+                    table = PrettyTable()
+                    table.field_names = data[0].keys()
+                    for entry in data:
+                        table.add_row(entry.values())
+                    print(table)
                 connection.commit()
                 print(10 * "=" + "Executed" + 10 * "=" + "\n" + command)
 
