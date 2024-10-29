@@ -59,9 +59,8 @@ class General_DB:
     def createDF(self):
         ren = lambda df: df.rename(self.prod_func, axis=1)
         f = lambda df: df.fillna("")
-        h = lambda df: self.df_map({"Timestamp"}, self.hashTime)(df)
         rem = lambda df: self.removeDuplicates(df)
-        df = h(rem(f(ren(pd.read_csv("\\".join([os.getcwd(), "Raw Data", "{}.csv".format(self.name)]))))))
+        df = rem(f(ren(pd.read_csv("\\".join([os.getcwd(), "Raw Data", "{}.csv".format(self.name)])))))
         self.save(df, "original")
         return df
     # =================================================================================================================
@@ -136,7 +135,7 @@ class General_DB:
         tr_func = self.transform("CheckBox", checkbox_df)
         opts = lambda ch_id: set(checkbox_df[checkbox_df["ID"] == ch_id]["NewValue"])
         items = lambda ch_id, i: set([tr_func(ch_id)(x) for x in self.df.at[i, name(ch_id)].split(", ")])
-        personRows = lambda ch_id, i: [str((self.df.at[i, "Email"], x)) for x in items(ch_id, i) if x in opts(ch_id)]
+        personRows = lambda ch_id, i: [str((self.df.at[i, "Name"], x)) for x in items(ch_id, i) if x in opts(ch_id)]
         values = lambda id: ",\n".join(reduce(lambda l, i: l + personRows(id, i), self.df.index, []))
         insert_stmt = lambda id: "INSERT INTO Person_{} VALUES \n{}\n;".format(name(id), values(id))
         return reduce(lambda l, col_id: l + [create_stmt(col_id), insert_stmt(col_id)], set(checkbox_df.ID), [])
@@ -192,41 +191,46 @@ class General_DB:
         opts = lambda qid: set(product(df[df["ID"] == qid]["ColumnName"], df[df["ID"] == qid]["RowName"]))
         cols = lambda qid, row, i: set(self.df.at[i, f"{name(qid)} [{row}]"].split(", "))
         f = lambda qid, col, row: df[(df["ID"] == qid) & (df["ColumnName"] == col) & (df["RowName"] == row)].index[0]
-        personRows = lambda qid, i: [str((self.df.at[i, "Email"], f(qid, col, row)))
+        personRows = lambda qid, i: [str((self.df.at[i, "Name"], f(qid, col, row)))
                                      for col, row in opts(qid) if col in cols(qid, row, i)]
         values = lambda qid: ",\n".join(reduce(lambda l, i: l + personRows(qid, i), self.df.index, []))
         insert_stmt = lambda qid: "INSERT INTO Person_{} VALUES \n{}\n;".format(name(qid), values(qid))
         return reduce(lambda l, qid: l + [create_stmt(qid), insert_stmt(qid)], set(df.ID), [])
 
+    def create(self):
+        return [self.createPersonTable(), self.createCheckBoxTables(), self.createCheckBoxJoinTables(),
+                self.createGridColumnTables(), self.createGridRowTables(), self.createGridTables(),
+                self.createGridJoinTables()]
+
     # =================================================================================================================
-    def readText(self, email = None, name = None):
+    def readText(self, name = None):
         df = self.typeDF("Text")
-        cols = ", ".join(list(["Email", "Name"] + list(set(df["Name"]))))
-        filter = f"WHERE Email='{email}'" if email is not None else f"WHERE Name LIKE '%{name}%'" if name is not None else ""
+        cols = ", ".join(list(["Name"] + list(set(df["Name"]))))
+        filter = f"WHERE Name LIKE '%{name}%'" if name is not None else ""
         return [f"SELECT {cols} FROM PERSON " + filter + ";"]
 
-    def readLinScale(self, email = None, name = None):
+    def readLinScale(self, name = None):
         df = self.typeDF("LinScale")
-        cols = ", ".join(list(["Email", "Name"] + list(set(df["Name"]))))
-        filter = f"WHERE Email='{email}'" if email is not None else f"WHERE Name LIKE '%{name}%'" if name is not None else ""
+        cols = ", ".join(list(["Name"] + list(set(df["Name"]))))
+        filter = f"WHERE Name LIKE '%{name}%'" if name is not None else ""
         return [f"SELECT {cols} FROM PERSON " + filter + ";"]
 
-    def readMultChoice(self, email = None, name = None):
+    def readMultChoice(self, name = None):
         df = self.typeDF("MultChoice")
-        cols = ", ".join(list(["Email", "Name"] + list(set(df["Name"]))))
-        filter = f"WHERE Email='{email}'" if email is not None else f"WHERE Name LIKE '%{name}%'" if name is not None else ""
+        cols = ", ".join(list(["Name"] + list(set(df["Name"]))))
+        filter = f"WHERE Name LIKE '%{name}%'" if name is not None else ""
         return [f"SELECT {cols} FROM PERSON " + filter + ";"]
 
-    def readCheckBox(self, email = None, name = None):
+    def readCheckBox(self, name = None):
         df = self.typeDF("CheckBox")
         q_df = lambda qid: df[df["ID"] == qid].reindex()
         q_name = lambda qid: q_df(qid)["Name"].iat[0]
-        filter = f"WHERE Email='{email}'" if email is not None else f"WHERE Name LIKE '%{name}%'" if name is not None else ""
-        values = lambda qid: (f"SELECT EMAIL, NAME, {q_name(qid)}ID FROM PERSON INNER JOIN PERSON_{q_name(qid)} "
-                              f"ON PERSON.EMAIL = PERSON_{q_name(qid)}.PERSONID ")
+        filter = f"WHERE Name LIKE '%{name}%'" if name is not None else ""
+        values = lambda qid: (f"SELECT NAME, {q_name(qid)}ID FROM PERSON INNER JOIN PERSON_{q_name(qid)} "
+                              f"ON PERSON.NAME = PERSON_{q_name(qid)}.PERSONID ")
         return [values(qid) + filter + ";" for qid in set(df.ID)]
 
-    def readGrid(self, email = None, name = None):
+    def readGrid(self, name = None):
         questions = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "Questions.csv"]))
         grid_columns = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "GridColumn.csv"]))
         grid_rows = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "GridRow.csv"]))
@@ -234,21 +238,29 @@ class General_DB:
         df = append_df(append_df(questions, grid_columns), grid_rows)
         q_df = lambda qid: df[df["ID"] == qid].reindex()
         q_name = lambda qid: q_df(qid)["Name"].iat[0]
-        filter = f"WHERE Email='{email}'" if email is not None else f"WHERE Name LIKE '%{name}%'" if name is not None else ""
+        filter = f"WHERE Name LIKE '%{name}%'" if name is not None else ""
         order_by = lambda qid: f"ORDER BY {q_name(qid)}ID ASC"
-        values = lambda qid: (f"SELECT EMAIL, NAME, COLUMNNAME, ROWNAME FROM PERSON INNER JOIN PERSON_{q_name(qid)} "
-                              f"ON PERSON.EMAIL = PERSON_{q_name(qid)}.PERSONID INNER JOIN {q_name(qid)} "
+        values = lambda qid: (f"SELECT NAME, COLUMNNAME, ROWNAME FROM PERSON INNER JOIN PERSON_{q_name(qid)} "
+                              f"ON PERSON.NAME = PERSON_{q_name(qid)}.PERSONID INNER JOIN {q_name(qid)} "
                               f"ON PERSON_{q_name(qid)}.{q_name(qid)}ID = {q_name(qid)}.ID INNER JOIN "
                               f"{q_name(qid)}_COLUMN ON {q_name(qid)}.COLUMNID = {q_name(qid)}_COLUMN.COLUMNID INNER JOIN "
                               f"{q_name(qid)}_ROW ON {q_name(qid)}.ROWID = {q_name(qid)}_ROW.ROWID")
         return [" ".join([values(qid), filter, order_by(qid), ";"]) for qid in set(df.ID)]
 
-    def readPersonalFile(self, email = None, name = None):
+    def readPersonalFile(self, name = None):
         fxns = [self.readText, self.readLinScale, self.readMultChoice, self.readCheckBox, self.readGrid]
-        return reduce(lambda scripts, fxn: scripts + fxn(email, name), fxns, [])
+        return reduce(lambda scripts, fxn: scripts + fxn(name), fxns, [])
 
-    # =================================================================================================================
-    def executeSQL(self, commands):
+# =================================================================================================================
+    def updateText(self, name):
+        df = self.typeDF("Text")
+        q_names = set(df["Name"])
+        person = self.df[self.df["Name"] == name].iloc[0]
+        update = ",\n".join([f"{q_name} = '{person[q_name]}'" for q_name in q_names])
+        return ["\n".join(["UPDATE PERSON", "SET " + update, f"WHERE name = '{name}';"])]
+
+# =================================================================================================================
+    def readSQL(self, commands):
         try:
             connection = psycopg2.connect(user = "postgres",
                                           password = "WeAreGroot",
@@ -268,6 +280,27 @@ class General_DB:
                     for entry in data:
                         table.add_row(entry.values())
                     print(table)
+                connection.commit()
+                print(10 * "=" + "Executed" + 10 * "=" + "\n" + command)
+
+        except psycopg2.Error as e:
+            print(e)
+        finally:
+            if connection:
+                cursor.close()
+                connection.close()
+                print("PostgreSQL connection is closed.")
+
+    def getDDL(self, commands):
+        try:
+            connection = psycopg2.connect(user = "postgres",
+                                          password = "WeAreGroot",
+                                          host = "database-1.cbeq26equftn.us-east-2.rds.amazonaws.com",
+                                          port = "5432",
+                                          database = "postgres")
+            cursor = connection.cursor()
+            for command in commands:
+                cursor.execute(command)
                 connection.commit()
                 print(10 * "=" + "Executed" + 10 * "=" + "\n" + command)
 

@@ -33,9 +33,19 @@ def createCheckBoxJoinTables():
     G = General_DB()
     G.executeSQL(G.createCheckBoxJoinTables())
 
+def create():
+    G = General_DB()
+    G.getDDL(G.createPersonTable())
+    G.getDDL(G.createCheckBoxTables())
+    G.getDDL(G.createCheckBoxJoinTables())
+    G.getDDL(G.createGridColumnTables())
+    G.getDDL(G.createGridRowTables())
+    G.getDDL(G.createGridTables())
+    G.getDDL(G.createGridJoinTables())
+
 if __name__ == '__main__':
     G = General_DB()
-    G.executeSQL(G.readPersonalFile(name="Dorene"))
+    G.getDDL(G.updateText("Ian Kessler"))
 
 
 
