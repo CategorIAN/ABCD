@@ -201,19 +201,19 @@ class General_DB:
     # =================================================================================================================
     def readText(self, email = None, name = None):
         df = self.typeDF("Text")
-        cols = ", ".join(set(["Email", "Name"] + list(df["Name"])))
+        cols = ", ".join(list(["Email", "Name"] + list(set(df["Name"]))))
         filter = f"WHERE Email='{email}'" if email is not None else f"WHERE Name LIKE '%{name}%'" if name is not None else ""
         return [f"SELECT {cols} FROM PERSON " + filter + ";"]
 
     def readLinScale(self, email = None, name = None):
         df = self.typeDF("LinScale")
-        cols = ", ".join(set(["Email", "Name"] + list(df["Name"])))
+        cols = ", ".join(list(["Email", "Name"] + list(set(df["Name"]))))
         filter = f"WHERE Email='{email}'" if email is not None else f"WHERE Name LIKE '%{name}%'" if name is not None else ""
         return [f"SELECT {cols} FROM PERSON " + filter + ";"]
 
     def readMultChoice(self, email = None, name = None):
         df = self.typeDF("MultChoice")
-        cols = ", ".join(set(["Email", "Name"] + list(df["Name"])))
+        cols = ", ".join(list(["Email", "Name"] + list(set(df["Name"]))))
         filter = f"WHERE Email='{email}'" if email is not None else f"WHERE Name LIKE '%{name}%'" if name is not None else ""
         return [f"SELECT {cols} FROM PERSON " + filter + ";"]
 
@@ -225,6 +225,27 @@ class General_DB:
         values = lambda qid: (f"SELECT EMAIL, NAME, {q_name(qid)}ID FROM PERSON INNER JOIN PERSON_{q_name(qid)} "
                               f"ON PERSON.EMAIL = PERSON_{q_name(qid)}.PERSONID ")
         return [values(qid) + filter + ";" for qid in set(df.ID)]
+
+    def readGrid(self, email = None, name = None):
+        questions = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "Questions.csv"]))
+        grid_columns = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "GridColumn.csv"]))
+        grid_rows = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "GridRow.csv"]))
+        append_df = lambda left_df, right_df: left_df.merge(right_df, how="inner", left_on="ID", right_on="QID")
+        df = append_df(append_df(questions, grid_columns), grid_rows)
+        q_df = lambda qid: df[df["ID"] == qid].reindex()
+        q_name = lambda qid: q_df(qid)["Name"].iat[0]
+        filter = f"WHERE Email='{email}'" if email is not None else f"WHERE Name LIKE '%{name}%'" if name is not None else ""
+        order_by = lambda qid: f"ORDER BY {q_name(qid)}ID ASC"
+        values = lambda qid: (f"SELECT EMAIL, NAME, COLUMNNAME, ROWNAME FROM PERSON INNER JOIN PERSON_{q_name(qid)} "
+                              f"ON PERSON.EMAIL = PERSON_{q_name(qid)}.PERSONID INNER JOIN {q_name(qid)} "
+                              f"ON PERSON_{q_name(qid)}.{q_name(qid)}ID = {q_name(qid)}.ID INNER JOIN "
+                              f"{q_name(qid)}_COLUMN ON {q_name(qid)}.COLUMNID = {q_name(qid)}_COLUMN.COLUMNID INNER JOIN "
+                              f"{q_name(qid)}_ROW ON {q_name(qid)}.ROWID = {q_name(qid)}_ROW.ROWID")
+        return [" ".join([values(qid), filter, order_by(qid), ";"]) for qid in set(df.ID)]
+
+    def readPersonalFile(self, email = None, name = None):
+        fxns = [self.readText, self.readLinScale, self.readMultChoice, self.readCheckBox, self.readGrid]
+        return reduce(lambda scripts, fxn: scripts + fxn(email, name), fxns, [])
 
     # =================================================================================================================
     def executeSQL(self, commands):

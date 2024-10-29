@@ -35,7 +35,7 @@ def createCheckBoxJoinTables():
 
 if __name__ == '__main__':
     G = General_DB()
-    G.executeSQL(G.readCheckBox(name="Dorene"))
+    G.executeSQL(G.readPersonalFile(name="Dorene"))
 
 
 
