@@ -106,10 +106,17 @@ class General_DB:
         :return:
         '''
         return reduce(lambda d, t: d | self.getTypeNames(t, with_sql_type), self.type_dict.keys(), {})
+
     # =================================================================================================================
+    def insertPersonColumns(self):
+        db_dict = self.getDBDict(with_sql_type = False)
+        db_cols = list(db_dict.keys())
+        appendRow = lambda rows, i: rows + [str(tuple([db_dict[col](self.df.at[i, col]) for col in db_cols]))]
+        rows = ",\n".join(reduce(appendRow, self.df.index, [])).replace("''", "NULL")
+        insert_stmt = "INSERT INTO person ({}) VALUES\n{};".format(", ".join(db_cols), rows)
+
     def createPersonTable(self):
-        db_cols = ",\n".join(self.getDBDict(with_sql_type = True).keys()) #Getting the names of fields from questions.
-        create_stmt = "CREATE TABLE person (\n{}\n);".format(db_cols)
+        create_stmt = "CREATE TABLE person (\n{}\n);".format(",\n".join(self.getDBDict(with_sql_type = True).keys()))
         db_dict = self.getDBDict(with_sql_type = False)
         db_cols = list(db_dict.keys())
         appendRow = lambda rows, i: rows + [str(tuple([db_dict[col](self.df.at[i, col]) for col in db_cols]))]
@@ -252,13 +259,42 @@ class General_DB:
         return reduce(lambda scripts, fxn: scripts + fxn(name), fxns, [])
 
 # =================================================================================================================
-    def updateText(self, name):
-        df = self.typeDF("Text")
-        q_names = set(df["Name"])
+    def updatePersonColumns(self, name):
+        db_dict = self.getDBDict(with_sql_type=False)
+        db_cols = list(set(db_dict.keys()).difference({"Name"}))
         person = self.df[self.df["Name"] == name].iloc[0]
-        update = ",\n".join([f"{q_name} = '{person[q_name]}'" for q_name in q_names])
+        update = ",\n".join([f"{q_name} = '{db_dict[q_name](person[q_name])}'".replace("''", "NULL") for q_name in db_cols])
         return ["\n".join(["UPDATE PERSON", "SET " + update, f"WHERE name = '{name}';"])]
 
+    def updateCheckBox(self, name):
+        df = self.typeDF("CheckBox")
+        q_name = lambda qid: df[df["ID"] == qid]["Name"].iat[0]
+        delete_stmt = lambda qid: f"DELETE FROM PERSON_{q_name(qid)} WHERE PERSONID = '{name}';"
+        tr_func = self.transform("CheckBox", df)
+        opts = lambda qid: set(df[df["ID"] == qid]["NewValue"])
+        person = self.df[self.df["Name"] == name].iloc[0]
+        items = lambda qid: set([tr_func(qid)(x) for x in person[q_name(qid)].split(", ")])
+        values = lambda qid: ",\n".join([str((name, x)) for x in items(qid) if x in opts(qid)])
+        insert_stmt = lambda qid: f"INSERT INTO Person_{q_name(qid)} VALUES \n{values(qid)}\n;"
+        add = lambda l, qid: l + [delete_stmt(qid), insert_stmt(qid)] if len(values(qid)) > 0 else l+[delete_stmt(qid)]
+        return reduce(add, set(df.ID), [])
+
+    def updateGrid(self, name):
+        questions = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "Questions.csv"]))
+        grid_columns = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "GridColumn.csv"]))
+        grid_rows = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "GridRow.csv"]))
+        append_df = lambda left_df, right_df: left_df.merge(right_df, how="inner", left_on="ID", right_on="QID")
+        df = append_df(append_df(questions, grid_columns), grid_rows)
+        q_name = lambda qid: df[df["ID"] == qid]["Name"].iat[0]
+        delete_stmt = lambda qid: f"DELETE FROM PERSON_{q_name(qid)} WHERE PERSONID = '{name}';"
+        person = self.df[self.df["Name"] == name].iloc[0]
+        opts = lambda qid: set(product(df[df["ID"] == qid]["ColumnName"], df[df["ID"] == qid]["RowName"]))
+        cols = lambda qid, row: set(person[f"{q_name(qid)} [{row}]"].split(", "))
+        f = lambda qid, col, row: df[(df["ID"] == qid) & (df["ColumnName"] == col) & (df["RowName"] == row)].index[0]
+        values = lambda qid: ",\n".join([str((name, f(qid, col, row))) for col, row in opts(qid) if col in cols(qid, row)])
+        insert_stmt = lambda qid: f"INSERT INTO Person_{q_name(qid)} VALUES \n{values(qid)}\n;"
+        add = lambda l, qid: l + [delete_stmt(qid), insert_stmt(qid)] if len(values(qid)) > 0 else l + [delete_stmt(qid)]
+        return reduce(add, set(df.ID), [])
 # =================================================================================================================
     def readSQL(self, commands):
         try:
