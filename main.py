@@ -26,8 +26,9 @@ def availabilityMeeting():
 
 if __name__ == '__main__':
     G = General()
-    G.readPersonalFile("Laramie Kyhl")
-    #G.updateResults(8,31,2024)
+    G.readPersonalFile("Bryan Ogle")
+    #G.updateResults(9,21,2024)
+
 
 
 
