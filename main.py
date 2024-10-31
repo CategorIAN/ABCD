@@ -45,7 +45,7 @@ def create():
 
 if __name__ == '__main__':
     G = General_DB()
-    G.getDDL(G.updatePersonColumns("Ian Kessler"))
+    G.readSQL(G.readPersonalFile("Shelley"))
 
 
 

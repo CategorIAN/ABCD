@@ -108,21 +108,20 @@ class General_DB:
         return reduce(lambda d, t: d | self.getTypeNames(t, with_sql_type), self.type_dict.keys(), {})
 
     # =================================================================================================================
-    def insertPersonColumns(self):
-        db_dict = self.getDBDict(with_sql_type = False)
+    def personRow(self, db_dict, db_cols, name):
+        person = self.df[self.df["Name"] == name].iloc[0]
+        return str(tuple([db_dict[col](person[col]) for col in db_cols])).replace("''", "NULL")
+
+    def insertPersonRows(self, names = None):
+        names = list(self.df["Name"].unique()) if names is None else names
+        db_dict = self.getDBDict(with_sql_type=False)
         db_cols = list(db_dict.keys())
-        appendRow = lambda rows, i: rows + [str(tuple([db_dict[col](self.df.at[i, col]) for col in db_cols]))]
-        rows = ",\n".join(reduce(appendRow, self.df.index, [])).replace("''", "NULL")
-        insert_stmt = "INSERT INTO person ({}) VALUES\n{};".format(", ".join(db_cols), rows)
+        rows = ",\n".join(reduce(lambda rows, name: rows + [self.personRow(db_dict, db_cols, name)], names, []))
+        return "INSERT INTO person ({}) VALUES\n{};".format(", ".join(db_cols), rows)
 
     def createPersonTable(self):
         create_stmt = "CREATE TABLE person (\n{}\n);".format(",\n".join(self.getDBDict(with_sql_type = True).keys()))
-        db_dict = self.getDBDict(with_sql_type = False)
-        db_cols = list(db_dict.keys())
-        appendRow = lambda rows, i: rows + [str(tuple([db_dict[col](self.df.at[i, col]) for col in db_cols]))]
-        rows = ",\n".join(reduce(appendRow, self.df.index, [])).replace("''", "NULL")
-        insert_stmt = "INSERT INTO person ({}) VALUES\n{};".format(", ".join(db_cols), rows)
-        return [create_stmt, insert_stmt]
+        return [create_stmt, self.insertPersonRows()]
 
     def createCheckBoxTables(self):
         df = self.typeDF("CheckBox")
@@ -133,20 +132,30 @@ class General_DB:
         insert_stmt = lambda id: "INSERT INTO {} (Name, Other) VALUES \n{}\n;".format(name(id), values(id))
         return reduce(lambda l, col_id: l + [create_stmt(col_id), insert_stmt(col_id)], set(df.ID), [])
 
-    def createCheckBoxJoinTables(self):
-        checkbox_df = self.typeDF("CheckBox")
-        name = lambda id: checkbox_df[checkbox_df["ID"] == id]["Name"].iat[0]
-        db_cols = lambda id: ",\n".join(["PersonID VARCHAR(160) REFERENCES Person",
-                                         "{}ID VARCHAR(160) REFERENCES {}".format(name(id), name(id))])
-        create_stmt = lambda id: "CREATE TABLE PERSON_{} (\n{}\n);".format(name(id), db_cols(id))
-        tr_func = self.transform("CheckBox", checkbox_df)
-        opts = lambda ch_id: set(checkbox_df[checkbox_df["ID"] == ch_id]["NewValue"])
-        items = lambda ch_id, i: set([tr_func(ch_id)(x) for x in self.df.at[i, name(ch_id)].split(", ")])
-        personRows = lambda ch_id, i: [str((self.df.at[i, "Name"], x)) for x in items(ch_id, i) if x in opts(ch_id)]
-        values = lambda id: ",\n".join(reduce(lambda l, i: l + personRows(id, i), self.df.index, []))
-        insert_stmt = lambda id: "INSERT INTO Person_{} VALUES \n{}\n;".format(name(id), values(id))
-        return reduce(lambda l, col_id: l + [create_stmt(col_id), insert_stmt(col_id)], set(checkbox_df.ID), [])
+    def personCheckBox(self, df, q_name, tr_func, opts, name):
+        person = self.df[self.df["Name"] == name].iloc[0]
+        items = lambda qid: set([tr_func(qid)(x) for x in person[q_name(qid)].split(", ")])
+        values = lambda qid: ",\n".join([str((name, x)) for x in items(qid) if x in opts(qid)])
+        insert_stmt = lambda qid: f"INSERT INTO Person_{q_name(qid)} VALUES \n{values(qid)}\n;"
+        return [insert_stmt(qid) for qid in set(df.ID) if len(values(qid)) > 0]
 
+    def insertCheckBoxJoinTables(self, names = None):
+        names = list(self.df["Name"].unique()) if names is None else names
+        df = self.typeDF("CheckBox")
+        q_name = lambda qid: df[df["ID"] == qid]["Name"].iat[0]
+        tr_func = self.transform("CheckBox", df)
+        opts = lambda qid: set(df[df["ID"] == qid]["NewValue"])
+        return reduce(lambda l, name: l + self.personCheckBox(df, q_name, tr_func, opts, name), names, [])
+
+    def createCheckBoxJoinTables(self):
+        df = self.typeDF("CheckBox")
+        q_name = lambda qid: df[df["ID"] == qid]["Name"].iat[0]
+        cascade = "ON DELETE CASCADE ON UPDATE CASCADE"
+        db_cols = lambda qid: ",\n".join([f"PersonID VARCHAR(160) REFERENCES Person {cascade}",
+                        f"{q_name(qid)}ID VARCHAR(160) REFERENCES {q_name(qid)} "])
+        create_stmt = lambda qid: "CREATE TABLE PERSON_{} (\n{}\n);".format(q_name(qid), db_cols(qid))
+        create_stmts = reduce(lambda l, qid: l + [create_stmt(qid)], set(df.ID), [])
+        return create_stmts + self.insertCheckBoxJoinTables()
     #=================================================================================================================
     def createGridColumnTables(self):
         df = self.typeDF("GridColumn")
@@ -176,12 +185,35 @@ class General_DB:
         df = append_df(append_df(questions, grid_columns), grid_rows)
         q_df = lambda qid: df[df["ID"] == qid].reindex()
         name = lambda qid: q_df(qid)["Name"].iat[0]
-        db_cols = lambda qid: ",\n".join(["ID INT PRIMARY KEY", f"ColumnID INT REFERENCES {name(qid)}_Column",
-                              f"RowID INT REFERENCES {name(qid)}_Row"])
+        cascade = "ON DELETE CASCADE ON UPDATE CASCADE"
+        db_cols = lambda qid: ",\n".join(["ID INT PRIMARY KEY",
+                            f"ColumnID INT REFERENCES {name(qid)}_Column {cascade}",
+                              f"RowID INT REFERENCES {name(qid)}_Row {cascade}"])
         values = lambda qid: ",\n".join([str((i,) + tuple(df.loc[i, ["ColumnID", "RowID"]])) for i in q_df(qid).index])
         create_stmt = lambda qid: "CREATE TABLE {} (\n{}\n);".format(name(qid), db_cols(qid))
         insert_stmt = lambda qid: "INSERT INTO {} (ID, ColumnID, RowID) VALUES \n{}\n;".format(name(qid), values(qid))
         return reduce(lambda l, qid: l + [create_stmt(qid), insert_stmt(qid)], set(df.ID), [])
+
+    def personGrid(self, df, q_name, opts, name):
+        person = self.df[self.df["Name"] == name].iloc[0]
+        cols = lambda qid, row: set(person[f"{q_name(qid)} [{row}]"].split(", "))
+        f = lambda qid, col, row: df[(df["ID"] == qid) & (df["ColumnName"] == col) & (df["RowName"] == row)].index[0]
+        values = lambda qid: ",\n".join([str((person["Name"], f(qid, col, row)))
+                                         for col, row in opts(qid) if col in cols(qid, row)])
+        insert_stmt = lambda qid: f"INSERT INTO Person_{q_name(qid)} VALUES \n{values(qid)}\n;"
+        return [insert_stmt(qid) for qid in set(df.ID) if len(values(qid)) > 0]
+
+    def insertGridJoinTables(self, names = None):
+        names = list(self.df["Name"].unique()) if names is None else names
+        questions = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "Questions.csv"]))
+        grid_columns = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "GridColumn.csv"]))
+        grid_rows = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "GridRow.csv"]))
+        append_df = lambda left_df, right_df: left_df.merge(right_df, how="inner", left_on="ID", right_on="QID")
+        df = append_df(append_df(questions, grid_columns), grid_rows)
+        q_df = lambda qid: df[df["ID"] == qid].reindex()
+        q_name = lambda qid: q_df(qid)["Name"].iat[0]
+        opts = lambda qid: set(product(df[df["ID"] == qid]["ColumnName"], df[df["ID"] == qid]["RowName"]))
+        return reduce(lambda l, name: l + self.personGrid(df, q_name, opts, name), names, [])
 
     def createGridJoinTables(self):
         questions = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "Questions.csv"]))
@@ -190,24 +222,19 @@ class General_DB:
         append_df = lambda left_df, right_df: left_df.merge(right_df, how="inner", left_on="ID", right_on="QID")
         df = append_df(append_df(questions, grid_columns), grid_rows)
         q_df = lambda qid: df[df["ID"] == qid].reindex()
-        name = lambda qid: q_df(qid)["Name"].iat[0]
-        db_cols = lambda qid: ",\n".join(["PersonID VARCHAR(160) REFERENCES Person",
-                                         "{}ID INT REFERENCES {}".format(name(qid), name(qid))])
-        create_stmt = lambda qid: "CREATE TABLE PERSON_{} (\n{}\n);".format(name(qid), db_cols(qid))
-
-        opts = lambda qid: set(product(df[df["ID"] == qid]["ColumnName"], df[df["ID"] == qid]["RowName"]))
-        cols = lambda qid, row, i: set(self.df.at[i, f"{name(qid)} [{row}]"].split(", "))
-        f = lambda qid, col, row: df[(df["ID"] == qid) & (df["ColumnName"] == col) & (df["RowName"] == row)].index[0]
-        personRows = lambda qid, i: [str((self.df.at[i, "Name"], f(qid, col, row)))
-                                     for col, row in opts(qid) if col in cols(qid, row, i)]
-        values = lambda qid: ",\n".join(reduce(lambda l, i: l + personRows(qid, i), self.df.index, []))
-        insert_stmt = lambda qid: "INSERT INTO Person_{} VALUES \n{}\n;".format(name(qid), values(qid))
-        return reduce(lambda l, qid: l + [create_stmt(qid), insert_stmt(qid)], set(df.ID), [])
+        q_name = lambda qid: q_df(qid)["Name"].iat[0]
+        cascade = "ON DELETE CASCADE ON UPDATE CASCADE"
+        db_cols = lambda qid: ",\n".join([f"PersonID VARCHAR(160) REFERENCES Person {cascade}",
+                                         f"{q_name(qid)}ID INT REFERENCES {q_name(qid)} {cascade}"])
+        create_stmt = lambda qid: "CREATE TABLE PERSON_{} (\n{}\n);".format(q_name(qid), db_cols(qid))
+        create_stmts = [create_stmt(qid) for qid in set(df.ID)]
+        return create_stmts + self.insertGridJoinTables()
 
     def create(self):
-        return [self.createPersonTable(), self.createCheckBoxTables(), self.createCheckBoxJoinTables(),
+        create_stmts = [self.createPersonTable(), self.createCheckBoxTables(), self.createCheckBoxJoinTables(),
                 self.createGridColumnTables(), self.createGridRowTables(), self.createGridTables(),
                 self.createGridJoinTables()]
+        return reduce(lambda l, stmts: l + stmts, create_stmts, [])
 
     # =================================================================================================================
     def readText(self, name = None):
@@ -259,42 +286,39 @@ class General_DB:
         return reduce(lambda scripts, fxn: scripts + fxn(name), fxns, [])
 
 # =================================================================================================================
-    def updatePersonColumns(self, name):
-        db_dict = self.getDBDict(with_sql_type=False)
-        db_cols = list(set(db_dict.keys()).difference({"Name"}))
-        person = self.df[self.df["Name"] == name].iloc[0]
-        update = ",\n".join([f"{q_name} = '{db_dict[q_name](person[q_name])}'".replace("''", "NULL") for q_name in db_cols])
-        return ["\n".join(["UPDATE PERSON", "SET " + update, f"WHERE name = '{name}';"])]
+    def updatePersonRow(self, name, in_db):
+        if in_db:
+            db_dict = self.getDBDict(with_sql_type=False)
+            db_cols = list(set(db_dict.keys()).difference({"Name"}))
+            person = self.df[self.df["Name"] == name].iloc[0]
+            update = ",\n".join([f"{q_name} = '{db_dict[q_name](person[q_name])}'".replace("''", "NULL") for q_name in db_cols])
+            return ["\n".join(["UPDATE PERSON", "SET " + update, f"WHERE name = '{name}';"])]
+        else:
+            return [self.insertPersonRows([name])]
 
-    def updateCheckBox(self, name):
-        df = self.typeDF("CheckBox")
-        q_name = lambda qid: df[df["ID"] == qid]["Name"].iat[0]
-        delete_stmt = lambda qid: f"DELETE FROM PERSON_{q_name(qid)} WHERE PERSONID = '{name}';"
-        tr_func = self.transform("CheckBox", df)
-        opts = lambda qid: set(df[df["ID"] == qid]["NewValue"])
-        person = self.df[self.df["Name"] == name].iloc[0]
-        items = lambda qid: set([tr_func(qid)(x) for x in person[q_name(qid)].split(", ")])
-        values = lambda qid: ",\n".join([str((name, x)) for x in items(qid) if x in opts(qid)])
-        insert_stmt = lambda qid: f"INSERT INTO Person_{q_name(qid)} VALUES \n{values(qid)}\n;"
-        add = lambda l, qid: l + [delete_stmt(qid), insert_stmt(qid)] if len(values(qid)) > 0 else l+[delete_stmt(qid)]
-        return reduce(add, set(df.ID), [])
+    def updatePersonCheckBox(self, name, in_db):
+        if in_db:
+            df = self.typeDF("CheckBox")
+            q_name = lambda qid: df[df["ID"] == qid]["Name"].iat[0]
+            delete_stmt = lambda qid: f"DELETE FROM PERSON_{q_name(qid)} WHERE PERSONID = '{name}';"
+            delete_stmts = [delete_stmt(qid) for qid in set(df.ID)]
+            return delete_stmts + self.insertCheckBoxJoinTables([name])
+        else:
+            return self.insertCheckBoxJoinTables([name])
 
-    def updateGrid(self, name):
-        questions = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "Questions.csv"]))
-        grid_columns = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "GridColumn.csv"]))
-        grid_rows = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "GridRow.csv"]))
-        append_df = lambda left_df, right_df: left_df.merge(right_df, how="inner", left_on="ID", right_on="QID")
-        df = append_df(append_df(questions, grid_columns), grid_rows)
-        q_name = lambda qid: df[df["ID"] == qid]["Name"].iat[0]
-        delete_stmt = lambda qid: f"DELETE FROM PERSON_{q_name(qid)} WHERE PERSONID = '{name}';"
-        person = self.df[self.df["Name"] == name].iloc[0]
-        opts = lambda qid: set(product(df[df["ID"] == qid]["ColumnName"], df[df["ID"] == qid]["RowName"]))
-        cols = lambda qid, row: set(person[f"{q_name(qid)} [{row}]"].split(", "))
-        f = lambda qid, col, row: df[(df["ID"] == qid) & (df["ColumnName"] == col) & (df["RowName"] == row)].index[0]
-        values = lambda qid: ",\n".join([str((name, f(qid, col, row))) for col, row in opts(qid) if col in cols(qid, row)])
-        insert_stmt = lambda qid: f"INSERT INTO Person_{q_name(qid)} VALUES \n{values(qid)}\n;"
-        add = lambda l, qid: l + [delete_stmt(qid), insert_stmt(qid)] if len(values(qid)) > 0 else l + [delete_stmt(qid)]
-        return reduce(add, set(df.ID), [])
+    def updatePersonGrid(self, name, in_db):
+        if in_db:
+            questions = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "Questions.csv"]))
+            grid_columns = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "GridColumn.csv"]))
+            grid_rows = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "GridRow.csv"]))
+            append_df = lambda left_df, right_df: left_df.merge(right_df, how="inner", left_on="ID", right_on="QID")
+            df = append_df(append_df(questions, grid_columns), grid_rows)
+            q_name = lambda qid: df[df["ID"] == qid]["Name"].iat[0]
+            delete_stmt = lambda qid: f"DELETE FROM PERSON_{q_name(qid)} WHERE PERSONID = '{name}';"
+            delete_stmts = [delete_stmt(qid) for qid in set(df.ID)]
+            return delete_stmts + self.insertGridJoinTables([name])
+        else:
+            return self.insertGridJoinTables([name])
 # =================================================================================================================
     def readSQL(self, commands):
         try:
@@ -316,8 +340,8 @@ class General_DB:
                     for entry in data:
                         table.add_row(entry.values())
                     print(table)
-                connection.commit()
                 print(10 * "=" + "Executed" + 10 * "=" + "\n" + command)
+            connection.commit()
 
         except psycopg2.Error as e:
             print(e)
@@ -337,9 +361,37 @@ class General_DB:
             cursor = connection.cursor()
             for command in commands:
                 cursor.execute(command)
-                connection.commit()
                 print(10 * "=" + "Executed" + 10 * "=" + "\n" + command)
+            connection.commit()
 
+        except psycopg2.Error as e:
+            print(e)
+        finally:
+            if connection:
+                cursor.close()
+                connection.close()
+                print("PostgreSQL connection is closed.")
+
+    def updateResults(self, month, day, year):
+        timestamp = self.hashTime("/".join([str(x) for x in [month, day, year]]) + " 0:00")
+        update_index = [i for i in self.df.index if self.hashTime(self.df.at[i, "Timestamp"]) >= timestamp]
+        names = list(self.df.loc[update_index, "Name"])
+        try:
+            connection = psycopg2.connect(user = "postgres",
+                                          password = "WeAreGroot",
+                                          host = "database-1.cbeq26equftn.us-east-2.rds.amazonaws.com",
+                                          port = "5432",
+                                          database = "postgres")
+            cursor = connection.cursor()
+            for name in names:
+                cursor.execute(f"SELECT EXISTS (SELECT 1 FROM PERSON WHERE NAME = '{name}');")
+                in_db = cursor.fetchone()[0]
+                for update in [self.updatePersonRow, self.updatePersonCheckBox, self.updatePersonGrid]:
+                    commands = update(name, in_db)
+                    for command in commands:
+                        cursor.execute(command)
+                        print(10 * "=" + "Executed" + 10 * "=" + "\n" + command)
+            connection.commit()
         except psycopg2.Error as e:
             print(e)
         finally:
