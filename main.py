@@ -4,6 +4,7 @@ from GuestGame import GuestGame
 from EventAvailability import EventAvailability
 from MeetingAvailability import MeetingAvailability
 from General_DB import General_DB
+from Event_DB import Event_DB
 
 
 def availabilityGG():
@@ -43,9 +44,12 @@ def create():
     G.getDDL(G.createGridTables())
     G.getDDL(G.createGridJoinTables())
 
+def f():
+    E = Event_DB()
+    E.executeSQL([E.insertTimeSpanRows(2)])
+
 if __name__ == '__main__':
-    G = General_DB()
-    G.readSQL(G.readPersonalFile("Shelley"))
+    f()
 
 
 

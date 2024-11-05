@@ -1,2 +1,5 @@
-delete from person where name = 'Ian Kessler';
-select * from person_games;
+CREATE TABLE Availability_TimeSpan
+(
+    AvailabilityID Int References Availability(ID),
+    TimeSpan VARCHAR(160) References TimeSpan(Name)
+);
