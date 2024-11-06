@@ -75,6 +75,8 @@ class Event_DB:
 
 
 
+
+
     def readSQL(self, commands):
         try:
             connection = psycopg2.connect(user="postgres",
