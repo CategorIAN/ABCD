@@ -46,7 +46,7 @@ def create():
 
 def f():
     E = Event_DB()
-    E.executeSQL([E.insertTimeSpanRows(2)])
+    E.executeSQL([E.updatePersonTimespan])
 
 if __name__ == '__main__':
     f()

@@ -18,14 +18,12 @@ INSERT INTO EVENT (Timestamp, TimeSpan, Meal, Game, Location) VALUES (
                                                                 );
 
 INSERT INTO EVENT (Timestamp, TimeSpan, Game, Location, Happened) VALUES (
-                                                                 '2024-10-26 18:00:00',
-                                                                 'Saturday from 6:00 PM to 7:00 PM',
+                                                                 '2024-11-03 14:00:00',
+                                                                 'Sunday from 2:00 PM to 4:00 PM',
                                                                  'Catan',
                                                                  'My Home',
-                                                                  False
+                                                                  True
                                                                 );
 
-Alter table event
-ADd COLUMN Happened Boolean;
 
 

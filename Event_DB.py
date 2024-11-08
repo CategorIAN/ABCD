@@ -72,10 +72,21 @@ class Event_DB:
                 cursor.execute(stmt)
         return f
 
-
-
-
-
+    def updatePersonTimespan(self, cursor):
+        cursor.execute("Drop View Person_Timespan;")
+        create_stmt = """
+            CREATE VIEW Person_Timespan AS
+            Select PersonID, Timespan
+            From Person_Availability Join Availability_Timespan on
+                Person_Availability.availabilityid = Availability_Timespan.availabilityid
+            Group By  Availability_Timespan.timespan, Person_Availability.personid
+            Having COUNT(Distinct Availability_Timespan.availabilityid) = (
+                SELECT COUNT(*)
+                FROM Availability_Timespan as Availability_Timespan_inner
+                WHERE Availability_Timespan_Inner.timespan = Availability_Timespan.timespan
+                );
+        """
+        cursor.execute(create_stmt)
 
     def readSQL(self, commands):
         try:
