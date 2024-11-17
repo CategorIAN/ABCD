@@ -319,6 +319,22 @@ class General_DB:
             return delete_stmts + self.insertGridJoinTables([name])
         else:
             return self.insertGridJoinTables([name])
+
+    def updateData(self, month, day, year):
+        hashed_time = self.hashTime("/".join([str(x) for x in [month, day, year]]) + " 0:00")
+        update_index = [i for i in self.df.index if self.hashTime(self.df.at[i, "Timestamp"]) >= hashed_time]
+        names = list(self.df.loc[update_index, "Name"])
+        def execute(cursor):
+            for name in names:
+                cursor.execute(f"SELECT EXISTS (SELECT 1 FROM PERSON WHERE NAME = '{name}');")
+                in_db = cursor.fetchone()[0]
+                for update in [self.updatePersonRow, self.updatePersonCheckBox, self.updatePersonGrid]:
+                    commands = update(name, in_db)
+                    for command in commands:
+                        cursor.execute(command)
+                        print(10 * "=" + "Executed" + 10 * "=" + "\n" + command)
+        return execute
+
 # =================================================================================================================
     def readSQL(self, commands):
         try:
@@ -351,35 +367,14 @@ class General_DB:
                 connection.close()
                 print("PostgreSQL connection is closed.")
 
-    def getDDL(self, commands):
-        try:
-            connection = psycopg2.connect(user = "postgres",
-                                          password = "WeAreGroot",
-                                          host = "database-1.cbeq26equftn.us-east-2.rds.amazonaws.com",
-                                          port = "5432",
-                                          database = "postgres")
-            cursor = connection.cursor()
-            for command in commands:
-                cursor.execute(command)
-                print(10 * "=" + "Executed" + 10 * "=" + "\n" + command)
-            connection.commit()
-
-        except psycopg2.Error as e:
-            print(e)
-        finally:
-            if connection:
-                cursor.close()
-                connection.close()
-                print("PostgreSQL connection is closed.")
-
     def updateResults(self, month, day, year):
-        timestamp = self.hashTime("/".join([str(x) for x in [month, day, year]]) + " 0:00")
-        update_index = [i for i in self.df.index if self.hashTime(self.df.at[i, "Timestamp"]) >= timestamp]
+        hashed_time = self.hashTime("/".join([str(x) for x in [month, day, year]]) + " 0:00")
+        update_index = [i for i in self.df.index if self.hashTime(self.df.at[i, "Timestamp"]) >= hashed_time]
         names = list(self.df.loc[update_index, "Name"])
         try:
             connection = psycopg2.connect(user = "postgres",
                                           password = "WeAreGroot",
-                                          host = "database-1.cbeq26equftn.us-east-2.rds.amazonaws.com",
+                                          host = "abcd.cbeq26equftn.us-east-2.rds.amazonaws.com",
                                           port = "5432",
                                           database = "postgres")
             cursor = connection.cursor()
@@ -392,6 +387,26 @@ class General_DB:
                         cursor.execute(command)
                         print(10 * "=" + "Executed" + 10 * "=" + "\n" + command)
             connection.commit()
+        except psycopg2.Error as e:
+            print(e)
+        finally:
+            if connection:
+                cursor.close()
+                connection.close()
+                print("PostgreSQL connection is closed.")
+
+    def executeSQL(self, commands):
+        try:
+            connection = psycopg2.connect(user = "postgres",
+                                          password = "WeAreGroot",
+                                          host = "database-1.cbeq26equftn.us-east-2.rds.amazonaws.com",
+                                          port = "5432",
+                                          database = "postgres")
+            cursor = connection.cursor()
+            for command in commands:
+                command(cursor)
+            connection.commit()
+
         except psycopg2.Error as e:
             print(e)
         finally:

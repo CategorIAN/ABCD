@@ -34,22 +34,20 @@ def createCheckBoxJoinTables():
     G = General_DB()
     G.executeSQL(G.createCheckBoxJoinTables())
 
-def create():
+def update():
     G = General_DB()
-    G.getDDL(G.createPersonTable())
-    G.getDDL(G.createCheckBoxTables())
-    G.getDDL(G.createCheckBoxJoinTables())
-    G.getDDL(G.createGridColumnTables())
-    G.getDDL(G.createGridRowTables())
-    G.getDDL(G.createGridTables())
-    G.getDDL(G.createGridJoinTables())
+    G.updateResults(11,12,2024)
+
+def read():
+    G = General_DB()
+    G.readSQL(G.readPersonalFile("Paul"))
 
 def f():
     E = Event_DB()
     E.executeSQL([E.updatePersonTimespan])
 
 if __name__ == '__main__':
-    f()
+    update()
 
 
 

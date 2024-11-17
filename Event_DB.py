@@ -3,6 +3,7 @@ import psycopg2
 from prettytable import PrettyTable
 from tabulate import tabulate
 from functools import reduce
+import os
 
 
 class Event_DB:
@@ -72,8 +73,7 @@ class Event_DB:
                 cursor.execute(stmt)
         return f
 
-    def updatePersonTimespan(self, cursor):
-        cursor.execute("Drop View Person_Timespan;")
+    def createPersonTimespan(self, cursor):
         create_stmt = """
             CREATE VIEW Person_Timespan AS
             Select PersonID, Timespan
@@ -88,35 +88,76 @@ class Event_DB:
         """
         cursor.execute(create_stmt)
 
+    def createPersonRedeem(self, cursor):
+        create_stmt = """
+            CREATE View Person_Redeem AS
+            Select Name, Exists (
+                Select 1 From invitation
+                         Where person = person.name and result = 'To Redeem'
+            ) as Redeem From Person
+        """
+        cursor.execute(create_stmt)
+
+    def createCallList(self, event_id):
+        def execute(cursor):
+            df = self.queried_df(cursor, f"Select Game, Timespan From Event Where EventId = '{event_id}';")
+            game, timespan = tuple(df[['game', 'timespan']].iloc[0])
+            create_stmt = f"""
+            CREATE VIEW Call_List_{event_id} AS
+            Select Person.Name, Redeem, New, CompletedSurvey, ExpectedAttendance, ExpectedInvite
+            FROM Person Left Outer Join Person_Games on Person.Name = Person_Games.PersonID
+            Left Outer Join Person_Timespan on Person.name = Person_Timespan.personid
+            Left Outer Join Person_Redeem on Person.name = Person_Redeem.name
+            Left Outer Join Person_CompletedSurvey on Person.name = Person_CompletedSurvey.Name
+            Left Outer Join Person_Expected on Person.name = Person_Expected.Name
+            Left Outer Join Person_Due on Person.name = Person_Due.name
+            Where (Redeem or (EventDue and InviteDue)) and 
+                   Person.Name != 'Ian Kessler' and Status = 'Active' and
+                  (TIMESTAMP is NULL OR (GamesID = '{game}' and TimeSpan = '{timespan}'))
+            Order By Redeem Desc, New Desc, CompletedSurvey Desc, ExpectedAttendance, ExpectedInvite, Person.Name;
+            """
+            cursor.execute(create_stmt)
+        return execute
+
+    def getCallList(self, event_id):
+        def execute(cursor):
+            df = self.queried_df(cursor, f"SELECT * FROM CALL_LIST_{event_id}")
+            checkboxes = df.shape[0] * [{col: False for col in ['Invited', 'Going', 'Plus One', 'Declined', 'Flaked']}]
+            appended_df = pd.concat([df['name'], pd.DataFrame(checkboxes), df.loc[:, df.columns != 'name']], axis=1)
+            appended_df.to_csv("\\".join([os.getcwd(), 'call_lists', f"call_list_{event_id}.csv"]), index=False)
+        return execute
+
+    def invite(self, timestamp, event_id):
+        def execute(cursor):
+            columns = ["Person", "Response", "Plus_Ones", "Result"]
+            values = []
+            for column in columns:
+                value = input(f"{column}: ")
+                values.append(value)
+            invite_stmt = (f"Insert INTO Invitation (Timestamp, Event, Person, Response, Plus_Ones, Result) VALUES "
+                    f"{(timestamp, event_id) + tuple(values)};".replace("''", "NULL"))
+            cursor.execute(invite_stmt)
+        return execute
+
+    def addPerson(self, cursor):
+        name = input("Name: ")
+        stmt = f"Insert INTO Person (Name, Status) Values ('{name}', 'Active');"
+        cursor.execute(stmt)
+
     def readSQL(self, commands):
-        try:
-            connection = psycopg2.connect(user="postgres",
-                                          password="WeAreGroot",
-                                          host="database-1.cbeq26equftn.us-east-2.rds.amazonaws.com",
-                                          port="5432",
-                                          database="postgres")
-            cursor = connection.cursor()
+        def execute(cursor):
             for command in commands:
                 df = self.queried_df(cursor, command)
                 pretty_df = tabulate(df, headers='keys', tablefmt='pretty')
                 print(pretty_df)
                 print(10 * "=" + "Executed" + 10 * "=" + "\n" + command)
-            connection.commit()
-
-        except psycopg2.Error as e:
-            print(e)
-        finally:
-            if connection:
-                cursor.close()
-                connection.close()
-                print("PostgreSQL connection is closed.")
-
+        return execute
 
     def executeSQL(self, commands):
         try:
             connection = psycopg2.connect(user = "postgres",
                                           password = "WeAreGroot",
-                                          host = "database-1.cbeq26equftn.us-east-2.rds.amazonaws.com",
+                                          host = "abcd.cbeq26equftn.us-east-2.rds.amazonaws.com",
                                           port = "5432",
                                           database = "postgres")
             cursor = connection.cursor()

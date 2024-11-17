@@ -25,5 +25,14 @@ INSERT INTO EVENT (Timestamp, TimeSpan, Game, Location, Happened) VALUES (
                                                                   True
                                                                 );
 
+INSERT INTO EVENT (Timestamp, TimeSpan, Game, Location, Happened, Meal) VALUES (
+                                                                 '2024-11-23 14:00:00',
+                                                                 'Saturday from 2:00 PM to 4:00 PM',
+                                                                 'Catan',
+                                                                 'My Home',
+                                                                  NULL,
+                                                                 NULL
+                                                                );
+
 
 
