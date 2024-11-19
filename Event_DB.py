@@ -98,6 +98,25 @@ class Event_DB:
         """
         cursor.execute(create_stmt)
 
+    def createPersonNumberPlayed(self, cursor):
+        create_stmt = """
+            CREATE VIEW Person_NumberPlayed AS
+            Select Name, (
+                Select Count(*) From invitation
+                Where person = person.name and result = 'Going'
+            ) as NumberPlayed From Person;
+        """
+        cursor.execute(create_stmt)
+
+    def createTimeSpanDuration(self, cursor):
+        create_stmt = """
+            CREATE VIEW TimeSpan_Duration AS
+            Select TimeSpan.name, Count(*) as Duration
+            FROM TimeSpan JOIN Availability_Timespan on Timespan.name = Availability_Timespan.timespan
+            Group By TimeSpan.name;
+        """
+        cursor.execute(create_stmt)
+
     def createCallList(self, event_id):
         def execute(cursor):
             df = self.queried_df(cursor, f"Select Game, Timespan From Event Where EventId = '{event_id}';")
@@ -122,10 +141,28 @@ class Event_DB:
     def getCallList(self, event_id):
         def execute(cursor):
             df = self.queried_df(cursor, f"SELECT * FROM CALL_LIST_{event_id}")
-            checkboxes = df.shape[0] * [{col: False for col in ['Invited', 'Going', 'Plus One', 'Declined', 'Flaked']}]
+            checkboxes = df.shape[0] * [{col: False for col in ['I', 'G', 'P', 'W', 'D', 'F']}]
             appended_df = pd.concat([df['name'], pd.DataFrame(checkboxes), df.loc[:, df.columns != 'name']], axis=1)
             appended_df.to_csv("\\".join([os.getcwd(), 'call_lists', f"call_list_{event_id}.csv"]), index=False)
         return execute
+
+    def createNewbAvailability(self, game, duration):
+        def execute(cursor):
+            create_stmt = f"""
+            CREATE VIEW Newb_Availability_{game}_{duration}Hrs AS
+                SELECT Person_Timespan.Timespan, Count(*) as NumberAvailable
+                FROM PERSON_TimeSpan JOIN Person_Games on Person_Timespan.personid = Person_Games.personid
+                                     JOIN Timespan_Duration on Person_Timespan.timespan = Timespan_Duration.name
+                                     JOIN Person_Numberplayed on Person_Timespan.personid = Person_Numberplayed.name
+                WHERE Person_Games.gamesid = '{game}' and Timespan_Duration.duration = '{duration}'
+                and Person_Numberplayed.numberplayed = '0'
+                Group By Person_Timespan.Timespan
+                Order By NumberAvailable Desc;
+            """
+            cursor.execute(create_stmt)
+        return execute
+
+
 
     def invite(self, timestamp, event_id):
         def execute(cursor):

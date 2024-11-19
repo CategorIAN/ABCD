@@ -36,18 +36,22 @@ def createCheckBoxJoinTables():
 
 def update():
     G = General_DB()
-    G.updateResults(11,12,2024)
+    G.updateResults(11,18,2024)
 
 def read():
     G = General_DB()
     G.readSQL(G.readPersonalFile("Paul"))
+
+def call_list(id):
+    E = Event_DB()
+    E.executeSQL([E.createCallList(id), E.getCallList(id)])
 
 def f():
     E = Event_DB()
     E.executeSQL([E.updatePersonTimespan])
 
 if __name__ == '__main__':
-    update()
+    call_list(6)
 
 
 
