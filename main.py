@@ -1,4 +1,5 @@
 #==========My Classes===============================
+from FormManagement_DB import FormManagement_DB
 from General import General
 from GuestGame import GuestGame
 from EventAvailability import EventAvailability
@@ -50,8 +51,12 @@ def f():
     E = Event_DB()
     E.executeSQL([E.updatePersonTimespan])
 
+def request():
+    F = FormManagement_DB()
+    F.executeSQL([F.request('2024-11-18', 'ABCD General Survey')])
+
 if __name__ == '__main__':
-    call_list(6)
+    request()
 
 
 

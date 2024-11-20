@@ -162,8 +162,6 @@ class Event_DB:
             cursor.execute(create_stmt)
         return execute
 
-
-
     def invite(self, timestamp, event_id):
         def execute(cursor):
             columns = ["Person", "Response", "Plus_Ones", "Result"]
