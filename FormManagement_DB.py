@@ -23,7 +23,7 @@ class FormManagement_DB:
                 invite_stmt = (f"Insert INTO form_requests (Timestamp, Form, Person) VALUES "
                         f"{(timestamp, form, values[0])};".replace("''", "NULL"))
                 cursor.execute(invite_stmt)
-                go = input("Continue? [y/n]")
+                go = input("Continue? [y/n]: ")
         return execute
 
     def executeSQL(self, commands):

@@ -55,8 +55,13 @@ def request():
     F = FormManagement_DB()
     F.executeSQL([F.request('2024-11-18', 'ABCD General Survey')])
 
+def invite():
+    E = Event_DB()
+    E.executeSQL([E.invite('2014-11-16', 5)])
+
 if __name__ == '__main__':
-    request()
+    E = Event_DB()
+    E.executeSQL([E.createMealPreference(5)])
 
 
 

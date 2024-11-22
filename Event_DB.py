@@ -162,6 +162,18 @@ class Event_DB:
             cursor.execute(create_stmt)
         return execute
 
+    def createMealPreference(self, event_id):
+        def execute(cursor):
+            create_stmt = f"""
+            CREATE VIEW MealPreference_{event_id} AS
+                SELECT Mealsid, Count(*)
+                FROM INVITATION JOIN PERSON_MEALS ON INVITATION.person = PERSON_MEALS.personid
+                WHERE EVENT = '{event_id}' and RESULT = 'Going'
+                GROUP BY Mealsid ORDER BY COUNT DESC;
+            """
+            cursor.execute(create_stmt)
+        return execute
+
     def invite(self, timestamp, event_id):
         def execute(cursor):
             columns = ["Person", "Response", "Plus_Ones", "Result"]
