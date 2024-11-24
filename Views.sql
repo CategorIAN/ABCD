@@ -11,7 +11,8 @@ CREATE VIEW Call_List_3 AS
     Order By Redeem Desc, New Desc, CompletedSurvey Desc, ExpectedAttendance, ExpectedInvite, Person.Name;
 
 CREATE VIEW Person_CompletedSurvey AS
-    Select Name, Timestamp is not NULL as CompletedSurvey
+    Select Name, EXISTS (SELECT 1
+                         FROM form_submissions where person = Name and form = 'ABCD General Survey') as CompletedSurvey
     From Person;
 
 CREATE VIEW Person_LatestInvite AS
@@ -38,4 +39,33 @@ Create View Person_Due AS
            (ExpectedAttendance <= Now() + Interval '2 weeks') or (ExpectedAttendance is NULL) as EventDue,
            (ExpectedInvite is NULL) as New
     From Person_Expected;
+
+Create View Person_Updated AS
+    SELECT NAME, FORM, MAX(FORM_SUBMISSIONS.TIMESTAMP) AS UPDATED
+    FROM PERSON JOIN FORM_SUBMISSIONS ON PERSON.NAME = FORM_SUBMISSIONS.PERSON
+    GROUP BY NAME, FORM;
+
+CREATE VIEW Person_LatestRequest AS
+    SELECT NAME, FORM, MAX(FORM_REQUESTS.TIMESTAMP) AS LATESTREQUEST
+    FROM PERSON JOIN FORM_REQUESTS ON PERSON.name = FORM_REQUESTS.person
+    GROUP BY NAME, FORM;
+
+CREATE VIEW Person_GeneralDue AS
+    SELECT PERSON.NAME, (((UPDATED + INTERVAL '1 year' < now()) OR (UPDATED IS NULL)) AND
+                 ((LATESTREQUEST + INTERVAL '3 months' < now()) OR (LATESTREQUEST IS NULL))) as GeneralDue
+    FROM PERSON LEFT JOIN (SELECT * FROM PERSON_UPDATED WHERE FORM = 'ABCD General Survey') AS PERSON_UPDATED
+        ON PERSON.NAME = PERSON_UPDATED.NAME
+        LEFT JOIN (SELECT * FROM PERSON_LATESTREQUEST WHERE FORM = 'ABCD General Survey') AS PERSON_LATESTREQUEST
+            ON PERSON.NAME = PERSON_LATESTREQUEST.NAME
+        ORDER BY GeneralDue DESC;
+
+CREATE VIEW Game_Stats AS
+    SELECT GAMES.NAME,
+           (COUNT(DISTINCT EVENT.EVENTID) / GAMES.WEIGHT) AS WEIGHTEDCOUNT,
+           COUNT(DISTINCT PERSON_GAMES.PERSONID) AS NUMBERINTERESTED
+    FROM GAMES LEFT JOIN PERSON_GAMES ON GAMES.name = PERSON_GAMES.gamesid
+        LEFT JOIN EVENT ON GAMES.name = EVENT.game
+    GROUP BY GAMES.NAME
+    ORDER BY WEIGHTEDCOUNT, NUMBERINTERESTED DESC
+
 

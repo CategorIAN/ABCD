@@ -59,9 +59,12 @@ def invite():
     E = Event_DB()
     E.executeSQL([E.invite('2014-11-16', 5)])
 
+def submission():
+    F = FormManagement_DB()
+    F.executeSQL([F.submission('ABCD General Survey')])
+
 if __name__ == '__main__':
-    E = Event_DB()
-    E.executeSQL([E.createMealPreference(5)])
+    update()
 
 
 

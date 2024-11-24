@@ -26,6 +26,21 @@ class FormManagement_DB:
                 go = input("Continue? [y/n]: ")
         return execute
 
+    def submission(self, form):
+        def execute(cursor):
+            go = 'y'
+            while go == 'y' or go == 'Y':
+                columns = ["Person", "Timestamp"]
+                values = []
+                for column in columns:
+                    value = input(f"{column}: ")
+                    values.append(value)
+                submission_stmt = (f"Insert INTO form_submissions (Form, Person, Timestamp) VALUES "
+                        f"{(form,) + tuple(values)};".replace("''", "NULL"))
+                cursor.execute(submission_stmt)
+                go = input("Continue? [y/n]: ")
+        return execute
+
     def executeSQL(self, commands):
         try:
             connection = psycopg2.connect(user = "postgres",

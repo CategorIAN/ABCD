@@ -236,6 +236,14 @@ class General_DB:
                 self.createGridJoinTables()]
         return reduce(lambda l, stmts: l + stmts, create_stmts, [])
 
+    def insertSubmission(self, name, timestamp):
+        def execute(cursor):
+            insert_stmt = f"""
+                INSERT INTO FORM_SUBMISSIONS(PERSON, FORM, TIMESTAMP) VALUES {(name, 'ABCD General Survey', timestamp)};
+                """
+            cursor.execute(insert_stmt)
+        return execute
+
     # =================================================================================================================
     def readText(self, name = None):
         df = self.typeDF("Text")
@@ -370,7 +378,7 @@ class General_DB:
     def updateResults(self, month, day, year):
         hashed_time = self.hashTime("/".join([str(x) for x in [month, day, year]]) + " 0:00")
         update_index = [i for i in self.df.index if self.hashTime(self.df.at[i, "Timestamp"]) >= hashed_time]
-        names = list(self.df.loc[update_index, "Name"])
+        update_df = list(self.df.loc[update_index, ["Name", "Timestamp"]])
         try:
             connection = psycopg2.connect(user = "postgres",
                                           password = "WeAreGroot",
@@ -378,7 +386,9 @@ class General_DB:
                                           port = "5432",
                                           database = "postgres")
             cursor = connection.cursor()
-            for name in names:
+            for i in update_index:
+                name, timestamp = self.df.loc[i, ["Name", "Timestamp"]]
+                self.insertSubmission(name, timestamp)(cursor)
                 cursor.execute(f"SELECT EXISTS (SELECT 1 FROM PERSON WHERE NAME = '{name}');")
                 in_db = cursor.fetchone()[0]
                 for update in [self.updatePersonRow, self.updatePersonCheckBox, self.updatePersonGrid]:
