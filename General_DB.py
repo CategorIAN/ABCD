@@ -9,7 +9,7 @@ from prettytable import PrettyTable
 class General_DB:
     def __init__(self):
         self.name = "General_DB"
-        self.keys = ["Email"]
+        self.keys = ["Name"]
         self.df = self.createDF()
         form_types = ["Keys", "Text", "LinScale", "MultChoice"]
         sql_types = ["VARCHAR(160) PRIMARY KEY", "VARCHAR(160)", "INT", "VARCHAR(160)"]

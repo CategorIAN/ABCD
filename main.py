@@ -1,4 +1,5 @@
 #==========My Classes===============================
+from EventPlanAvailability_DB import EventPlanAvailability_DB
 from FormManagement_DB import FormManagement_DB
 from General import General
 from GuestGame import GuestGame
@@ -35,7 +36,7 @@ def addPerson():
     E = Event_DB()
     E.executeSQL([E.addPerson])
 
-def update():
+def update_general():
     G = General_DB()
     G.updateResults(11,29,2024)
 
@@ -63,8 +64,12 @@ def submission():
     F = FormManagement_DB()
     F.executeSQL([F.submission('ABCD General Survey')])
 
+def update_epa():
+    E = EventPlanAvailability_DB()
+    E.executeSQL([E.updateData(12, 1, 2024)])
+
 if __name__ == '__main__':
-    update()
+    update_epa()
 
 
 
