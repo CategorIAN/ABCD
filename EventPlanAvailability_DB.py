@@ -16,7 +16,6 @@ class EventPlanAvailability_DB:
         self.type_dict = dict(zip(form_types, sql_types))
 
     def removeDuplicates(self, df):
-        print(df)
         def appendDF(df_keys, index):
             current_df, key_set, df_row = df_keys + (df.loc[[index], :],)
             keys = tuple(df_row.loc[index, self.keys])
@@ -54,9 +53,21 @@ class EventPlanAvailability_DB:
         ren = lambda df: df.rename(self.prod_func, axis=1)
         f = lambda df: df.fillna("")
         rem = lambda df: self.removeDuplicates(df)
-        df = rem(f(ren(pd.read_csv("\\".join([os.getcwd(), "Raw Data", "{}.csv".format(self.name)])))))
+        trim = lambda df: df.applymap(self.trim_paren)
+        df = trim(rem(f(ren(pd.read_csv("\\".join([os.getcwd(), "Raw Data", "{}.csv".format(self.name)]))))))
         self.save(df, "original")
         return df
+
+    def availabilityDF(self, cursor):
+        query = """
+                SELECT ID, COLUMNNAME, ROWNAME
+                FROM AVAILABILITY JOIN AVAILABILITY_COLUMN ON AVAILABILITY.COLUMNID = AVAILABILITY_COLUMN.COLUMNID
+                JOIN AVAILABILITY_ROW ON AVAILABILITY.ROWID = AVAILABILITY_ROW.ROWID
+        """
+        cursor.execute(query)
+        columns = [column[0] for column in cursor.description]
+        data = [[str(x) for x in tuple(y)] for y in cursor.fetchall()]
+        return pd.DataFrame(data, columns=columns)
 
     def insertSubmission(self, name, timestamp):
         def execute(cursor):
@@ -66,18 +77,22 @@ class EventPlanAvailability_DB:
             cursor.execute(insert_stmt)
         return execute
 
-    def insertPersonEventplanAvailability(self, df, q_name, opts, name, event_plan):
-        data = self.df[(self.df["Name"] == name) & (self.df["Event Plan"] == event_plan)].iloc[0]
-        cols = lambda qid, row: set(data[f"{q_name(qid)} [{row}]"].split(", "))
-        f = lambda qid, col, row: df[(df["ID"] == qid) & (df["ColumnName"] == col) & (df["RowName"] == row)].index[0]
-        values = lambda qid: ",\n".join([str((data["Name"], self.trim_paren(data["Event Plan"]),
-                                              int(q_name(qid).strip("Week ")), f(qid, col, row)))
-                                         for col, row in opts(qid) if col in cols(qid, row)])
-        insert_stmt = lambda qid: f"""
-                        INSERT INTO PERSON_EVENTPLAN_AVAILABILITY (personid, eventplanid, week, dayhour) 
-                        VALUES \n{values(qid)}\n;
-                        """
-        return [insert_stmt(qid) for qid in set(df.ID) if len(values(qid)) > 0]
+    def insertPersonEventplanAvailability(self, df, opts, name, event_plan):
+        def execute(cursor):
+            data = self.df[(self.df["Name"] == name) & (self.df["Event Plan"] == event_plan)].iloc[0]
+            cols = lambda week, row: set(data[f"Week {week} [{row}]"].split(", "))
+            f = lambda col, row: df[(df["columnname"] == col) & (df["rowname"] == row)].iloc[0]["id"]
+            values = lambda week: ",\n".join([str((name, event_plan, week, f(col, row)))
+                                             for col, row in opts if col in cols(week, row)])
+            insert_stmt = lambda week: f"""
+                            INSERT INTO PERSON_EVENTPLAN_AVAILABILITY (personid, eventplanid, week, dayhour) 
+                            VALUES \n{values(week)}\n;
+                            """
+            commands = [insert_stmt(week) for week in [1, 2, 3, 4] if len(values(week)) > 0]
+            for command in commands:
+                print(command)
+                cursor.execute(command)
+        return execute
 
     def updatePersonEventplanAvailability(self, name, event_plan):
         def execute(cursor):
@@ -86,18 +101,9 @@ class EventPlanAvailability_DB:
                             WHERE PERSONID = '{name}' AND EVENTPLANID = '{event_plan}';
                             """
             cursor.execute(delete_stmt)
-            questions = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "Questions.csv"]))
-            grid_columns = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "GridColumn.csv"]))
-            grid_rows = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "GridRow.csv"]))
-            append_df = lambda left_df, right_df: left_df.merge(right_df, how="inner", left_on="ID", right_on="QID")
-            df = append_df(append_df(questions, grid_columns), grid_rows)
-            q_df = lambda qid: df[df["ID"] == qid].reindex()
-            q_name = lambda qid: q_df(qid)["Name"].iat[0]
-            opts = lambda qid: set(product(df[df["ID"] == qid]["ColumnName"], df[df["ID"] == qid]["RowName"]))
-            commands = self.insertPersonEventplanAvailability(df, q_name, opts, name, event_plan)
-            for command in commands:
-                print(command)
-                cursor.execute(command)
+            df = self.availabilityDF(cursor)
+            opts = set(product(df["columnname"], df["rowname"]))
+            self.insertPersonEventplanAvailability(df, opts, name, event_plan)(cursor)
         return execute
 
     def updateData(self, month, day, year):
