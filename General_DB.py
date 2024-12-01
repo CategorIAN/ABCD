@@ -6,7 +6,6 @@ import numpy as np
 from itertools import product
 from prettytable import PrettyTable
 
-
 class General_DB:
     def __init__(self):
         self.name = "General_DB"

@@ -1,5 +1,6 @@
 import pandas as pd
 import psycopg2
+from datetime import datetime
 
 class FormManagement_DB:
     def __init__(self):
@@ -11,7 +12,9 @@ class FormManagement_DB:
         data = [[str(x) for x in tuple(y)] for y in cursor.fetchall()]
         return pd.DataFrame(data=data, columns=columns)
 
-    def request(self, timestamp, form):
+    def request(self, form, timestamp = None):
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S") if timestamp is None else timestamp
+        print(timestamp)
         def execute(cursor):
             go = 'y'
             while go == 'y' or go == 'Y':

@@ -31,13 +31,13 @@ def createPersonDB():
     G = General_DB()
     G.executeSQL(G.createPersonTable())
 
-def createCheckBoxJoinTables():
-    G = General_DB()
-    G.executeSQL(G.createCheckBoxJoinTables())
+def addPerson():
+    E = Event_DB()
+    E.executeSQL([E.addPerson])
 
 def update():
     G = General_DB()
-    G.updateResults(11,18,2024)
+    G.updateResults(11,29,2024)
 
 def read():
     G = General_DB()
@@ -53,7 +53,7 @@ def f():
 
 def request():
     F = FormManagement_DB()
-    F.executeSQL([F.request('2024-11-18', 'ABCD General Survey')])
+    F.executeSQL([F.request('ABCD General Survey')])
 
 def invite():
     E = Event_DB()
@@ -65,6 +65,7 @@ def submission():
 
 if __name__ == '__main__':
     update()
+
 
 
 
