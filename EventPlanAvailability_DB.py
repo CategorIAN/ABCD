@@ -58,6 +58,36 @@ class EventPlanAvailability_DB:
         self.save(df, "original")
         return df
 
+    def createPersonEventplanTimespan(self, cursor):
+        create_stmt = """
+            CREATE VIEW Person_Eventplan_Timespan AS
+            Select PersonID, eventplanid, week, timespan
+            From Person_Eventplan_Availability
+                JOIN event_plan
+                on person_eventplan_availability.eventplanid = event_plan.name
+                JOIN Availability_Timespan
+                on Person_Eventplan_Availability.dayhour = Availability_Timespan.availabilityid
+                JOIN Timespan_Duration on availability_timespan.timespan = timespan_duration.name
+                WHERE timespan_duration.duration = event_plan.duration
+                Group By  personid, eventplanid, week, timespan
+                Having COUNT(Distinct Availability_Timespan.availabilityid) = (
+                    SELECT COUNT(*)
+                    FROM Availability_Timespan as Availability_Timespan_inner
+                    WHERE Availability_Timespan_Inner.timespan = Availability_Timespan.timespan
+                );
+        """
+        cursor.execute(create_stmt)
+
+    def createPersonEventplanTimespanCount(self, cursor):
+        create_stmt = """
+            CREATE VIEW Person_Eventplan_Timespan_Count AS
+            SELECT EVENTPLANID, WEEK, TIMESPAN, COUNT(*) AS COUNT
+            FROM Person_Eventplan_Timespan
+            GROUP BY EVENTPLANID, WEEK, TIMESPAN
+            ORDER BY COUNT DESC;
+        """
+        cursor.execute(create_stmt)
+
     def availabilityDF(self, cursor):
         query = """
                 SELECT ID, COLUMNNAME, ROWNAME
@@ -115,7 +145,6 @@ class EventPlanAvailability_DB:
                 self.insertSubmission(name, timestamp)(cursor)
                 self.updatePersonEventplanAvailability(name, event_plan)(cursor)
         return execute
-
 
     def executeSQL(self, commands):
         try:

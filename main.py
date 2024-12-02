@@ -69,7 +69,8 @@ def update_epa():
     E.executeSQL([E.updateData(12, 1, 2024)])
 
 if __name__ == '__main__':
-    update_epa()
+    E = EventPlanAvailability_DB()
+    E.executeSQL([E.createPersonEventplanTimespanCount])
 
 
 

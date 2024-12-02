@@ -5,7 +5,6 @@ from tabulate import tabulate
 from functools import reduce
 import os
 
-
 class Event_DB:
     def __init__(self):
         self.nextHour = self.nextMap(["11:00 AM", "12:00 PM", "1:00 PM", "2:00 PM",
