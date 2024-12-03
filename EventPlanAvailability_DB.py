@@ -81,10 +81,16 @@ class EventPlanAvailability_DB:
     def createPersonEventplanTimespanCount(self, cursor):
         create_stmt = """
             CREATE VIEW Person_Eventplan_Timespan_Count AS
-            SELECT EVENTPLANID, WEEK, TIMESPAN, COUNT(*) AS COUNT
+            SELECT EVENTPLANID, WEEK, PERSON_EVENTPLAN_TIMESPAN.TIMESPAN, 
+            COUNT(*) AS PRIMARY_COUNT, NUMBERAVAILABLE AS SECONDARY_COUNT
             FROM Person_Eventplan_Timespan
-            GROUP BY EVENTPLANID, WEEK, TIMESPAN
-            ORDER BY COUNT DESC;
+            JOIN event_plan
+            on person_eventplan_timespan.eventplanid = event_plan.name
+            JOIN timespan_gamecount
+            on person_eventplan_timespan.timespan = timespan_gamecount.timespan 
+            and event_plan.game = timespan_gamecount.gamesid
+            GROUP BY EVENTPLANID, WEEK, PERSON_EVENTPLAN_TIMESPAN.TIMESPAN, numberavailable
+            ORDER BY PRIMARY_COUNT DESC, SECONDARY_COUNT DESC
         """
         cursor.execute(create_stmt)
 

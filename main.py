@@ -38,7 +38,7 @@ def addPerson():
 
 def update_general():
     G = General_DB()
-    G.updateResults(11,29,2024)
+    G.updateResults(12,1,2024)
 
 def read():
     G = General_DB()
@@ -69,8 +69,7 @@ def update_epa():
     E.executeSQL([E.updateData(12, 1, 2024)])
 
 if __name__ == '__main__':
-    E = EventPlanAvailability_DB()
-    E.executeSQL([E.createPersonEventplanTimespanCount])
+    request()
 
 
 

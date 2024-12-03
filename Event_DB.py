@@ -161,6 +161,17 @@ class Event_DB:
             cursor.execute(create_stmt)
         return execute
 
+    def createTimeSpanGameCount(self, cursor):
+        create_stmt = f"""
+        CREATE VIEW TimeSpan_GameCount AS
+            SELECT GAMESID, TIMESPAN, COUNT(*) AS NUMBERAVAILABLE
+            FROM PERSON_GAMES JOIN PERSON_TIMESPAN ON PERSON_GAMES.PERSONID = PERSON_TIMESpan.PERSONID
+            GROUP BY GAMESID, TIMESPAN;
+        """
+        cursor.execute(create_stmt)
+
+
+
     def createMealPreference(self, event_id):
         def execute(cursor):
             create_stmt = f"""
