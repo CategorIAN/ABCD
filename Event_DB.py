@@ -4,6 +4,7 @@ from prettytable import PrettyTable
 from tabulate import tabulate
 from functools import reduce
 import os
+import re
 
 class Event_DB:
     def __init__(self):
@@ -145,18 +146,17 @@ class Event_DB:
             appended_df.to_csv("\\".join([os.getcwd(), 'call_lists', f"call_list_{event_id}.csv"]), index=False)
         return execute
 
-    def createNewbAvailability(self, game, duration):
+    def createAvailability(self, game, duration, newb = True):
         def execute(cursor):
             create_stmt = f"""
-            CREATE VIEW Newb_Availability_{game}_{duration}Hrs AS
+            CREATE VIEW Availability_{re.sub("[ :]","_",game)}_{duration}Hrs{"_Newb" if newb else ""} AS
                 SELECT Person_Timespan.Timespan, Count(*) as NumberAvailable
                 FROM PERSON_TimeSpan JOIN Person_Games on Person_Timespan.personid = Person_Games.personid
                                      JOIN Timespan_Duration on Person_Timespan.timespan = Timespan_Duration.name
                                      JOIN Person_Numberplayed on Person_Timespan.personid = Person_Numberplayed.name
-                WHERE Person_Games.gamesid = '{game}' and Timespan_Duration.duration = '{duration}'
-                and Person_Numberplayed.numberplayed = '0'
-                Group By Person_Timespan.Timespan
-                Order By NumberAvailable Desc;
+                WHERE Person_Games.gamesid = '{game}' and Timespan_Duration.duration = '{duration}' and
+                {"Person_Numberplayed.numberplayed = '0'" if newb else "True"} 
+                Group By Person_Timespan.Timespan Order By NumberAvailable Desc;
             """
             cursor.execute(create_stmt)
         return execute

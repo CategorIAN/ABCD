@@ -73,7 +73,8 @@ def update_epa():
     E.executeSQL([E.updateData(12, 1, 2024)])
 
 if __name__ == '__main__':
-    invite()
+    E = Event_DB()
+    E.executeSQL([E.createAvailability('The Lord of the Rings: The Card Game', 3, False)])
 
 
 
