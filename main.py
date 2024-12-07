@@ -38,7 +38,7 @@ def addPerson():
 
 def update_general():
     G = General_DB()
-    G.updateResults(12,1,2024)
+    G.updateResults(12,6,2024)
 
 def read():
     G = General_DB()
@@ -47,6 +47,10 @@ def read():
 def call_list(id):
     E = Event_DB()
     E.executeSQL([E.createCallList(id), E.getCallList(id)])
+
+def meal_preference(id):
+    E = Event_DB()
+    E.executeSQL([E.createMealPreference(id)])
 
 def f():
     E = Event_DB()
@@ -58,7 +62,7 @@ def request():
 
 def invite():
     E = Event_DB()
-    E.executeSQL([E.invite('2014-11-16', 5)])
+    E.executeSQL([E.invite('2014-11-30', 6)])
 
 def submission():
     F = FormManagement_DB()
@@ -69,7 +73,7 @@ def update_epa():
     E.executeSQL([E.updateData(12, 1, 2024)])
 
 if __name__ == '__main__':
-    request()
+    invite()
 
 
 
