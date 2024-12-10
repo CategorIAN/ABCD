@@ -90,7 +90,7 @@ class EventPlanAvailability_DB:
             on person_eventplan_timespan.timespan = timespan_gamecount.timespan 
             and event_plan.game = timespan_gamecount.gamesid
             GROUP BY EVENTPLANID, WEEK, PERSON_EVENTPLAN_TIMESPAN.TIMESPAN, numberavailable
-            ORDER BY PRIMARY_COUNT DESC, SECONDARY_COUNT DESC
+            ORDER BY PRIMARY_COUNT DESC, SECONDARY_COUNT DESC, week
         """
         cursor.execute(create_stmt)
 

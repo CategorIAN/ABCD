@@ -70,11 +70,11 @@ def submission():
 
 def update_epa():
     E = EventPlanAvailability_DB()
-    E.executeSQL([E.updateData(12, 1, 2024)])
+    E.executeSQL([E.updateData(12, 9, 2024)])
 
 if __name__ == '__main__':
     E = Event_DB()
-    E.executeSQL([E.createAvailability('The Lord of the Rings: The Card Game', 3, False)])
+    E.executeSQL([E.getPlannedCallList(7)])
 
 
 
