@@ -5,6 +5,7 @@ from tabulate import tabulate
 from functools import reduce
 import os
 import re
+from decouple import config
 
 class Event_DB:
     def __init__(self):
@@ -247,22 +248,13 @@ class Event_DB:
         stmt = f"Insert INTO Person (Name, Status) Values ('{name}', 'Active');"
         cursor.execute(stmt)
 
-    def readSQL(self, commands):
-        def execute(cursor):
-            for command in commands:
-                df = self.queried_df(cursor, command)
-                pretty_df = tabulate(df, headers='keys', tablefmt='pretty')
-                print(pretty_df)
-                print(10 * "=" + "Executed" + 10 * "=" + "\n" + command)
-        return execute
-
     def executeSQL(self, commands):
         try:
-            connection = psycopg2.connect(user = "postgres",
-                                          password = "WeAreGroot",
-                                          host = "abcd.cbeq26equftn.us-east-2.rds.amazonaws.com",
-                                          port = "5432",
-                                          database = "postgres")
+            connection = psycopg2.connect(user = config("DB_USER"),
+                                          password = config("DB_PASSWORD"),
+                                          host = config("DB_HOST"),
+                                          port = config("DB_PORT"),
+                                          database = config("DB_NAME"))
             cursor = connection.cursor()
             for command in commands:
                 command(cursor)

@@ -5,6 +5,7 @@ import psycopg2
 import numpy as np
 from itertools import product
 from prettytable import PrettyTable
+from decouple import config
 
 class EventPlanAvailability_DB:
     def __init__(self):
@@ -154,11 +155,11 @@ class EventPlanAvailability_DB:
 
     def executeSQL(self, commands):
         try:
-            connection = psycopg2.connect(user = "postgres",
-                                          password = "WeAreGroot",
-                                          host = "abcd.cbeq26equftn.us-east-2.rds.amazonaws.com",
-                                          port = "5432",
-                                          database = "postgres")
+            connection = psycopg2.connect(user = config("DB_USER"),
+                                          password = config("DB_PASSWORD"),
+                                          host = config("DB_HOST"),
+                                          port = config("DB_PORT"),
+                                          database = config("DB_NAME"))
             cursor = connection.cursor()
             for command in commands:
                 command(cursor)

@@ -1,6 +1,7 @@
 import pandas as pd
 import psycopg2
 from datetime import datetime
+from decouple import config
 
 class FormManagement_DB:
     def __init__(self):
@@ -46,11 +47,11 @@ class FormManagement_DB:
 
     def executeSQL(self, commands):
         try:
-            connection = psycopg2.connect(user = "postgres",
-                                          password = "WeAreGroot",
-                                          host = "abcd.cbeq26equftn.us-east-2.rds.amazonaws.com",
-                                          port = "5432",
-                                          database = "postgres")
+            connection = psycopg2.connect(user = config("DB_USER"),
+                                          password = config("DB_PASSWORD"),
+                                          host = config("DB_HOST"),
+                                          port = config("DB_PORT"),
+                                          database = config("DB_DATABASE"))
             cursor = connection.cursor()
             for command in commands:
                 command(cursor)
