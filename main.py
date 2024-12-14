@@ -1,60 +1,13 @@
 #==========My Classes===============================
 from EventPlanAvailability_DB import EventPlanAvailability_DB
 from FormManagement_DB import FormManagement_DB
-from General import General
-from GuestGame import GuestGame
-from EventAvailability import EventAvailability
-from MeetingAvailability import MeetingAvailability
 from General_DB import General_DB
 from Event_DB import Event_DB
 
-
-def availabilityGG():
-    GG = GuestGame()
-    GG.availability("Hannah Harris", "23.02")
-
-def availabilityGeneral():
-    G = General()
-    for i in [1, 2, 3]:
-        G.gameAv(i)
-    for game in G.game_duration.keys():
-        G.newbAv(game)
-
-def availabilityEvent():
-    Av = EventAvailability()
-    Av.availability("24.06", 3)
-
-def availabilityMeeting():
-    Av = MeetingAvailability()
-    Av.availability(1)
-
-def createPersonDB():
-    G = General_DB()
-    G.executeSQL(G.createPersonTable())
-
+#============Easy========================================
 def addPerson():
     E = Event_DB()
     E.executeSQL([E.addPerson])
-
-def update_general():
-    G = General_DB()
-    G.updateResults(12,6,2024)
-
-def read():
-    G = General_DB()
-    G.readSQL(G.readPersonalFile("Paul"))
-
-def call_list(id):
-    E = Event_DB()
-    E.executeSQL([E.createCallList(id), E.getCallList(id)])
-
-def meal_preference(id):
-    E = Event_DB()
-    E.executeSQL([E.createMealPreference(id)])
-
-def f():
-    E = Event_DB()
-    E.executeSQL([E.updatePersonTimespan])
 
 def request():
     F = FormManagement_DB()
@@ -64,17 +17,30 @@ def invite():
     E = Event_DB()
     E.executeSQL([E.invite('2014-11-30', 6)])
 
-def submission():
-    F = FormManagement_DB()
-    F.executeSQL([F.submission('ABCD General Survey')])
+#=========Medium=========================================
+def call_list(id):
+    E = Event_DB()
+    E.executeSQL([E.createCallList(id), E.getCallList(id)])
+
+def meal_preference(id):
+    E = Event_DB()
+    E.executeSQL([E.createMealPreference(id)])
+
+def read_personal_file(name):
+    G = General_DB()
+    G.executeSQL([G.readPersonalFile(name)])
+
+#=======Hard=============================================
+def update_general():
+    G = General_DB()
+    G.updateResults(12,6,2024)
 
 def update_epa():
     E = EventPlanAvailability_DB()
     E.executeSQL([E.updateData(12, 9, 2024)])
 
 if __name__ == '__main__':
-    E = Event_DB()
-    E.executeSQL([E.getPlannedCallList(7)])
+    read_personal_file("Ian Kessler")
 
 
 

@@ -5,6 +5,7 @@ import psycopg2
 import numpy as np
 from itertools import product
 from prettytable import PrettyTable
+from decouple import config
 
 class General_DB:
     def __init__(self):
@@ -40,12 +41,6 @@ class General_DB:
             return self.q_map(question)
         else:
             return "{} [{}]".format(self.q_map(question), self.r_map(row.strip("]")))
-
-    def df_map(self, features, my_func):
-        def f(df):
-            transformColumn = lambda df_dict, column: df_dict | {column: [my_func(x) for x in df_dict[column]]}
-            return pd.DataFrame(reduce(transformColumn, features, df.to_dict('series')))
-        return f
 
     def save(self, df, file):
         df.to_csv("\\".join([os.getcwd(), self.name, "{}.csv".format(file)]))
@@ -290,7 +285,22 @@ class General_DB:
 
     def readPersonalFile(self, name = None):
         fxns = [self.readText, self.readLinScale, self.readMultChoice, self.readCheckBox, self.readGrid]
-        return reduce(lambda scripts, fxn: scripts + fxn(name), fxns, [])
+        def execute(cursor):
+            commands = reduce(lambda scripts, fxn: scripts + fxn(name), fxns, [])
+            for command in commands:
+                print(10 * "=" + "Executing" + 10 * "=" + "\n" + command)
+                cursor.execute(command)
+                results = cursor.fetchall()
+                columns = [desc[0] for desc in cursor.description]
+                data = [{col: x for col, x in zip(columns, row)} for row in results]
+
+                if len(data) > 0:
+                    table = PrettyTable()
+                    table.field_names = data[0].keys()
+                    for entry in data:
+                        table.add_row(entry.values())
+                    print(table)
+        return execute
 
 # =================================================================================================================
     def updatePersonRow(self, name, in_db):
@@ -330,61 +340,7 @@ class General_DB:
     def updateData(self, month, day, year):
         hashed_time = self.hashTime("/".join([str(x) for x in [month, day, year]]) + " 0:00")
         update_index = [i for i in self.df.index if self.hashTime(self.df.at[i, "Timestamp"]) >= hashed_time]
-        names = list(self.df.loc[update_index, "Name"])
         def execute(cursor):
-            for name in names:
-                cursor.execute(f"SELECT EXISTS (SELECT 1 FROM PERSON WHERE NAME = '{name}');")
-                in_db = cursor.fetchone()[0]
-                for update in [self.updatePersonRow, self.updatePersonCheckBox, self.updatePersonGrid]:
-                    commands = update(name, in_db)
-                    for command in commands:
-                        cursor.execute(command)
-                        print(10 * "=" + "Executed" + 10 * "=" + "\n" + command)
-        return execute
-
-# =================================================================================================================
-    def readSQL(self, commands):
-        try:
-            connection = psycopg2.connect(user = "postgres",
-                                          password = "WeAreGroot",
-                                          host = "database-1.cbeq26equftn.us-east-2.rds.amazonaws.com",
-                                          port = "5432",
-                                          database = "postgres")
-            cursor = connection.cursor()
-            for command in commands:
-                cursor.execute(command)
-                results = cursor.fetchall()
-                columns = [desc[0] for desc in cursor.description]
-                data = [{col: x for col, x in zip(columns, row)} for row in results]
-
-                if len(data) > 0:
-                    table = PrettyTable()
-                    table.field_names = data[0].keys()
-                    for entry in data:
-                        table.add_row(entry.values())
-                    print(table)
-                print(10 * "=" + "Executed" + 10 * "=" + "\n" + command)
-            connection.commit()
-
-        except psycopg2.Error as e:
-            print(e)
-        finally:
-            if connection:
-                cursor.close()
-                connection.close()
-                print("PostgreSQL connection is closed.")
-
-    def updateResults(self, month, day, year):
-        hashed_time = self.hashTime("/".join([str(x) for x in [month, day, year]]) + " 0:00")
-        update_index = [i for i in self.df.index if self.hashTime(self.df.at[i, "Timestamp"]) >= hashed_time]
-        update_df = list(self.df.loc[update_index, ["Name", "Timestamp"]])
-        try:
-            connection = psycopg2.connect(user = "postgres",
-                                          password = "WeAreGroot",
-                                          host = "abcd.cbeq26equftn.us-east-2.rds.amazonaws.com",
-                                          port = "5432",
-                                          database = "postgres")
-            cursor = connection.cursor()
             for i in update_index:
                 name, timestamp = self.df.loc[i, ["Name", "Timestamp"]]
                 self.insertSubmission(name, timestamp)(cursor)
@@ -393,24 +349,18 @@ class General_DB:
                 for update in [self.updatePersonRow, self.updatePersonCheckBox, self.updatePersonGrid]:
                     commands = update(name, in_db)
                     for command in commands:
+                        print(10 * "=" + "Executing" + 10 * "=" + "\n" + command)
                         cursor.execute(command)
-                        print(10 * "=" + "Executed" + 10 * "=" + "\n" + command)
-            connection.commit()
-        except psycopg2.Error as e:
-            print(e)
-        finally:
-            if connection:
-                cursor.close()
-                connection.close()
-                print("PostgreSQL connection is closed.")
+        return execute
+# =================================================================================================================
 
     def executeSQL(self, commands):
         try:
-            connection = psycopg2.connect(user = "postgres",
-                                          password = "WeAreGroot",
-                                          host = "database-1.cbeq26equftn.us-east-2.rds.amazonaws.com",
-                                          port = "5432",
-                                          database = "postgres")
+            connection = psycopg2.connect(user = config("DB_USER"),
+                                          password = config("DB_PASSWORD"),
+                                          host = config("DB_HOST"),
+                                          port = config("DB_PORT"),
+                                          database = config("DB_NAME"))
             cursor = connection.cursor()
             for command in commands:
                 command(cursor)
