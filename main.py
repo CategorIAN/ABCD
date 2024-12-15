@@ -40,8 +40,7 @@ def update_epa():
     E.executeSQL([E.updateData(12, 9, 2024)])
 
 if __name__ == '__main__':
-    G = General_DB()
-    G.executeSQL([G.find_null_bytes])
+    request
 
 
 
