@@ -15,3 +15,6 @@ add column event_plan varchar(160) references event_plan(name);
 
 alter table event
 add column week int;
+
+alter table person
+drop column timestamp;

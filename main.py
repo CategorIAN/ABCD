@@ -40,7 +40,8 @@ def update_epa():
     E.executeSQL([E.updateData(12, 9, 2024)])
 
 if __name__ == '__main__':
-    read_personal_file("Ian Kessler")
+    G = General_DB()
+    G.executeSQL([G.find_null_bytes])
 
 
 
