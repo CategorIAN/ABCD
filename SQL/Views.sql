@@ -1,14 +1,4 @@
-CREATE VIEW Call_List_3 AS
-    Select Person.Name, Redeem, New, CompletedSurvey, ExpectedAttendance, ExpectedInvite
-    FROM Person Left Outer Join Person_Games on Person.Name = Person_Games.PersonID
-    Left Outer Join Person_Timespan on Person.name = Person_Timespan.personid
-    Left Outer Join Person_Redeem on Person.name = Person_Redeem.name
-    Left Outer Join Person_CompletedSurvey on Person.name = Person_CompletedSurvey.Name
-    Left Outer Join Person_Expected on Person.name = Person_Expected.Name
-    Left Outer Join Person_Due on Person.name = Person_Due.name
-    Where (Redeem or (EventDue and InviteDue)) and (Person.Name != 'Ian Kessler') and
-          (TIMESTAMP is NULL OR (GamesID = 'Catan' and TimeSpan = 'Saturday from 2:00 PM to 4:00 PM'))
-    Order By Redeem Desc, New Desc, CompletedSurvey Desc, ExpectedAttendance, ExpectedInvite, Person.Name;
+
 
 CREATE VIEW Person_CompletedSurvey AS
     Select Name, EXISTS (SELECT 1
@@ -55,14 +45,35 @@ CREATE VIEW Person_LatestRequest AS
     FROM PERSON JOIN FORM_REQUESTS ON PERSON.name = FORM_REQUESTS.person
     GROUP BY NAME, FORM;
 
-CREATE VIEW Person_GeneralDue AS
-    SELECT PERSON.NAME, (((UPDATED + INTERVAL '1 year' < now()) OR (UPDATED IS NULL)) AND
-                 ((LATESTREQUEST + INTERVAL '3 months' < now()) OR (LATESTREQUEST IS NULL))) as GeneralDue
-    FROM PERSON LEFT JOIN (SELECT * FROM PERSON_UPDATED WHERE FORM = 'ABCD General Survey') AS PERSON_UPDATED
+CREATE VIEW Person_General_Requested AS
+    SELECT PERSON.NAME, person_latestrequest.latestrequest as requested
+    FROM PERSON LEFT JOIN PERSON_LATESTREQUEST
+        ON PERSON.NAME = PERSON_LATESTREQUEST.NAME
+        where ((person_latestrequest.form = 'ABCD General Survey') or (person_latestrequest.form is NULL))
+        and person.name != 'Ian Kessler'
+        ORDER BY latestrequest nulls first;
+
+CREATE VIEW Person_General_Updated AS
+    SELECT PERSON.NAME, Updated
+    FROM PERSON LEFT JOIN PERSON_UPDATED
         ON PERSON.NAME = PERSON_UPDATED.NAME
-        LEFT JOIN (SELECT * FROM PERSON_LATESTREQUEST WHERE FORM = 'ABCD General Survey') AS PERSON_LATESTREQUEST
-            ON PERSON.NAME = PERSON_LATESTREQUEST.NAME
-        ORDER BY GeneralDue DESC;
+        where ((person_updated.form = 'ABCD General Survey') or (person_updated.form is NULL))
+        and person.name != 'Ian Kessler'
+        ORDER BY Updated nulls first;
+
+CREATE VIEW Person_General_Due as
+    SELECT person_general_requested.name,
+           ((requested is NULL) and (updated is null)) as request,
+               ((UPDATED + INTERVAL '1 year' < now()) and (updated is not null) and
+                ((requested < updated) or (requested is NULL))) as renew,
+            (
+                (requested + interval '3 months' < now()) and (requested is not null) and
+                ((updated < requested) or (updated is NULL))
+            ) as request_again,
+            requested, updated
+    from person_general_requested join person_general_updated on person_general_requested.name = person_general_updated.name
+    order by request desc, renew desc, request_again desc, requested nulls first, updated nulls first;
+
 
 CREATE VIEW Game_Stats AS
     SELECT GAMES.NAME,

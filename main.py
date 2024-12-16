@@ -15,7 +15,7 @@ def request():
 
 def invite():
     E = Event_DB()
-    E.executeSQL([E.invite('2014-11-30', 6)])
+    E.executeSQL([E.invite('2014-12-14', 7)])
 
 #=========Medium=========================================
 def call_list(id):
@@ -40,7 +40,7 @@ def update_epa():
     E.executeSQL([E.updateData(12, 9, 2024)])
 
 if __name__ == '__main__':
-    request
+    invite()
 
 
 
