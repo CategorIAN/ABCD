@@ -4,6 +4,7 @@ from FormManagement_DB import FormManagement_DB
 from General_DB import General_DB
 from Event_DB import Event_DB
 
+#~~~~~~~~~~~~~~~~In Web Application~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #============Easy========================================
 def addPerson():
     E = Event_DB()
@@ -16,7 +17,7 @@ def request():
 def invite():
     E = Event_DB()
     E.executeSQL([E.invite('2014-12-14', 7)])
-
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #=========Medium=========================================
 def call_list(id):
     E = Event_DB()
@@ -33,14 +34,15 @@ def read_personal_file(name):
 #=======Hard=============================================
 def update_general():
     G = General_DB()
-    G.updateResults(12,6,2024)
+    G.executeSQL([G.updateData(12,6,2024)])
 
 def update_epa():
     E = EventPlanAvailability_DB()
-    E.executeSQL([E.updateData(12, 9, 2024)])
+    E.executeSQL([E.updateData(12, 15, 2024)])
 
 if __name__ == '__main__':
-    invite()
+    E = Event_DB()
+    E.executeSQL([E.createAvailability('The Witcher: Old World', 3, False)])
 
 
 
