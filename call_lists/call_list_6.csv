@@ -1,0 +1,31 @@
+name,I,G,P,W,D,F,redeem,new,completedsurvey,expectedattendance,expectedinvite
+Paul Turek ,False,False,False,False,False,False,False,True,True,None,None
+Eric Wilson,False,False,False,False,False,False,False,True,False,None,None
+Gail Staffanson,False,False,False,False,False,False,False,True,False,None,None
+Jeremy Schmierer,False,False,False,False,False,False,False,True,False,None,None
+Jessie Staffanson,False,False,False,False,False,False,False,True,False,None,None
+Joel Gordon,False,False,False,False,False,False,False,True,False,None,None
+Kara Lustig,False,False,False,False,False,False,False,True,False,None,None
+Larry Bawden,False,False,False,False,False,False,False,True,False,None,None
+Pawan Mahabir,False,False,False,False,False,False,False,True,False,None,None
+Tammy Leland,False,False,False,False,False,False,False,True,False,None,None
+Carl Redman,False,False,False,False,False,False,False,False,True,2024-11-10 14:00:00,2024-11-16 18:00:00
+Dorene McDonald,False,False,False,False,False,False,False,False,True,2024-11-10 14:00:00,2024-11-16 18:00:00
+Angel Barnett,False,False,False,False,False,False,False,False,True,2024-11-23 18:00:00,2024-11-16 18:00:00
+Brandi Wilkinson,False,False,False,False,False,False,False,False,True,None,2024-11-16 18:00:00
+Donovan Amunrud,False,False,False,False,False,False,False,False,True,None,2024-11-16 18:00:00
+Jerry Kessler,False,False,False,False,False,False,False,False,True,None,2024-11-16 18:00:00
+Laramie Kyhl,False,False,False,False,False,False,False,False,True,None,2024-11-16 18:00:00
+Nathan Roth,False,False,False,False,False,False,False,False,True,None,2024-11-16 18:00:00
+Malachi Meza,False,False,False,False,False,False,False,False,False,2024-11-23 18:00:00,2024-11-16 18:00:00
+Abby Nesper,False,False,False,False,False,False,False,False,False,None,2024-11-16 18:00:00
+Crysta Fischer,False,False,False,False,False,False,False,False,False,None,2024-11-16 18:00:00
+Davi Jo Louise Painter,False,False,False,False,False,False,False,False,False,None,2024-11-16 18:00:00
+Gina Thiel,False,False,False,False,False,False,False,False,False,None,2024-11-16 18:00:00
+Jace Cassidy,False,False,False,False,False,False,False,False,False,None,2024-11-16 18:00:00
+Kaylie Davidson,False,False,False,False,False,False,False,False,False,None,2024-11-16 18:00:00
+Kim Riding,False,False,False,False,False,False,False,False,False,None,2024-11-16 18:00:00
+Madison Thiel,False,False,False,False,False,False,False,False,False,None,2024-11-16 18:00:00
+Matt Johnson,False,False,False,False,False,False,False,False,False,None,2024-11-16 18:00:00
+Mike Storm,False,False,False,False,False,False,False,False,False,None,2024-11-16 18:00:00
+Teresa Anderson,False,False,False,False,False,False,False,False,False,None,2024-11-16 18:00:00

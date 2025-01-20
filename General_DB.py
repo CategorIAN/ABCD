@@ -5,12 +5,12 @@ import psycopg2
 import numpy as np
 from itertools import product
 from prettytable import PrettyTable
-
+from decouple import config
 
 class General_DB:
     def __init__(self):
         self.name = "General_DB"
-        self.keys = ["Email"]
+        self.keys = ["Name"]
         self.df = self.createDF()
         form_types = ["Keys", "Text", "LinScale", "MultChoice"]
         sql_types = ["VARCHAR(160) PRIMARY KEY", "VARCHAR(160)", "INT", "VARCHAR(160)"]
@@ -41,12 +41,6 @@ class General_DB:
             return self.q_map(question)
         else:
             return "{} [{}]".format(self.q_map(question), self.r_map(row.strip("]")))
-
-    def df_map(self, features, my_func):
-        def f(df):
-            transformColumn = lambda df_dict, column: df_dict | {column: [my_func(x) for x in df_dict[column]]}
-            return pd.DataFrame(reduce(transformColumn, features, df.to_dict('series')))
-        return f
 
     def save(self, df, file):
         df.to_csv("\\".join([os.getcwd(), self.name, "{}.csv".format(file)]))
@@ -236,6 +230,14 @@ class General_DB:
                 self.createGridJoinTables()]
         return reduce(lambda l, stmts: l + stmts, create_stmts, [])
 
+    def insertSubmission(self, name, timestamp):
+        def execute(cursor):
+            insert_stmt = f"""
+                INSERT INTO FORM_SUBMISSIONS(PERSON, FORM, TIMESTAMP) VALUES {(name, 'ABCD General Survey', timestamp)};
+                """
+            cursor.execute(insert_stmt)
+        return execute
+
     # =================================================================================================================
     def readText(self, name = None):
         df = self.typeDF("Text")
@@ -283,7 +285,22 @@ class General_DB:
 
     def readPersonalFile(self, name = None):
         fxns = [self.readText, self.readLinScale, self.readMultChoice, self.readCheckBox, self.readGrid]
-        return reduce(lambda scripts, fxn: scripts + fxn(name), fxns, [])
+        def execute(cursor):
+            commands = reduce(lambda scripts, fxn: scripts + fxn(name), fxns, [])
+            for command in commands:
+                print(10 * "=" + "Executing" + 10 * "=" + "\n" + command)
+                cursor.execute(command)
+                results = cursor.fetchall()
+                columns = [desc[0] for desc in cursor.description]
+                data = [{col: x for col, x in zip(columns, row)} for row in results]
+
+                if len(data) > 0:
+                    table = PrettyTable()
+                    table.field_names = data[0].keys()
+                    for entry in data:
+                        table.add_row(entry.values())
+                    print(table)
+        return execute
 
 # =================================================================================================================
     def updatePersonRow(self, name, in_db):
@@ -319,79 +336,64 @@ class General_DB:
             return delete_stmts + self.insertGridJoinTables([name])
         else:
             return self.insertGridJoinTables([name])
-# =================================================================================================================
-    def readSQL(self, commands):
-        try:
-            connection = psycopg2.connect(user = "postgres",
-                                          password = "WeAreGroot",
-                                          host = "database-1.cbeq26equftn.us-east-2.rds.amazonaws.com",
-                                          port = "5432",
-                                          database = "postgres")
-            cursor = connection.cursor()
-            for command in commands:
-                cursor.execute(command)
-                results = cursor.fetchall()
-                columns = [desc[0] for desc in cursor.description]
-                data = [{col: x for col, x in zip(columns, row)} for row in results]
 
-                if len(data) > 0:
-                    table = PrettyTable()
-                    table.field_names = data[0].keys()
-                    for entry in data:
-                        table.add_row(entry.values())
-                    print(table)
-                print(10 * "=" + "Executed" + 10 * "=" + "\n" + command)
-            connection.commit()
-
-        except psycopg2.Error as e:
-            print(e)
-        finally:
-            if connection:
-                cursor.close()
-                connection.close()
-                print("PostgreSQL connection is closed.")
-
-    def getDDL(self, commands):
-        try:
-            connection = psycopg2.connect(user = "postgres",
-                                          password = "WeAreGroot",
-                                          host = "database-1.cbeq26equftn.us-east-2.rds.amazonaws.com",
-                                          port = "5432",
-                                          database = "postgres")
-            cursor = connection.cursor()
-            for command in commands:
-                cursor.execute(command)
-                print(10 * "=" + "Executed" + 10 * "=" + "\n" + command)
-            connection.commit()
-
-        except psycopg2.Error as e:
-            print(e)
-        finally:
-            if connection:
-                cursor.close()
-                connection.close()
-                print("PostgreSQL connection is closed.")
-
-    def updateResults(self, month, day, year):
-        timestamp = self.hashTime("/".join([str(x) for x in [month, day, year]]) + " 0:00")
-        update_index = [i for i in self.df.index if self.hashTime(self.df.at[i, "Timestamp"]) >= timestamp]
-        names = list(self.df.loc[update_index, "Name"])
-        try:
-            connection = psycopg2.connect(user = "postgres",
-                                          password = "WeAreGroot",
-                                          host = "database-1.cbeq26equftn.us-east-2.rds.amazonaws.com",
-                                          port = "5432",
-                                          database = "postgres")
-            cursor = connection.cursor()
-            for name in names:
+    def updateData(self, month, day, year):
+        hashed_time = self.hashTime("/".join([str(x) for x in [month, day, year]]) + " 0:00")
+        update_index = [i for i in self.df.index if self.hashTime(self.df.at[i, "Timestamp"]) >= hashed_time]
+        def execute(cursor):
+            for i in update_index:
+                name, timestamp = self.df.loc[i, ["Name", "Timestamp"]]
+                self.insertSubmission(name, timestamp)(cursor)
                 cursor.execute(f"SELECT EXISTS (SELECT 1 FROM PERSON WHERE NAME = '{name}');")
                 in_db = cursor.fetchone()[0]
                 for update in [self.updatePersonRow, self.updatePersonCheckBox, self.updatePersonGrid]:
                     commands = update(name, in_db)
                     for command in commands:
+                        print(10 * "=" + "Executing" + 10 * "=" + "\n" + command)
                         cursor.execute(command)
-                        print(10 * "=" + "Executed" + 10 * "=" + "\n" + command)
+        return execute
+# =================================================================================================================
+    def find_null_bytes(self, cursor):
+        # Get the list of all tables
+        cursor.execute("SELECT tablename FROM pg_tables WHERE schemaname='public';")
+        tables = cursor.fetchall()
+
+        for table in tables:
+            table_name = table[0]
+            print(f"Checking table: {table_name}")
+
+            # Get the list of columns in the table
+            cursor.execute(f"SELECT column_name FROM information_schema.columns WHERE table_name='{table_name}';")
+            columns = cursor.fetchall()
+
+            for column in columns:
+                column_name = column[0]
+                try:
+                    # Check for null byte in this column
+                    query = f"SELECT * FROM {table_name} WHERE {column_name}::text ~ '[\\x00-\\x1F]';"
+                    cursor.execute(query)
+                    results = cursor.fetchall()
+
+                    if results:
+                        print(f"Null byte found in table '{table_name}', column '{column_name}':")
+                        for result in results:
+                            print(result)
+                except Exception as e:
+                    # Skip if there's an issue with the column (e.g., unsupported data type for LIKE)
+                    print(f"Error querying table '{table_name}', column '{column_name}': {e}")
+
+    def executeSQL(self, commands):
+        try:
+            connection = psycopg2.connect(user = config("DB_USER"),
+                                          password = config("DB_PASSWORD"),
+                                          host = config("DB_HOST"),
+                                          port = config("DB_PORT"),
+                                          database = config("DB_NAME"))
+            cursor = connection.cursor()
+            for command in commands:
+                command(cursor)
             connection.commit()
+
         except psycopg2.Error as e:
             print(e)
         finally:

@@ -1,47 +1,44 @@
 #==========My Classes===============================
-from General import General
-from GuestGame import GuestGame
-from EventAvailability import EventAvailability
-from MeetingAvailability import MeetingAvailability
+from EventPlanAvailability_DB import EventPlanAvailability_DB
+from FormManagement_DB import FormManagement_DB
 from General_DB import General_DB
+from Event_DB import Event_DB
 
+#~~~~~~~~~~~~~~~~In Web Application~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#============Easy========================================
+def addPerson():
+    E = Event_DB()
+    E.executeSQL([E.addPerson])
 
-def availabilityGG():
-    GG = GuestGame()
-    GG.availability("Hannah Harris", "23.02")
+def request():
+    F = FormManagement_DB()
+    F.executeSQL([F.request('ABCD General Survey')])
 
-def availabilityGeneral():
-    G = General()
-    for i in [1, 2, 3]:
-        G.gameAv(i)
-    for game in G.game_duration.keys():
-        G.newbAv(game)
+def invite():
+    E = Event_DB()
+    E.executeSQL([E.invite('2014-12-14', 7)])
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#=========Medium=========================================
+def call_list(id):
+    E = Event_DB()
+    E.executeSQL([E.createCallList(id), E.getCallList(id)])
 
-def availabilityEvent():
-    Av = EventAvailability()
-    Av.availability("24.06", 3)
+def meal_preference(id):
+    E = Event_DB()
+    E.executeSQL([E.createMealPreference(id)])
 
-def availabilityMeeting():
-    Av = MeetingAvailability()
-    Av.availability(1)
-
-def createPersonDB():
+def read_personal_file(name):
     G = General_DB()
-    G.executeSQL(G.createPersonTable())
+    G.executeSQL([G.readPersonalFile(name)])
 
-def createCheckBoxJoinTables():
+#=======Hard=============================================
+def update_general():
     G = General_DB()
-    G.executeSQL(G.createCheckBoxJoinTables())
+    G.executeSQL([G.updateData(12,6,2024)])
 
-def create():
-    G = General_DB()
-    G.getDDL(G.createPersonTable())
-    G.getDDL(G.createCheckBoxTables())
-    G.getDDL(G.createCheckBoxJoinTables())
-    G.getDDL(G.createGridColumnTables())
-    G.getDDL(G.createGridRowTables())
-    G.getDDL(G.createGridTables())
-    G.getDDL(G.createGridJoinTables())
+def update_epa():
+    E = EventPlanAvailability_DB()
+    E.executeSQL([E.updateData(12, 15, 2024)])
 
 if __name__ == '__main__':
     pass
