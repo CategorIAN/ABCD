@@ -17,7 +17,7 @@ class Form:
 
     def save(self, df, file):
         df.to_csv("\\".join([os.getcwd(), self.name, "{}.csv".format(file)]))
-
+    #=================================================================================================================
     def hashTime(self, s):
         f = lambda weights, s, sep: sum([w * int(t) for (w, t) in zip(weights, s.split(sep))])
         h = lambda l: 1000000 * f([100, 1, 10000], l[0], "/") + f([10000, 100, 1], l[1], ":")
@@ -83,7 +83,7 @@ class Form:
             df = self.df.loc[:, self.keys].sort_values(by=self.keys)
             self.save(df, "Keys")
         return df
-
+    #=================================================================================================================
     def concatKeys(self, df):
         key_df = self.df.loc[df.index, self.keys]
         return pd.concat([key_df, df], axis=1)
@@ -111,7 +111,7 @@ class Form:
     def createDict(self, keys, values = None):
         values = keys if values is None else values
         return dict(list(zip(keys, values)))
-
+    # =================================================================================================================
     def multchoice_dfs(self, source_df = None):
         full_df, active_df = (self.df, self.active_df) if source_df is None else (source_df, self.getActive_df(source_df))
         def f(my_dict):
@@ -179,7 +179,7 @@ class Form:
         gs = [self.multchoice_dfs, self.linscale_dfs, self.textans_dfs, self.checkbox_dfs, self.checkboxgrid_dfs]
         data = [self.multchoice, self.linscale, self.textans, self.checkbox, self.checkboxgrid]
         return reduce(lambda d1, d2: d1 | d2, [g(source_df)(x) for g, x in zip(gs, data)], {})
-
+    #=================================================================================================================
     def mergeDFs(self, dfs_1, dfs_2, df_names = None, save = False):
         df_names = dfs_1.keys() if df_names is None else df_names
         def merge(key):
@@ -196,6 +196,7 @@ class Form:
         df_dict = self.getFullDFDict(update_with)
         return self.mergeDFs(self.dfs, df_dict, save = True)
 
+    #=================================================================================================================
     def nextMap(self, times):
         def go(map, current, remaining):
             if len(remaining) == 0:
@@ -217,7 +218,7 @@ class Form:
             day_hours = ["{} [{}]".format(day, hr) for hr in cont_hours([hour], hour, duration - 1)]
             return df.index.map(lambda i: df.loc[i, day_hours].product())
         return f
-
+    #=================================================================================================================
 
 
 
