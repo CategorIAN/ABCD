@@ -40,8 +40,12 @@ def update_epa():
     E = EventPlanAvailability_DB()
     E.executeSQL([E.updateData(12, 15, 2024)])
 
+def delete_person(name):
+    G = General_DB()
+    G.executeSQL([G.deletePerson(name)])
+
 if __name__ == '__main__':
-    pass
+    delete_person('Morgan Thiel')
 
 
 

@@ -81,6 +81,14 @@ class General_DB:
         form_columns = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "Questions.csv"]))
         type_columns = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "{}.csv".format(form_type)]))
         return pd.merge(form_columns, type_columns, how="inner", left_on="ID", right_on="QID")
+    
+    def gridDF(self):
+        questions = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "Questions.csv"]))
+        grid_columns = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "GridColumn.csv"]))
+        grid_rows = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "GridRow.csv"]))
+        append_df = lambda left_df, right_df: left_df.merge(right_df, how="inner", left_on="ID", right_on="QID")
+        df = append_df(append_df(questions, grid_columns), grid_rows)
+        return df
 
     def getTypeNames(self, form_type, with_sql_type = False):
         '''
@@ -303,6 +311,8 @@ class General_DB:
         return execute
 
 # =================================================================================================================
+
+
     def updatePersonRow(self, name, in_db):
         if in_db:
             db_dict = self.getDBDict(with_sql_type=False)
@@ -351,6 +361,20 @@ class General_DB:
                     for command in commands:
                         print(10 * "=" + "Executing" + 10 * "=" + "\n" + command)
                         cursor.execute(command)
+        return execute
+    
+    def deletePerson(self, name):
+        def execute(cursor):
+            invite_delete = f"DELETE FROM INVITATION WHERE PERSON = '{name}';"
+            form_requests_delete = f"DELETE FROM FORM_REQUESTS WHERE PERSON = '{name}';"
+            form_submission_delete = f"DELETE FROM FORM_SUBMISSIONS WHERE PERSON = '{name}';"
+            person_delete = f"DELETE FROM PERSON WHERE NAME = '{name}';"
+            delete_stmts = [invite_delete, form_requests_delete, form_submission_delete, person_delete]
+            for command in delete_stmts:
+                print(10 * "=" + "Executing" + 10 * "=" + "\n" + command + "\n" + 10 * "=" + "\n")
+                commit = input("Are you sure you want to execute this statement?")
+                if commit == "y":
+                    cursor.execute(command)
         return execute
 # =================================================================================================================
     def find_null_bytes(self, cursor):
