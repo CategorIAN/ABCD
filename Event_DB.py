@@ -133,7 +133,7 @@ class Event_DB:
             Left Outer Join Person_Due on Person.name = Person_Due.name
             Where (Redeem or (EventDue and InviteDue)) and 
                    Person.Name != 'Ian Kessler' and Status = 'Active' and
-                  (TIMESTAMP is NULL OR (GamesID = '{game}' and TimeSpan = '{timespan}'))
+                  (NOT CompletedSurvey OR (GamesID = '{game}' and TimeSpan = '{timespan}'))
             Order By Redeem Desc, New Desc, CompletedSurvey Desc, ExpectedAttendance, ExpectedInvite, Person.Name;
             """
             cursor.execute(create_stmt)

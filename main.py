@@ -45,7 +45,7 @@ def delete_person(name):
     G.executeSQL([G.deletePerson(name)])
 
 if __name__ == '__main__':
-    update_general()
+    call_list(8)
 
 
 
