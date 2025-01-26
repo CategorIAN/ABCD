@@ -368,13 +368,13 @@ class General_DB:
             invite_delete = f"DELETE FROM INVITATION WHERE PERSON = '{name}';"
             form_requests_delete = f"DELETE FROM FORM_REQUESTS WHERE PERSON = '{name}';"
             form_submission_delete = f"DELETE FROM FORM_SUBMISSIONS WHERE PERSON = '{name}';"
+            eventplan_availability_delete = f"DELETE FROM PERSON_EVENTPLAN_AVAILABILITY WHERE PERSONID = '{name}';"
             person_delete = f"DELETE FROM PERSON WHERE NAME = '{name}';"
-            delete_stmts = [invite_delete, form_requests_delete, form_submission_delete, person_delete]
+            delete_stmts = [invite_delete, form_requests_delete, form_submission_delete,
+                            eventplan_availability_delete, person_delete]
             for command in delete_stmts:
                 print(10 * "=" + "Executing" + 10 * "=" + "\n" + command + "\n" + 10 * "=" + "\n")
-                commit = input("Are you sure you want to execute this statement?")
-                if commit == "y":
-                    cursor.execute(command)
+                cursor.execute(command)
         return execute
 # =================================================================================================================
     def find_null_bytes(self, cursor):
