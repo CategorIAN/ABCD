@@ -23,6 +23,10 @@ def call_list(id):
     E = Event_DB()
     E.executeSQL([E.createCallList(id), E.getCallList(id)])
 
+def call_list_csv(id):
+    E = Event_DB()
+    E.executeSQL([E.getCallList(id)])
+
 def meal_preference(id):
     E = Event_DB()
     E.executeSQL([E.createMealPreference(id)])
@@ -34,7 +38,7 @@ def read_personal_file(name):
 #=======Hard=============================================
 def update_general():
     G = General_DB()
-    G.executeSQL([G.updateData(1,20,2025)])
+    G.executeSQL([G.updateData(2, 18,2025)])
 
 def update_epa():
     E = EventPlanAvailability_DB()
@@ -45,7 +49,7 @@ def delete_person(name):
     G.executeSQL([G.deletePerson(name)])
 
 if __name__ == '__main__':
-    call_list(8)
+    call_list_csv(11)
 
 
 
