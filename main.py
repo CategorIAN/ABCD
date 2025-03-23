@@ -38,7 +38,7 @@ def read_personal_file(name):
 #=======Hard=============================================
 def update_general():
     G = General_DB()
-    G.executeSQL([G.updateData(3, 2,2025)])
+    G.executeSQL([G.updateData(3, 9,2025)])
 
 def update_epa():
     E = EventPlanAvailability_DB()
@@ -49,7 +49,7 @@ def delete_person(name):
     G.executeSQL([G.deletePerson(name)])
 
 if __name__ == '__main__':
-    call_list(12)
+    call_list(13)
 
 
 

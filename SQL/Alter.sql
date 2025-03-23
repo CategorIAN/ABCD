@@ -18,3 +18,15 @@ add column week int;
 
 alter table person
 drop column timestamp;
+
+update person
+SET Name = 'Shay Williams'
+where name = 'Shay Sodexo';
+
+ALTER TABLE FORM_REQUESTS DROP CONSTRAINT form_requests_person_fkey;
+
+ALTER TABLE FORM_REQUESTS
+ADD CONSTRAINT form_requests_person_fkey
+FOREIGN KEY (person)
+REFERENCES person(name)
+ON UPDATE CASCADE;
