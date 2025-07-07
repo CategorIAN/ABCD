@@ -1,0 +1,10 @@
+name,Invited,Going,Plus One,Waiting,Decline,Flaked,redeem,submitted,expectedattendance,expectedinvite
+Patrick Harris,False,False,False,False,False,False,False,True,2025-06-21 18:00:00,2025-06-14 00:00:00
+Erin Varner,False,False,False,False,False,False,False,True,2025-06-28 18:00:00,2025-07-05 00:00:00
+Jeff Salan,False,False,False,False,False,False,False,True,2025-06-28 18:00:00,2025-07-05 00:00:00
+Nick Dickinson,False,False,False,False,False,False,False,False,2025-07-12 18:00:00,2025-07-05 00:00:00
+Rosie Walsh,False,False,False,False,False,False,False,False,2025-07-12 18:00:00,2025-07-05 00:00:00
+Jonathyn Jannot,False,False,False,False,False,False,False,False,None,2025-06-14 00:00:00
+Casey Pinckney,False,False,False,False,False,False,False,False,None,2025-07-05 00:00:00
+Matt Amble,False,False,False,False,False,False,False,False,None,2025-07-05 00:00:00
+Megan Michelotti,False,False,False,False,False,False,False,False,None,2025-07-05 00:00:00
