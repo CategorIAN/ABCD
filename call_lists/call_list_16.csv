@@ -1,0 +1,55 @@
+name,Invited,Going,Plus One,Waiting,Declined,Flaked,redeem,new,completedsurvey,expectedattendance,expectedinvite
+Matt Amble,False,False,False,False,False,False,False,True,True,None,None
+Megan Michelotti,False,False,False,False,False,False,False,True,True,None,None
+Nick Dickinson,False,False,False,False,False,False,False,True,True,None,None
+Deidre Casey,False,False,False,False,False,False,False,True,False,None,None
+Jack Holy,False,False,False,False,False,False,False,True,False,None,None
+John Appleby,False,False,False,False,False,False,False,True,False,None,None
+Marissa Tenter,False,False,False,False,False,False,False,True,False,None,None
+Valerie Wagner,False,False,False,False,False,False,False,True,False,None,None
+Erin Varner,False,False,False,False,False,False,False,False,True,2025-06-28 18:00:00,2025-06-21 00:00:00
+Jeff Salan,False,False,False,False,False,False,False,False,True,2025-06-28 18:00:00,2025-06-21 00:00:00
+Misti Nettleton,False,False,False,False,False,False,False,False,True,2025-06-28 18:00:00,2025-06-21 00:00:00
+Rosie Walsh,False,False,False,False,False,False,False,False,True,2025-06-28 18:00:00,2025-06-21 00:00:00
+Casey Pinckney,False,False,False,False,False,False,False,False,True,None,2025-06-21 00:00:00
+Cateland Abernethy,False,False,False,False,False,False,False,False,True,None,2025-06-21 00:00:00
+CJ Moll,False,False,False,False,False,False,False,False,True,None,2025-06-21 00:00:00
+Dayna Ford,False,False,False,False,False,False,False,False,True,None,2025-06-21 00:00:00
+Erik Rose,False,False,False,False,False,False,False,False,True,None,2025-06-21 00:00:00
+Jodi Fasteen,False,False,False,False,False,False,False,False,True,None,2025-06-21 00:00:00
+Julia Malmo,False,False,False,False,False,False,False,False,True,None,2025-06-21 00:00:00
+Marisa Mailand,False,False,False,False,False,False,False,False,True,None,2025-06-21 00:00:00
+Nick Petrusha,False,False,False,False,False,False,False,False,True,None,2025-06-21 00:00:00
+Rachel Martin,False,False,False,False,False,False,False,False,False,2025-06-21 18:00:00,2025-06-21 00:00:00
+Shannon Montgomery,False,False,False,False,False,False,False,False,False,2025-06-21 18:00:00,2025-06-21 00:00:00
+Vishnu Carroll,False,False,False,False,False,False,False,False,False,2025-06-28 18:00:00,2025-06-21 00:00:00
+Dustin Rinker,False,False,False,False,False,False,False,False,False,None,2025-03-29 00:00:00
+Sydney Mammano,False,False,False,False,False,False,False,False,False,None,2025-03-29 00:00:00
+Jeremy Johnson,False,False,False,False,False,False,False,False,False,None,2025-06-14 00:00:00
+Amy Honchell,False,False,False,False,False,False,False,False,False,None,2025-06-21 00:00:00
+Andrea Cross Guns,False,False,False,False,False,False,False,False,False,None,2025-06-21 00:00:00
+Annette Farley,False,False,False,False,False,False,False,False,False,None,2025-06-21 00:00:00
+Annette Walstad,False,False,False,False,False,False,False,False,False,None,2025-06-21 00:00:00
+Austin Feuerstein,False,False,False,False,False,False,False,False,False,None,2025-06-21 00:00:00
+Ben Tollakson,False,False,False,False,False,False,False,False,False,None,2025-06-21 00:00:00
+Brenna VanPaepeghem,False,False,False,False,False,False,False,False,False,None,2025-06-21 00:00:00
+Caleb Feuerstein,False,False,False,False,False,False,False,False,False,None,2025-06-21 00:00:00
+Cam Ferguson,False,False,False,False,False,False,False,False,False,None,2025-06-21 00:00:00
+Derek Flinders,False,False,False,False,False,False,False,False,False,None,2025-06-21 00:00:00
+Dillon Monday,False,False,False,False,False,False,False,False,False,None,2025-06-21 00:00:00
+Ethan Hoffman,False,False,False,False,False,False,False,False,False,None,2025-06-21 00:00:00
+Frank Pope,False,False,False,False,False,False,False,False,False,None,2025-06-21 00:00:00
+Jena Triplet,False,False,False,False,False,False,False,False,False,None,2025-06-21 00:00:00
+Joe Michaud,False,False,False,False,False,False,False,False,False,None,2025-06-21 00:00:00
+Joey Klein,False,False,False,False,False,False,False,False,False,None,2025-06-21 00:00:00
+Jon Ring,False,False,False,False,False,False,False,False,False,None,2025-06-21 00:00:00
+Joshua Barbagello,False,False,False,False,False,False,False,False,False,None,2025-06-21 00:00:00
+Katie Neuhaus,False,False,False,False,False,False,False,False,False,None,2025-06-21 00:00:00
+Krista Meagher,False,False,False,False,False,False,False,False,False,None,2025-06-21 00:00:00
+Laurie Rodriguez,False,False,False,False,False,False,False,False,False,None,2025-06-21 00:00:00
+Nick Vasquez,False,False,False,False,False,False,False,False,False,None,2025-06-21 00:00:00
+Patrick Schmidt,False,False,False,False,False,False,False,False,False,None,2025-06-21 00:00:00
+Rex Potter,False,False,False,False,False,False,False,False,False,None,2025-06-21 00:00:00
+Travis Almquist,False,False,False,False,False,False,False,False,False,None,2025-06-21 00:00:00
+Zach Middleton,False,False,False,False,False,False,False,False,False,None,2025-06-21 00:00:00
+Zack Eckerdt,False,False,False,False,False,False,False,False,False,None,2025-06-21 00:00:00

@@ -4,3 +4,6 @@ Insert Into Person (Name, Status) Values
 
 ALTER TABLE person
 DROP COLUMN timestamp;
+
+
+DELETE FROM PERSON WHERE NAME = 'Crysta Fischer'

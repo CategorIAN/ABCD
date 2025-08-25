@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="dataSourceStorageLocal" created-in="PY-242.23726.102">
-    <data-source name="postgres@database-1.cbeq26equftn.us-east-2.rds.amazonaws.com" uuid="38e66bc2-b943-40be-b123-8a40dfee2456">
-      <database-info product="PostgreSQL" version="16.2" jdbc-version="4.2" driver-name="PostgreSQL JDBC Driver" driver-version="42.6.0" dbms="POSTGRES" exact-version="16.2" exact-driver-version="42.6">
+    <data-source name="postgres@abcd.cbeq26equftn.us-east-2.rds.amazonaws.com" uuid="38e66bc2-b943-40be-b123-8a40dfee2456">
+      <database-info product="PostgreSQL" version="16.8" jdbc-version="4.2" driver-name="PostgreSQL JDBC Driver" driver-version="42.7.3" dbms="POSTGRES" exact-version="16.8" exact-driver-version="42.7">
         <identifier-quote-string>&quot;</identifier-quote-string>
       </database-info>
       <case-sensitivity plain-identifiers="lower" quoted-identifiers="exact" />
