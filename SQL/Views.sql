@@ -7,7 +7,8 @@ CREATE VIEW Person_CompletedSurvey AS
 
 CREATE VIEW Person_CompletedEPA as
     Select person.name as Name, event_plan.name as eventplanid, exists (select 1 from person_eventplan_availability
-                                                where personid = person.name and eventplanid = eventplanid) as submitted_epa
+                    where personid = person.name and
+                          person_eventplan_availability.eventplanid = event_plan.name) as submitted_epa
     from person cross join event_plan;
 
 CREATE VIEW Person_LatestInvite AS

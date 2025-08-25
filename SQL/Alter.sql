@@ -18,3 +18,8 @@ add column week int;
 
 alter table person
 drop column timestamp;
+
+update invitation
+set timestamp = '2024-12-14 00:00:00.000000'
+where timestamp = '2014-12-14 00:00:00.000000'
+
