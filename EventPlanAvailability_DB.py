@@ -81,17 +81,59 @@ class EventPlanAvailability_DB:
 
     def createPersonEventplanTimespanCount(self, cursor):
         create_stmt = """
-            CREATE VIEW Person_Eventplan_Timespan_Count AS
-            SELECT EVENTPLANID, WEEK, PERSON_EVENTPLAN_TIMESPAN.TIMESPAN, 
-            COUNT(*) AS PRIMARY_COUNT, NUMBERAVAILABLE AS SECONDARY_COUNT
-            FROM Person_Eventplan_Timespan
-            JOIN event_plan
-            on person_eventplan_timespan.eventplanid = event_plan.name
-            JOIN timespan_gamecount
-            on person_eventplan_timespan.timespan = timespan_gamecount.timespan 
-            and event_plan.game = timespan_gamecount.gamesid
-            GROUP BY EVENTPLANID, WEEK, PERSON_EVENTPLAN_TIMESPAN.TIMESPAN, numberavailable
-            ORDER BY PRIMARY_COUNT DESC, SECONDARY_COUNT DESC, week
+        CREATE VIEW Person_Eventplan_Timespan_Count AS
+        SELECT EVENT_PLAN,
+        WEEK,
+        TIMESPAN,
+        SUM(CASE WHEN AVAILABILITY_TYPE = 'Primary' THEN 1 ELSE 0 END) AS PRIMARY_COUNT,
+        SUM(CASE WHEN AVAILABILITY_TYPE = 'Secondary' THEN 1 ELSE 0 END) AS SECONDARY_COUNT
+        FROM (
+        --(Begin 1)-------------------------------------------------------------------------------------------------------------
+        SELECT DISTINCT EVENT_PLAN.NAME             AS EVENT_PLAN,
+        WEEKS.ID                    AS WEEK,
+        TIMESPAN.NAME               AS TIMESPAN,
+        PEOPLE_FOR_EVENTPLAN.PERSON AS PERSON,
+        AVAILABILITY_TYPE
+        FROM EVENT_PLAN
+        CROSS JOIN (VALUES (1), (2), (3), (4)) AS WEEKS(ID)
+        JOIN TIMESPAN_DURATION AS TIMESPAN ON EVENT_PLAN.DURATION = TIMESPAN.DURATION
+        LEFT JOIN (SELECT PERSONID      AS PERSON,
+        'Primary'     AS AVAILABILITY_TYPE,
+        EVENTPLANID   AS EVENTPLAN,
+        WEEK,
+        TIMESPAN,
+        NULL::VARCHAR AS GAME
+        FROM PERSON_EVENTPLAN_TIMESPAN
+        UNION ALL
+        SELECT PERSON_TIMESPAN.PERSONID AS PERSON,
+        'Secondary'              AS AVAILABILITY_TYPE,
+        NULL::VARCHAR            AS EVENTPLAN,
+        NULL::INT                AS WEEK,
+        TIMESPAN,
+        GAMESID                  AS GAME
+        FROM PERSON_TIMESPAN
+        JOIN PERSON_GAMES ON PERSON_TIMESPAN.PERSONID = PERSON_GAMES.PERSONID
+        ) AS PEOPLE_FOR_EVENTPLAN
+        ON
+        (
+        AVAILABILITY_TYPE = 'Primary'
+            AND EVENTPLAN = EVENT_PLAN.name
+            AND WEEK = WEEKS.ID
+            AND TIMESPAN = TIMESPAN.NAME
+        ) OR
+        (
+        AVAILABILITY_TYPE = 'Secondary'
+            AND TIMESPAN = TIMESPAN.name
+            AND PEOPLE_FOR_EVENTPLAN.GAME = EVENT_PLAN.GAME
+            AND NOT EXISTS (SELECT 1
+                            FROM PERSON_EVENTPLAN_AVAILABILITY AS PEPA
+                            WHERE PEOPLE_FOR_EVENTPLAN.PERSON = PEPA.PERSONID
+                            AND PEPA.EVENTPLANID = EVENT_PLAN.NAME)
+        )
+        WHERE PERSON != 'Ian Kessler'
+        --(End 1)---------------------------------------------------------------------------------------------------------------
+        ) AS X
+        GROUP BY EVENT_PLAN, WEEK, TIMESPAN
         """
         cursor.execute(create_stmt)
 
