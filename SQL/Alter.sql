@@ -19,6 +19,12 @@ add column week int;
 alter table person
 drop column timestamp;
 
+<<<<<<< HEAD
+update invitation
+set timestamp = '2024-12-14 00:00:00.000000'
+where timestamp = '2014-12-14 00:00:00.000000'
+
+=======
 update person
 SET Name = 'Shay Williams'
 where name = 'Shay Sodexo';
@@ -36,3 +42,4 @@ ALTER COLUMN FREQUENCY SET DEFAULT 0;
 
 UPDATE person
 SET FREQUENCY = 0;
+>>>>>>> d425cc560fc7bcbd75e9e81c7c54a7086b978915

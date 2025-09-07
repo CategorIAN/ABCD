@@ -33,3 +33,6 @@ Thumbs.db
 *.tmp
 *.swp
 *.~*
+
+Raw Data/
+call_lists/
