@@ -42,11 +42,11 @@ def read_personal_file(name):
 #=======Hard=============================================
 def update_general():
     G = General_DB()
-    G.executeSQL([G.updateData(8, 19,2025)])
+    G.executeSQL([G.updateData(9, 23,2025)])
 
 def update_epa():
     E = EventPlanAvailability_DB()
-    E.executeSQL([E.updateData(8, 18, 2025)])
+    E.executeSQL([E.updateData(9, 13, 2025)])
 
 def delete_person(name):
     G = General_DB()
@@ -57,8 +57,7 @@ def addTimeSpan(duration):
     E.executeSQL([E.insertTimeSpanRows(duration)])
 
 if __name__ == '__main__':
-    E = EventPlanAvailability_DB()
-    E.executeSQL([E.createPersonEventplanTimespanCount])
+    delete_person("Deidre Casey")
 
 
 

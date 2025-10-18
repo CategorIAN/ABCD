@@ -124,17 +124,29 @@ class Event_DB:
             game, timespan = tuple(df[['game', 'timespan']].iloc[0])
             create_stmt = f"""
             CREATE VIEW Call_List_{event_id} AS
-            Select Person.Name, Redeem, New, CompletedSurvey, ExpectedAttendance, ExpectedInvite
-            FROM Person Left Outer Join Person_Games on Person.Name = Person_Games.PersonID
+            Select Person.Name, 
+                    Redeem, 
+                    New, 
+                    CompletedSurvey, 
+                    ExpectedAttendance, 
+                    ExpectedInvite
+            FROM Person 
+            Left Outer Join Person_Games on Person.Name = Person_Games.PersonID
             Left Outer Join Person_Timespan on Person.name = Person_Timespan.personid
             Left Outer Join Person_Redeem on Person.name = Person_Redeem.name
             Left Outer Join Person_CompletedSurvey on Person.name = Person_CompletedSurvey.Name
             Left Outer Join Person_Expected on Person.name = Person_Expected.Name
             Left Outer Join Person_Due on Person.name = Person_Due.name
-            Where (Redeem or (EventDue and InviteDue)) and 
-                   Person.Name != 'Ian Kessler' and Status = 'Active' and
-                  (TIMESTAMP is NULL OR (GamesID = '{game}' and TimeSpan = '{timespan}'))
-            Order By Redeem Desc, New Desc, CompletedSurvey Desc, ExpectedAttendance, ExpectedInvite, Person.Name;
+            Where (Redeem or (EventDue and InviteDue)) 
+            and Person.Name != 'Ian Kessler' 
+            and Status = 'Active'
+            AND (NOT PERSON_COMPLETEDSURVEY.completedsurvey
+             OR (GamesID = '{game}' and TimeSpan = '{timespan}'))
+            Order By Redeem Desc, 
+                  New Desc, CompletedSurvey Desc, 
+                  ExpectedAttendance, 
+                  ExpectedInvite, 
+                  Person.Name;
             """
             cursor.execute(create_stmt)
         return execute
@@ -200,8 +212,11 @@ class Event_DB:
                 FROM PERSON_TimeSpan JOIN Person_Games on Person_Timespan.personid = Person_Games.personid
                                      JOIN Timespan_Duration on Person_Timespan.timespan = Timespan_Duration.name
                                      JOIN Person_Numberplayed on Person_Timespan.personid = Person_Numberplayed.name
-                WHERE Person_Games.gamesid = '{game}' and Timespan_Duration.duration = '{duration}' and
-                {"Person_Numberplayed.numberplayed = '0'" if newb else "True"} 
+                                     JOIN PERSON ON PERSON_TIMESPAN.PERSONID = PERSON.NAME
+                WHERE Person_Games.gamesid = '{game}' 
+                        and Timespan_Duration.duration = '{duration}'
+                        and {"Person_Numberplayed.numberplayed = '0'" if newb else "True"} 
+                        and PERSON.STATUS = 'Active'
                 Group By Person_Timespan.Timespan Order By NumberAvailable Desc;
             """
             cursor.execute(create_stmt)
