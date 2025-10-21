@@ -17,6 +17,10 @@ def request():
 def invite():
     E = Event_DB()
     E.executeSQL([E.invite('2014-12-14', 7)])
+
+def delete_person(name):
+    G = General_DB()
+    G.executeSQL([G.deletePerson(name)])
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #=========Medium=========================================
 def call_list(id):
@@ -48,9 +52,7 @@ def update_epa():
     E = EventPlanAvailability_DB()
     E.executeSQL([E.updateData(9, 13, 2025)])
 
-def delete_person(name):
-    G = General_DB()
-    G.executeSQL([G.deletePerson(name)])
+
 
 def addTimeSpan(duration):
     E = Event_DB()
