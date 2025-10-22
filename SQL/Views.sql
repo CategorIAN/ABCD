@@ -1,5 +1,3 @@
-
-
 CREATE VIEW Person_CompletedSurvey AS
     Select Name, EXISTS (SELECT 1
                          FROM form_submissions where person = Name and form = 'ABCD General Survey') as CompletedSurvey

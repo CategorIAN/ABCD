@@ -145,22 +145,6 @@ class Event_DB:
         """
         cursor.execute(create_stmt)
 
-    def invite(self, timestamp, event_id):
-        def execute(cursor):
-            columns = ["Person", "Response", "Plus_Ones", "Result"]
-            values = []
-            for column in columns:
-                value = input(f"{column}: ")
-                values.append(value)
-            invite_stmt = (f"Insert INTO Invitation (Timestamp, Event, Person, Response, Plus_Ones, Result) VALUES "
-                    f"{(timestamp, event_id) + tuple(values)};".replace("''", "NULL"))
-            cursor.execute(invite_stmt)
-        return execute
-
-    def addPerson(self, cursor):
-        name = input("Name: ")
-        stmt = f"Insert INTO Person (Name, Status) Values ('{name}', 'Active');"
-        cursor.execute(stmt)
 
     def executeSQL(self, commands):
         try:

@@ -2,9 +2,7 @@ import os
 import pandas as pd
 from functools import reduce
 import psycopg2
-import numpy as np
 from itertools import product
-from prettytable import PrettyTable
 from decouple import config
 
 class General_DB:
@@ -238,81 +236,8 @@ class General_DB:
                 self.createGridJoinTables()]
         return reduce(lambda l, stmts: l + stmts, create_stmts, [])
 
-    def insertSubmission(self, name, timestamp):
-        def execute(cursor):
-            insert_stmt = f"""
-                INSERT INTO FORM_SUBMISSIONS(PERSON, FORM, TIMESTAMP) VALUES {(name, 'ABCD General Survey', timestamp)};
-                """
-            cursor.execute(insert_stmt)
-        return execute
-
-    # =================================================================================================================
-    def readText(self, name = None):
-        df = self.typeDF("Text")
-        cols = ", ".join(list(["Name"] + list(set(df["Name"]))))
-        filter = f"WHERE Name LIKE '%{name}%'" if name is not None else ""
-        return [f"SELECT {cols} FROM PERSON " + filter + ";"]
-
-    def readLinScale(self, name = None):
-        df = self.typeDF("LinScale")
-        cols = ", ".join(list(["Name"] + list(set(df["Name"]))))
-        filter = f"WHERE Name LIKE '%{name}%'" if name is not None else ""
-        return [f"SELECT {cols} FROM PERSON " + filter + ";"]
-
-    def readMultChoice(self, name = None):
-        df = self.typeDF("MultChoice")
-        cols = ", ".join(list(["Name"] + list(set(df["Name"]))))
-        filter = f"WHERE Name LIKE '%{name}%'" if name is not None else ""
-        return [f"SELECT {cols} FROM PERSON " + filter + ";"]
-
-    def readCheckBox(self, name = None):
-        df = self.typeDF("CheckBox")
-        q_df = lambda qid: df[df["ID"] == qid].reindex()
-        q_name = lambda qid: q_df(qid)["Name"].iat[0]
-        filter = f"WHERE Name LIKE '%{name}%'" if name is not None else ""
-        values = lambda qid: (f"SELECT NAME, {q_name(qid)}ID FROM PERSON INNER JOIN PERSON_{q_name(qid)} "
-                              f"ON PERSON.NAME = PERSON_{q_name(qid)}.PERSONID ")
-        return [values(qid) + filter + ";" for qid in set(df.ID)]
-
-    def readGrid(self, name = None):
-        questions = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "Questions.csv"]))
-        grid_columns = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "GridColumn.csv"]))
-        grid_rows = pd.read_csv("\\".join([os.getcwd(), self.name, "metadata", "GridRow.csv"]))
-        append_df = lambda left_df, right_df: left_df.merge(right_df, how="inner", left_on="ID", right_on="QID")
-        df = append_df(append_df(questions, grid_columns), grid_rows)
-        q_df = lambda qid: df[df["ID"] == qid].reindex()
-        q_name = lambda qid: q_df(qid)["Name"].iat[0]
-        filter = f"WHERE Name LIKE '%{name}%'" if name is not None else ""
-        order_by = lambda qid: f"ORDER BY {q_name(qid)}ID ASC"
-        values = lambda qid: (f"SELECT NAME, COLUMNNAME, ROWNAME FROM PERSON INNER JOIN PERSON_{q_name(qid)} "
-                              f"ON PERSON.NAME = PERSON_{q_name(qid)}.PERSONID INNER JOIN {q_name(qid)} "
-                              f"ON PERSON_{q_name(qid)}.{q_name(qid)}ID = {q_name(qid)}.ID INNER JOIN "
-                              f"{q_name(qid)}_COLUMN ON {q_name(qid)}.COLUMNID = {q_name(qid)}_COLUMN.COLUMNID INNER JOIN "
-                              f"{q_name(qid)}_ROW ON {q_name(qid)}.ROWID = {q_name(qid)}_ROW.ROWID")
-        return [" ".join([values(qid), filter, order_by(qid), ";"]) for qid in set(df.ID)]
-
-    def readPersonalFile(self, name = None):
-        fxns = [self.readText, self.readLinScale, self.readMultChoice, self.readCheckBox, self.readGrid]
-        def execute(cursor):
-            commands = reduce(lambda scripts, fxn: scripts + fxn(name), fxns, [])
-            for command in commands:
-                print(10 * "=" + "Executing" + 10 * "=" + "\n" + command)
-                cursor.execute(command)
-                results = cursor.fetchall()
-                columns = [desc[0] for desc in cursor.description]
-                data = [{col: x for col, x in zip(columns, row)} for row in results]
-
-                if len(data) > 0:
-                    table = PrettyTable()
-                    table.field_names = data[0].keys()
-                    for entry in data:
-                        table.add_row(entry.values())
-                    print(table)
-        return execute
 
 # =================================================================================================================
-
-
     def updatePersonRow(self, name, in_db):
         if in_db:
             db_dict = self.getDBDict(with_sql_type=False)
@@ -347,6 +272,19 @@ class General_DB:
         else:
             return self.insertGridJoinTables([name])
 
+    def insertSubmission(self, name, timestamp):
+        '''
+        :param name:
+        :param timestamp:
+        Used to updating form submissions.
+        '''
+        def execute(cursor):
+            insert_stmt = f"""
+                INSERT INTO FORM_SUBMISSIONS(PERSON, FORM, TIMESTAMP) VALUES {(name, 'ABCD General Survey', timestamp)};
+                """
+            cursor.execute(insert_stmt)
+        return execute
+
     def updateData(self, month, day, year):
         hashed_time = self.hashTime("/".join([str(x) for x in [month, day, year]]) + " 0:00")
         update_index = [i for i in self.df.index if self.hashTime(self.df.at[i, "Timestamp"]) >= hashed_time]
@@ -362,49 +300,6 @@ class General_DB:
                         print(10 * "=" + "Executing" + 10 * "=" + "\n" + command)
                         cursor.execute(command)
         return execute
-    
-    def deletePerson(self, name):
-        def execute(cursor):
-            invite_delete = f"DELETE FROM INVITATION WHERE PERSON = '{name}';"
-            form_requests_delete = f"DELETE FROM FORM_REQUESTS WHERE PERSON = '{name}';"
-            form_submission_delete = f"DELETE FROM FORM_SUBMISSIONS WHERE PERSON = '{name}';"
-            eventplan_availability_delete = f"DELETE FROM PERSON_EVENTPLAN_AVAILABILITY WHERE PERSONID = '{name}';"
-            person_delete = f"DELETE FROM PERSON WHERE NAME = '{name}';"
-            delete_stmts = [invite_delete, form_requests_delete, form_submission_delete,
-                            eventplan_availability_delete, person_delete]
-            for command in delete_stmts:
-                print(10 * "=" + "Executing" + 10 * "=" + "\n" + command + "\n" + 10 * "=" + "\n")
-                cursor.execute(command)
-        return execute
-# =================================================================================================================
-    def find_null_bytes(self, cursor):
-        # Get the list of all tables
-        cursor.execute("SELECT tablename FROM pg_tables WHERE schemaname='public';")
-        tables = cursor.fetchall()
-
-        for table in tables:
-            table_name = table[0]
-            print(f"Checking table: {table_name}")
-
-            # Get the list of columns in the table
-            cursor.execute(f"SELECT column_name FROM information_schema.columns WHERE table_name='{table_name}';")
-            columns = cursor.fetchall()
-
-            for column in columns:
-                column_name = column[0]
-                try:
-                    # Check for null byte in this column
-                    query = f"SELECT * FROM {table_name} WHERE {column_name}::text ~ '[\\x00-\\x1F]';"
-                    cursor.execute(query)
-                    results = cursor.fetchall()
-
-                    if results:
-                        print(f"Null byte found in table '{table_name}', column '{column_name}':")
-                        for result in results:
-                            print(result)
-                except Exception as e:
-                    # Skip if there's an issue with the column (e.g., unsupported data type for LIKE)
-                    print(f"Error querying table '{table_name}', column '{column_name}': {e}")
 
     def executeSQL(self, commands):
         try:
