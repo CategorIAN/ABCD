@@ -74,21 +74,6 @@ class Event_DB:
                 cursor.execute(stmt)
         return f
 
-    def createPersonTimespan(self, cursor):
-        create_stmt = """
-            CREATE VIEW Person_Timespan AS
-            Select PersonID, Timespan
-            From Person_Availability Join Availability_Timespan on
-                Person_Availability.availabilityid = Availability_Timespan.availabilityid
-            Group By  Availability_Timespan.timespan, Person_Availability.personid
-            Having COUNT(Distinct Availability_Timespan.availabilityid) = (
-                SELECT COUNT(*)
-                FROM Availability_Timespan as Availability_Timespan_inner
-                WHERE Availability_Timespan_Inner.timespan = Availability_Timespan.timespan
-                );
-        """
-        cursor.execute(create_stmt)
-
     def createPersonRedeem(self, cursor):
         create_stmt = """
             CREATE View Person_Redeem AS
@@ -98,53 +83,6 @@ class Event_DB:
             ) as Redeem From Person
         """
         cursor.execute(create_stmt)
-
-    def createPersonNumberPlayed(self, cursor):
-        create_stmt = """
-            CREATE VIEW Person_NumberPlayed AS
-            Select Name, (
-                Select Count(*) From invitation
-                Where person = person.name and result = 'Going'
-            ) as NumberPlayed From Person;
-        """
-        cursor.execute(create_stmt)
-
-    def createTimeSpanDuration(self, cursor):
-        create_stmt = """
-            CREATE VIEW TimeSpan_Duration AS
-            Select TimeSpan.name, Count(*) as Duration
-            FROM TimeSpan JOIN Availability_Timespan on Timespan.name = Availability_Timespan.timespan
-            Group By TimeSpan.name;
-        """
-        cursor.execute(create_stmt)
-
-    def createAvailability(self, game, duration, newb = True):
-        def execute(cursor):
-            create_stmt = f"""
-            CREATE VIEW Availability_{re.sub("[ :]","_",game)}_{duration}Hrs{"_Newb" if newb else ""} AS
-                SELECT Person_Timespan.Timespan, Count(*) as NumberAvailable
-                FROM PERSON_TimeSpan JOIN Person_Games on Person_Timespan.personid = Person_Games.personid
-                                     JOIN Timespan_Duration on Person_Timespan.timespan = Timespan_Duration.name
-                                     JOIN Person_Numberplayed on Person_Timespan.personid = Person_Numberplayed.name
-                                     JOIN PERSON ON PERSON_TIMESPAN.PERSONID = PERSON.NAME
-                WHERE Person_Games.gamesid = '{game}' 
-                        and Timespan_Duration.duration = '{duration}'
-                        and {"Person_Numberplayed.numberplayed = '0'" if newb else "True"} 
-                        and PERSON.STATUS = 'Active'
-                Group By Person_Timespan.Timespan Order By NumberAvailable Desc;
-            """
-            cursor.execute(create_stmt)
-        return execute
-
-    def createTimeSpanGameCount(self, cursor):
-        create_stmt = f"""
-        CREATE VIEW TimeSpan_GameCount AS
-            SELECT GAMESID, TIMESPAN, COUNT(*) AS NUMBERAVAILABLE
-            FROM PERSON_GAMES JOIN PERSON_TIMESPAN ON PERSON_GAMES.PERSONID = PERSON_TIMESpan.PERSONID
-            GROUP BY GAMESID, TIMESPAN;
-        """
-        cursor.execute(create_stmt)
-
 
     def executeSQL(self, commands):
         try:
