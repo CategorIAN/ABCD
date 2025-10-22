@@ -23,22 +23,6 @@ def delete_person(name):
     G.executeSQL([G.deletePerson(name)])
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #=========Medium=========================================
-def call_list(id):
-    E = Event_DB()
-    E.executeSQL([E.createCallList(id), E.getCallList(id)])
-
-def planned_call_list(id):
-    E = Event_DB()
-    E.executeSQL([E.createPlannedCallList(id), E.getPlannedCallList(id)])
-
-def call_list_csv(id):
-    E = Event_DB()
-    E.executeSQL([E.getCallList(id)])
-
-def meal_preference(id):
-    E = Event_DB()
-    E.executeSQL([E.createMealPreference(id)])
-
 def read_personal_file(name):
     G = General_DB()
     G.executeSQL([G.readPersonalFile(name)])
@@ -52,14 +36,12 @@ def update_epa():
     E = EventPlanAvailability_DB()
     E.executeSQL([E.updateData(9, 13, 2025)])
 
-
-
 def addTimeSpan(duration):
     E = Event_DB()
     E.executeSQL([E.insertTimeSpanRows(duration)])
 
 if __name__ == '__main__':
-    delete_person("Deidre Casey")
+    read_personal_file("Ian Kessler")
 
 
 

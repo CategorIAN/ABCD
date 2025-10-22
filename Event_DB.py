@@ -145,21 +145,6 @@ class Event_DB:
         """
         cursor.execute(create_stmt)
 
-    def createMealPreference(self, event_id):
-        def execute(cursor):
-            create_stmt = f"""
-            CREATE VIEW MealPreference_{event_id} AS
-                SELECT MEALS.NAME, Count(DISTINCT PERSON_MEALS.personid) as NUMBERINTERESTED, 
-                (COUNT(DISTINCT EVENT.EVENTID) / MEALS.WEIGHT::NUMERIC) AS WEIGHTEDCOUNT
-                FROM MEALS JOIN PERSON_MEALS ON MEALS.NAME = PERSON_MEALS.mealsid
-                LEFT JOIN EVENT ON MEALS.name = EVENT.meal
-                JOIN INVITATION ON PERSON_MEALS.personid = INVITATION.person
-                WHERE INVITATION.EVENT = '{event_id}' and RESULT = 'Going'
-                GROUP BY MEALS.NAME ORDER BY NUMBERINTERESTED DESC, WEIGHTEDCOUNT;
-            """
-            cursor.execute(create_stmt)
-        return execute
-
     def invite(self, timestamp, event_id):
         def execute(cursor):
             columns = ["Person", "Response", "Plus_Ones", "Result"]
