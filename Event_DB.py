@@ -74,16 +74,6 @@ class Event_DB:
                 cursor.execute(stmt)
         return f
 
-    def createPersonRedeem(self, cursor):
-        create_stmt = """
-            CREATE View Person_Redeem AS
-            Select Name, Exists (
-                Select 1 From invitation
-                         Where person = person.name and result = 'To Redeem'
-            ) as Redeem From Person
-        """
-        cursor.execute(create_stmt)
-
     def executeSQL(self, commands):
         try:
             connection = psycopg2.connect(user = config("DB_USER"),

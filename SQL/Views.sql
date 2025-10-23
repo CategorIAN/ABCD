@@ -5,4 +5,3 @@ CREATE VIEW X AS
     JOIN availability_row on availability.rowid = availability_row.rowid
     ORDER BY WEEK, AVAILABILITY_COLUMN.COLUMNID, AVAILABILITY_ROW.ROWID;
 
-
