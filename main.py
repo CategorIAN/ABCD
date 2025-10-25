@@ -10,16 +10,12 @@ def update_general():
 
 def update_epa():
     E = EventPlanAvailability_DB()
-    E.executeSQL([E.updateData(9, 13, 2025)])
+    E.executeSQL([E.updateData(10, 18, 2025)])
 
 def addTimeSpan(duration):
     E = Event_DB()
     E.executeSQL([E.insertTimeSpanRows(duration)])
 
 if __name__ == '__main__':
-    pass
-
-
-
-
+    update_epa()
 
